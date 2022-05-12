@@ -1,0 +1,104 @@
+
+button{
+    cursor: pointer;
+    
+}
+.m-btn{
+    min-width: 100px;
+    padding-left: 16px;
+    padding-right: 16px;
+    background-color: #019160;
+    border-radius: 4px;
+    height: 40px;
+    font-size: 13px;
+    color: #fff;
+    font-family: Misa GoogleSans ;
+    text-align: left;
+    border: none;
+    
+}
+.m-btn i{
+    margin-right: 8px;
+}
+.m-btn:hover{
+    background-color: #2FBE8E;
+}
+.m-btn:focus{
+    outline: none;
+    background-color: #01B075;
+}
+.m-btn-group{
+    display: flex;
+}
+.m-btn-group :first-child{
+    border-radius: 4px 0px 0px 4px;
+    border-right:1px solid  #2FBE8E ;
+}
+.m-btn-group :nth-child(2){
+    min-width: unset;
+    border-radius: 0px 4px 4px 0px;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+.m-btn-group .m-btn i{
+    margin: unset;
+    border: unset;
+}
+.m-btn-default{
+    background-color: unset;
+    border: 1px solid #bbb;
+    padding-left: 24px;
+    padding-right: 24px;
+    text-align: center;
+    color: #000;
+}
+.m-btn-default:hover{
+    background-color: #E9EBEE;
+}
+.m-btn-default:focus{
+    background-color: #01B075;
+    color:#fff;
+}
+.m-sort-btn{
+    border: none;
+    background-color: #fff;
+    cursor: pointer;
+}
+.m-sort-btn:focus{
+    outline: none;
+    
+}
+.m-icon-btn{
+    
+    height: 24px;
+    width: 24px;
+    padding: 0;
+    border: none;
+    margin-right: 10px;
+    background-color: #fff;
+}
+.m-icon-btn:focus{
+    outline: none;
+}
+.m-sort-btn i{
+    color: #bbb;
+    font-size: 12px;
+}
+.m-page-btn,
+.m-number-btn{
+    height: 35px;
+    width: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    background-color: unset;
+}
+.m-number-btn{
+    border-radius: 45px;
+}
+.m-page-btn:hover,
+.m-number-btn:hover{
+    background-color: #e5e5e5;   
+    color: #000;
+}

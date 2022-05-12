@@ -1,0 +1,72 @@
+@import url(button/button.css);
+@import url(input/input.css);
+@import url(table/table.css);
+@import url(menu/menu.css);
+@import url(header/header.css);
+@import url(body/body.css);
+@import url(pagination/pagination.css);
+@import url(commom/modal.css);
+@import url(combobox/combobox.css);
+:root {
+    --navbar-width: 220px;
+    --header-height:56px;
+    --body__header-height:69px;
+    --body__pagination-height:56px;
+    --body__select-container-height:60px;
+    --modal-header-height:101px;
+    --modal-footer-height:60px;
+  }
+@font-face {
+    font-family:MISA GoogleSans;
+    src: url(../font/GoogleSans-Regular.otf);
+}
+@font-face {
+    font-family:MISA GoogleSans light;
+    src: url(../font/GoogleSans-Light.otf);
+}
+@font-face {
+    font-family: MISA GoogleSans Mediam;
+    src: url(../font/GoogleSans-Medium.otf);
+}
+@font-face {
+    font-family: MISA GoogleSans Bold;
+    src: url(../font/GoogleSans-Bold.otf);
+}
+@keyframes moveTopDown{
+    from{
+        top: -100vh;
+    }
+    to{
+        top: 24px;
+    }
+}
+html {
+   font-size: 13px;
+   font-family: MISA GoogleSans;
+    
+}
+.m-row{
+    margin: 10px;
+}
+.selected{
+    background-color: #019160;
+    color: #fff;
+}
+::-webkit-scrollbar {
+    width:6px;
+    height: 6px;
+}
+h1{
+    font-size: 24px;
+    color: #000;
+}
+h2{
+    font-size: 15px;
+    color: #000;
+}
+.title{
+    font-family: MISA GoogleSans;
+}
+.disabled{
+    display: none;
+}

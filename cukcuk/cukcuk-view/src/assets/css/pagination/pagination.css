@@ -1,0 +1,13 @@
+
+.m-pagination__select{
+    display: flex;
+    height: 100%;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+}
+
+.m-pagination__view{
+    display: flex;
+    align-items: center;
+}

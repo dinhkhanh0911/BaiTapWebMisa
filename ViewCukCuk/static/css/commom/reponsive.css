@@ -1,0 +1,8 @@
+
+@media (max-width: 1355px) {
+    .modal-body__form-col .c-6{
+        width: 100%;
+        max-width: 100%;
+        flex: 0 0 100%;
+    }
+  }

@@ -1,0 +1,36 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "7b8f5a1f-b61f-4467-baac-cf9d554e9b4d": {
+      "ProjectGuid": "7b8f5a1f-b61f-4467-baac-cf9d554e9b4d",
+      "DisplayName": "MISA.WEB02",
+      "ColorIndex": 0
+    },
+    "8f26af94-c09e-4510-b798-6a4c7c96f6b3": {
+      "ProjectGuid": "8f26af94-c09e-4510-b798-6a4c7c96f6b3",
+      "DisplayName": "MISA.WEB02.Core",
+      "ColorIndex": 1
+    },
+    "740d0f3e-3b1a-43bb-88f8-bf59f9751291": {
+      "ProjectGuid": "740d0f3e-3b1a-43bb-88f8-bf59f9751291",
+      "DisplayName": "MISA.WEB02.Infrastructure",
+      "ColorIndex": 2
+    },
+    "382d1186-4eef-4539-a2f0-284ec805f25c": {
+      "ProjectGuid": "382d1186-4eef-4539-a2f0-284ec805f25c",
+      "DisplayName": "MISA.WEB02.Api",
+      "ColorIndex": 3
+    },
+    "fd3e8a7f-c25d-47de-b139-be0f910f4596": {
+      "ProjectGuid": "fd3e8a7f-c25d-47de-b139-be0f910f4596",
+      "DisplayName": "MISA.WEB02.API.Test",
+      "ColorIndex": 4
+    },
+    "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3": {
+      "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
+      "DisplayName": "Miscellaneous Files",
+      "ColorIndex": -1
+    }
+  },
+  "NextColorIndex": 5
+}

@@ -1,0 +1,112 @@
+
+/*the container must be positioned relative:*/
+.custom-select {
+    position: relative;
+    font-family: MISA GoogleSans;
+    height: 50px;
+    font-size: 13px;
+    color: #000;
+    
+  }
+
+  .custom-select select {
+    display: none; /*hide original SELECT element:*/
+  }
+  
+  
+  .select-selected {
+    background-color: #fff;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+    border-radius: 4px;
+    width: 100%;
+    border: 1px solid #bbb;
+    
+    
+  }
+  .input-error .select-selected{
+    border: 1px solid #FF4747;
+  }
+  /*style the arrow inside the select element:*/
+  .select-selected:after {
+    position: absolute;
+    content: "";
+    top: 40%;
+    right: 12px;
+    width: 0;
+    height: 0;
+    border: solid black;
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    padding: 3px;
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+  }
+  
+  /*point the arrow upwards when the select box is open (active):*/
+  .select-selected.select-arrow-active{
+    border: 1px solid #019160;
+  }
+  .select-selected.select-arrow-active:after {
+    border: solid black;
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    padding: 3px;
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+  }
+  
+  /*style the items (options), including the selected item:*/
+  .select-items div,.select-selected {
+    padding-left: 16px;
+    padding-right: 25px;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 50px;
+    /* border: 1px solid transparent;
+    border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent; */
+    cursor: pointer;
+    user-select: none;
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+  
+  /*style items (options):*/
+  .select-items {
+    position: absolute;
+    background-color: #fff;
+    top: 110%;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    overflow: hidden;
+    
+  }
+  .select-items div{
+    height: 50px;
+  }
+  
+  /*hide the items when the select box is closed:*/
+  .select-hide {
+    display: none;
+  }
+  .select-items div:hover {
+    background-color: #E9EBEE;
+  }
+  .same-as-selected{
+      background-color: #019160;
+      color: #fff;
+  }
+
+.custom-select__header .select-selected{
+    border: none;
+    width: 200px;
+    height: 40px;
+}

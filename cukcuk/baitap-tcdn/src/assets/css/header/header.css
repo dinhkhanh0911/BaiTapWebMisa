@@ -1,0 +1,33 @@
+
+.header{
+    height: var(--header-height);
+    display: flex;
+    
+}
+.header-left{
+    width: 220px;
+    border-right: 1px solid #E5E5E5;
+}
+.header-right{
+    flex: 1;
+    
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: MISA GoogleSans;
+    font-size: 13px;
+    color: #000;
+}
+.header__user{
+    display: flex;
+    align-items: center;
+}
+.header__user div{
+    margin-left: 16px;
+}
+.user__icon,
+.user__option button{
+    display: flex;
+    align-items: center;
+}

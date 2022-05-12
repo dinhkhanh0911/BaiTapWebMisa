@@ -1,0 +1,114 @@
+
+
+.m-table{
+    width: 100%;
+    border-collapse: collapse;
+}
+.m-table thead{
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 1;
+}
+.m-table thead, .m-table tbody{
+    width: 100%;
+    overflow: auto;
+}
+tr{
+    padding-left: 16px;
+    padding-right: 16px;
+    height: 48px;
+    width: 100%;
+    text-align: left;
+}
+td,th{
+    white-space: nowrap;
+}
+.m-table thead tr {
+    border-bottom: 1px solid #F4F4F4;
+}
+.m-table thead tr th span{
+    margin-right: 8px;
+}
+.m-table thead tr th .checkmark{
+    margin-right: 0px;
+}
+
+
+.m-table tr td,
+.m-table tr th{
+    padding-left: 10px;
+}
+.table-body__container{
+    height: 500px;
+}
+.m-table tbody {
+    height: 800px;
+    
+}
+.m-table tbody tr{
+    border-bottom: 2px solid #E9EBEE;
+    width: 100%;
+}
+.m-table tr :first-child{
+    width: 20px;
+    padding-left: 16px;
+}
+.m-table tbody :hover{
+   background-color: #E9EBEE;
+}
+.container {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 22px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+.container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+.checkmark {
+    position: absolute;
+    top: -5px;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    border:1px solid #bbb;
+    border-radius: 4px;
+    background-color: #fff;
+}
+.container input:checked ~ .checkmark {
+    background-color: #2196F3;
+}
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+.container input:checked ~ .checkmark:after {
+    display: block;
+}
+.container .checkmark:after {
+    left: 7px;
+    top: 3px;
+    width: 3px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+.m-checked-table{
+    background-color: #E3F3EE;
+}

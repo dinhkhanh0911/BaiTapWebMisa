@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý nhân viên</title>
+    <link rel="stylesheet" href="../static/font/font-awesome-4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../static/css/commom/reset.css">
+    <link rel="stylesheet" href="../static/css/commom/base.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+    crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="m-row">
+        <p>Button default</p>
+        <button class="m-btn">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            <span>Lập hồ sơ</span>
+        </button>
+    </div>
+    <div class="m-row">
+        <p>Button group</p>
+        <div class="m-btn-group">
+            <button class="m-btn">
+                <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                <span>Lưu và thêm mới</span>
+            </button>
+            <button class="m-btn">
+                <i class="fa fa-chevron-down" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+    <div class="m-row">
+        <p>Button default</p>
+        <button class="m-btn m-btn-default">
+            <span>Nộp hồ sơ</span>
+        </button>
+    </div>
+    <div class="m-row-night">
+        <p>Search</p>
+        <div class="m-search-container">
+            <div class="m-icon-search">
+                <i class="fa fa-search" aria-hidden="true"></i>
+            </div>
+            <div class="m-search">
+                <input class="input-search" type="text" placeholder="Tìm kiếm theo tên, số hồ sơ">
+            </div>
+            <button class="m-time disabled">
+                <i class="fa fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="m-row-night">
+        <p>Search error</p>
+        
+        <div class="error-mesage-container">
+            <div class="error-mesage">
+                <span class="">
+                    Mật khẩu không được trùng với tài khoản
+                </span>
+            </div>
+            <div class="m-arrow"></div>
+        </div>
+        <div class="m-search-container border-error">
+            <div class="m-icon-search">
+                <i class="fa fa-search" aria-hidden="true"></i>
+            </div>
+            <div class="m-search">
+                <input class="input-search" type="text" placeholder="Tìm kiếm theo tên, số hồ sơ">
+            </div>
+            <button class="m-time disabled">
+                <i class="fa fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+    <div class="m-row">
+        <p>Table</p>
+        <div class="m-table-container">
+            <table class="m-table">
+                <thead>
+                    <tr>
+                        <td></td>
+                        <td>STT</td>
+                        <td>
+                            <span>Mã nhân viên</span>
+                            <button class="m-sort-btn">
+                                <i class="fa fa-sort" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <span>Mã nhân viên</span>
+                            <button class="m-sort-btn">
+                                <i class="fa fa-sort" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <span>Mã nhân viên</span>
+                            <button class="m-sort-btn">
+                                <i class="fa fa-sort" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <span>Mã nhân viên</span>
+                            <button class="m-sort-btn">
+                                <i class="fa fa-sort" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+                    <tr>
+                        <td>
+                            <label class="container">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
+                        <td>1</td>
+                        <td>MF1112</td>
+                        <td>Đinh Văn Khánh</td>
+                        <td>Fresher Web</td>
+                        <td>Phòng sản xuất</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="container">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
+                        <td>1</td>
+                        <td>MF1112</td>
+                        <td>Đinh Văn Khánh</td>
+                        <td>Fresher Web</td>
+                        <td>Phòng sản xuất</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="container">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
+                        <td>1</td>
+                        <td>MF1112</td>
+                        <td>Đinh Văn Khánh</td>
+                        <td>Fresher Web</td>
+                        <td>Phòng sản xuất</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="container">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
+                        <td>1</td>
+                        <td>MF1112</td>
+                        <td>Đinh Văn Khánh</td>
+                        <td>Fresher Web</td>
+                        <td>Phòng sản xuất</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    
+    <script src="../static/js/style.js"></script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+
+.m-row-night{
+    background-color: #E9EBEE;
+    padding: 10px;
+}
+.m-search-container{
+    position: relative;
+    display: flex;
+    height: 50px;
+    background-color: #fff;
+    align-items: center;
+    padding-left: 16px;
+    padding-right: 16px;
+    max-width: 300px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: Misa GoogleSans;
+    margin-right: 10px;
+    border: 1px solid #bbb;
+    
+}
+.input-error .m-search-container{
+    border: 1px solid #FF4747;
+}
+.border-color{
+    border: 1px solid #019160;
+}
+.m-icon-search{
+    margin-right: 8px;
+    
+}
+.m-search{
+    height: 100%;
+    flex: 1;
+    
+    
+}
+.m-search input,
+.input-text{
+    border: none;
+    height: 100%;
+    width: 100%;
+    font-size: 13px;
+    
+    
+}
+.m-search input ::placeholder,
+.input-text ::placeholder{
+    color: #bbbbbb;
+}
+.m-search input :-ms-input-placeholder,
+.input-text :-ms-input-placeholder {
+    color: #bbbbbb;
+  }
+  
+.m-search input ::-ms-input-placeholder,
+.input-text ::-ms-input-placeholder{
+    color: #bbbbbb;
+  }
+.m-search input:focus,
+.input-text:focus {
+    outline: none;
+}
+
+.m-time{
+    border: none;
+    background-color: #E9EBEE;
+    border-radius: 90px;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    padding: 0;
+    cursor: pointer;
+}
+.m-time :focus{
+    outline:1px solid #E9EBEE !important;
+}
+.m-time i{
+    font-size: 10px;
+    color: #000;
+    margin: 0;
+    
+}
+.disabled{
+    display: none;
+}
+.enabled{
+    display: block;
+}
+.error-mesage-container{
+    display: flex;
+    justify-content: center;
+    max-width: 300px;
+    margin-bottom: 5px;
+    position: absolute;
+    top: -150%;
+    right: 20%;
+    z-index: 10;
+    width: 200px;
+    height: 200px;
+    padding: 10px;
+}
+.m-arrow{
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 75%;
+    left: 46%;
+    -ms-transform: rotate(45deg); /* IE 9 */
+    transform: rotate(45deg);
+    background-color: #FF4747;
+    z-index: 0;
+    
+}
+.error-mesage{
+    color: #fff;
+    background-color: #FF4747;
+    position: relative;
+    border-radius: 10px;
+    width: 150px;
+    font-size: 13px;
+    padding: 10px;
+    z-index: 1;
+}
