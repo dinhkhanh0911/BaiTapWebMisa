@@ -8,6 +8,7 @@ const Api =  {
     filterEmployee: "http://localhost:5158/api/v1/Employees/filter",
     exportEmployee: "http://localhost:5158/api/v1/Employees/export",
     getDepartment: "http://localhost:5158/api/v1/Departments",
+    getVendorGroup:"http://localhost:5158/api/v1/VendorGroups",
     getColumnOption:"http://localhost:3003/table",
 }
 export default Api

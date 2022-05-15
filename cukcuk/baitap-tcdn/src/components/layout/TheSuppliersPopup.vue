@@ -48,14 +48,15 @@
                       <label for=""
                         >Nhóm nhà cung cấp</label
                       >
-                      <BaseCombobox
-                        :Api="departmentApi"
+                      <BaseComboboxMulti
+                        :Api="vendorGroupApi"
                         v-model="employee.DepartmentId"
-                        :id="'DepartmentId'"
-                        :name="'DepartmentName'"
-                        :code="'DepartmentCode'"
+                        :id="'VendorGroupId'"
+                        :name="'VendorGroupName'"
+                        :code="'VendorGroupCode'"
                         :componentDes="'Đơn vị'"
-                        ref="DepartmentId"
+                        ref="VendorGroupId"
+                        :timer="1000"
                       />
                     </div>
                   </div>
@@ -106,7 +107,9 @@
                   <div class="col c-6 padding-right-8">
                     <div class="form-group">
                       <label for="">Địa chỉ</label>
-                      <textarea v-model="employee.PositionName" style="width:100%" />
+                      <textarea v-model="employee.PositionName" style="width:100%"
+                        placeholder="VD: số 82 Duy Tân Dịch Vọng Hậu Cầu Giấy Hà Nội"
+                      />
                     </div>
                   </div>
                   
@@ -239,14 +242,14 @@
                   <div class="row">
                     <div class="col c-6">
                       <div class="form-group">
-                        <label for="">Địa chỉ</label>
-                        <BaseInput v-model="employee.ContactAddress" />
+                        <label for="">Thông tin liên hệ</label>
+                        <BaseInput v-model="employee.ContactAddress" :placeholder="'Email'"/>
                       </div>
                     </div>
                     <div class="col c-3">
                       <div class="form-group">
                         <label for="">Thông tin CMND/Thẻ căn cước</label>
-                        <BaseInput v-model="employee.ContactAddress" />
+                        <BaseInput v-model="employee.ContactAddress" :placeholder="'Số CMND/Thẻ căn cước'"/>
                       </div>
                     </div>
                   </div>
@@ -254,23 +257,39 @@
                     <div class="col c-3">
                       <div class="form-group">
                         
-                        <BaseInput v-model="employee.PhoneNumber" />
+                        <BaseInput v-model="employee.PhoneNumber" 
+                        :placeholder="'Điện thoại di động'"/>
                       </div>
                     </div>
                     <div class="col c-3">
+                      
+                    </div>
+                    <div class="col c-3">
+                      <DatePicker
+                        v-model:value="formatBrithDay"
+                        :format="'DD/MM/YYYY'"
+                        :placeholder="'Ngày cấp'"
+                        :lang="'vi'"
+                        :clearable="false"
+                        title-format="DD/MM/YYYY"
+                        :disabled-date="afterToday"
+                      />
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col c-3">
                       <div class="form-group">
                         
-                        
+                        <BaseInput v-model="employee.PhoneNumber"
+                        :placeholder="'Điện thoại cố định'"/>
                       </div>
                     </div>
                     <div class="col c-3">
-                      <div class="form-group">
-                        <BaseInput
-                          v-model="employee.Email"
-                          ref="Email"
-                          :componentDes="'Email'"
-                        />
-                      </div>
+                      
+                    </div>
+                    <div class="col c-6">
+                      <BaseInput v-model="employee.PhoneNumber" 
+                        :placeholder="'Nơi cấp'"/>
                     </div>
                   </div>
                   <div class="row">
@@ -316,7 +335,21 @@
                   <div class="row">
                     <div class="col c-3">
                       <div class="form-group">
-                        <label for="">Điều khoản thanh toán</label>
+                        <label for="">Tài khoản công nợ phải thu</label>
+                        <BaseCombobox
+                          :Api="departmentApi"
+                          v-model="employee.DepartmentId"
+                          :id="'DepartmentId'"
+                          :name="'DepartmentName'"
+                          :code="'DepartmentCode'"
+                          :componentDes="'Đơn vị'"
+                          ref="DepartmentId"
+                        />
+                      </div>
+                    </div>
+                    <div class="col c-3">
+                      <div class="form-group">
+                        <label for="">Tài khoản công nợ phải trả</label>
                         <BaseCombobox
                           :Api="departmentApi"
                           v-model="employee.DepartmentId"
@@ -334,51 +367,16 @@
                 <div class="sub-input-container" 
                   v-if="tabActive == 'tab-3'">
                   <div class="row">
-                    <div class="col c-6">
+                    <div class="col c-12">
                       <div class="form-group">
                         <label for="">Địa chỉ 3</label>
-                        <BaseInput v-model="employee.ContactAddress" />
-                      </div>
-                    </div>
-                    <div class="col c-3">
-                      <div class="form-group">
-                        <label for="">Thông tin CMND/Thẻ căn cước</label>
-                        <BaseInput v-model="employee.ContactAddress" />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col c-3">
-                      <div class="form-group">
-                        
-                        <BaseInput v-model="employee.PhoneNumber" />
-                      </div>
-                    </div>
-                    <div class="col c-3">
-                      <div class="form-group">
-                        
-                        
-                      </div>
-                    </div>
-                    <div class="col c-3">
-                      <div class="form-group">
-                        <BaseInput
-                          v-model="employee.Email"
-                          ref="Email"
-                          :componentDes="'Email'"
+                        <BaseEditableTable v-model="employee.ContactAddress" 
+                          :api="tableBankAccountApi"
                         />
                       </div>
                     </div>
                   </div>
-                  <div class="row">
-                    <div class="col c-6">
-                      <div class="form-group">
-                        <label for="">Đại diện theo PL</label>
-                        <BaseInput v-model="employee.ContactAddress" />
-                      </div>
-                    </div>
                   
-                  </div>
                 </div>
                 <div class="sub-input-container" 
                   v-if="tabActive == 'tab-4'">
@@ -464,6 +462,7 @@
                           v-model="employee.Email"
                           ref="Email"
                           :componentDes="'Email'"
+                          :placeholder="'Email'"
                         />
                       </div>
                     </div>
@@ -529,6 +528,8 @@ import BaseInput from "@/components/base/BaseInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import BaseRadioButton from "@/components/base/BaseRadioButton.vue";
 import BaseCombobox from "@/components/base/BaseCombobox.vue";
+import BaseComboboxMulti from "@/components/base/BaseComboboxMulti.vue";
+import BaseEditableTable from "@/components/base/BaseEditableTable.vue";
 import axios from "axios";
 import Validator from "@/assets/js/validator.js";
 import BasePopup from "@/components/base/BasePopup.vue";
@@ -544,7 +545,10 @@ export default {
     BaseCombobox,
     BasePopup,
     DatePicker,
-  },
+    BaseComboboxMulti,
+    BaseEditableTable,
+    BaseEditableTable
+},
   props: {
     modelPopup: {
       type: Object,
@@ -556,6 +560,7 @@ export default {
       employee: {},
       employeeValiate: {},
       departmentApi: Api.getDepartment,
+      vendorGroupApi:Api.getVendorGroup,
       required: ["EmployeeCode", "FullName", "DepartmentId"],
       email: ["Email"],
       contentPopupInfo: "",
@@ -566,7 +571,10 @@ export default {
       errorRefsName: "",
 
       /* Tab */
-      tabActive:"tab-2"
+      tabActive:"tab-3",
+
+      tableBankAccountApi:`${Api.getColumnOption}/BankAccount`
+
     };
   },
   computed: {
@@ -949,6 +957,7 @@ export default {
 </script>
 <style scoped>
 @import url("@/assets/css/commom/datepicker.css");
+
 @keyframes moveUpToDown {
   from {
     transform: translateY(-100%) translateX(-50%);
@@ -1030,6 +1039,20 @@ export default {
   font-size: 12px;
   font-weight: 700;
   color: #111;
+}
+.form-group textarea{
+  resize: none;
+  border-radius: 3px;
+  border: 1px solid #babec5;
+  font-family: inherit;
+  display: block;
+  padding: 9px;
+  color: #000;
+  font-size: 13px;
+  width: 100%;
+  height: 100%;
+  outline: none;
+  min-height: 56px;
 }
 .required-text {
   color: red;
