@@ -56,10 +56,8 @@ namespace MISA.WEB02.Infrastructure.Repository
             int offset = (currentPage - 1) * pageSize;
             int limit = pageSize;
 
-            var sqlConnectionString = "Host=localhost;Port=3306;Database=MISA.WEB02.DVKHANH;User Id=root;Password=09112000";
-
             //Khởi tạo kết nối
-            var sqlConnection = new MySqlConnection(sqlConnectionString);
+            var sqlConnection = new MySqlConnection(_sqlConnectionString);
 
             var sqlCommand = $"SELECT Employee.*,d.DepartmentCode,d.DepartmentName FROM Employee " +
                 "INNER JOIN Department d ON Employee.DepartmentId = d.DepartmentId " +

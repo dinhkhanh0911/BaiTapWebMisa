@@ -16,8 +16,6 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
-builder.Services.AddScoped<IVendorGroupService, VendorGroupService>();
-builder.Services.AddScoped<IVendorGroupRepository, VendorGroupRepository>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IDepartmentRepository,DepartmentRepository >();
 builder.Services.AddCors(options =>

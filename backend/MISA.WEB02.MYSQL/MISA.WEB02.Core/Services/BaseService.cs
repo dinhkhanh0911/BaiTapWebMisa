@@ -134,7 +134,7 @@ namespace MISA.WEB02.Core.Services
             }
             var newCode = typeof(T).GetProperty($"{entityName}Code").GetValue(data).ToString();
             //kiểm tra mã code trùng
-            if (String.Compare(newCode, code, true) < 0 || String.Compare(newCode, code, true) > 0)
+            if (String.Compare(newCode,code, true) < 0 || String.Compare(newCode, code, true) > 0)
             {
                 data = _baseRespository.FindByCode(code);
                 //nếu có bản ghi trùng với mã hiện tại

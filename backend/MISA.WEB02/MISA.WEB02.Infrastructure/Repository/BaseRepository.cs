@@ -1,9 +1,12 @@
 ﻿using Dapper;
 using MISA.WEB02.Core.Entities;
 using MISA.WEB02.Core.Interfaces.Base;
+using MISA.WEB02.Infrastructure.Helpers;
 using MySqlConnector;
+using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,7 +26,7 @@ namespace MISA.WEB02.Infrastructure.Repository
         public BaseRespository()
         {
             //_sqlConnectionString = "Host=3.0.89.182;Port=3306;Database=MISA.WEB02.DVKHANH;User Id=dev;Password=12345678";
-            _sqlConnectionString = "Host=Localhost;Port=3306;Database=MISA.WEB02.DVKHANH;User Id=root;Password=09112000";
+            _sqlConnectionString = "Server=127.0.0.1;Port=5432;Database=misa_web02_dvkhanh;User Id=postgres;Password=09112000";
         }
         #endregion
         #region Methods
@@ -33,19 +36,30 @@ namespace MISA.WEB02.Infrastructure.Repository
         /// <returns>
         /// Danh sách dữ liệu
         /// </returns>
-        /// Author: Nguyễn Đức Toán-MF1095 (13/04/2022)
+        /// Author: Đinh Văn Khánh-MF1112  (13/04/2022)
         public virtual IEnumerable<T> Get()
         {
             var entityName = typeof(T).Name;
             //khởi tạo kết nối
-            var sqlConnection = new MySqlConnection(_sqlConnectionString);
+            var sqlConnection = new NpgsqlConnection(_sqlConnectionString);
+
+            sqlConnection.Open();
             //lấy dữ liệu
-            string sqlCommand = $"SELECT * FROM {entityName}";
-            //dữ liệu trả về gồm các propperty của Employee
-            //và thêm các property: DeparmentId,DeparmentCode,PositionCode,PositionId
-            var data = sqlConnection.Query<T>(sql: sqlCommand);
+            string sqlCommand = $"SELECT * FROM {BindingEntity.ToSnakeCase(entityName)}";
+
+            //var data = new List<T>();
+
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sqlCommand, sqlConnection))
+            {
+                NpgsqlDataReader reader = cmd.ExecuteReader();
+                
+                //dữ liệu trả về gồm các propperty của Employee
+                //và thêm các property: DeparmentId,DeparmentCode,PositionCode,PositionId
+                var data = BindingEntity.BindingData<T>(reader);
+                return data;
+            }
             //trả về kết quả
-            return data;
+            return null;
         }
         /// <summary>
         /// Lấy mã đối tượng mới nhất trong hệ thống
@@ -84,33 +98,48 @@ namespace MISA.WEB02.Infrastructure.Repository
         /// Author: Đinh Văn Khánh - MF1112 (13/04/2022)
         public virtual int Insert(T entity)
         {
-            //lấy tên của entity
             var entityName = typeof(T).Name;
-            //lấy id mới nhất
-            //lấy property Id của entity
-            var propId = typeof(T).GetProperty($"{typeof(T).Name}Id");
-            //set giá trị cho prop id
-            propId.SetValue(entity, Guid.NewGuid());
             //khởi tạo kết nối
-            var sqlConnection = new MySqlConnection(_sqlConnectionString);
-            //lấy dữ liệu chèn tên bảng vào
-            var sqlCommand = $"Proc_Insert{entityName}";
-            //truyền tham số cho Procedure
-            var dynamicParam = new DynamicParameters();
-            //lấy danh sách property của entity
-            var listProperties = typeof(T).GetProperties();
-            foreach (var prop in listProperties)
+            var sqlConnection = new NpgsqlConnection(_sqlConnectionString);
+            // Mở kết nối
+            sqlConnection.Open();
+            //sử dụng proc update
+            string sqlCommand = $"Func_Create{entityName}";
+
+
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sqlCommand, sqlConnection))
             {
-                //xem prop có cho phép map vào database không
-                var isNotMap = prop.IsDefined(typeof(NotMap), false);
-                if (!isNotMap)
+                cmd.CommandType = CommandType.StoredProcedure;
+                //lấy danh sách property của entity
+                var listProperties = typeof(T).GetProperties();
+                foreach (var prop in listProperties)
                 {
-                    dynamicParam.Add($"{prop.Name}", entity.GetType().GetProperty(prop.Name).GetValue(entity));
+                    //xem prop có cho phép map vào database không
+                    var isNotMap = prop.IsDefined(typeof(NotMap), false);
+                    if (!isNotMap)
+                    {
+                        //giá trị mới được truyền vào
+                        var type = entity.GetType().GetProperty(prop.Name).PropertyType.Name;
+
+                        if (type.Equals("Guid"))
+                        {
+                            var guidId = Guid.NewGuid();
+                            cmd.Parameters.Add(new NpgsqlParameter($"@{BindingEntity.ToSnakeCase(prop.Name)}", guidId.ToString()));
+                        }
+                        else
+                        {
+                            var newVal = entity.GetType().GetProperty(prop.Name).GetValue(entity);
+                            cmd.Parameters.Add(new NpgsqlParameter($"@{BindingEntity.ToSnakeCase(prop.Name)}", newVal));
+                        }
+
+
+                    }
                 }
+                cmd.Prepare();
+                var retuntcnt = cmd.ExecuteScalar();
+                return 1;
             }
-            var res = sqlConnection.Execute(sql: sqlCommand, param: dynamicParam, commandType: System.Data.CommandType.StoredProcedure);
-            //trả về kết quả
-            return res;
+            return 0;
         }
         /// <summary>
         /// cập nhật thông tin nhân viên
@@ -123,28 +152,46 @@ namespace MISA.WEB02.Infrastructure.Repository
         {
             var entityName = typeof(T).Name;
             //khởi tạo kết nối
-            var sqlConnection = new MySqlConnection(_sqlConnectionString);
+            var sqlConnection = new NpgsqlConnection(_sqlConnectionString);
+            // Mở kết nối
+            sqlConnection.Open();
             //sử dụng proc update
-            string sqlCommand = $"Proc_Update{entityName}";
-            //truyền tham số cho Procedure
-            var dynamicParam = new DynamicParameters();
-            //lấy danh sách property của entity
-            var listProperties = typeof(T).GetProperties();
-            foreach (var prop in listProperties)
+            string sqlCommand = $"Func_Update{entityName}";
+            
+            
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sqlCommand, sqlConnection))
             {
-                //xem prop có cho phép map vào database không
-                var isNotMap = prop.IsDefined(typeof(NotMap), false);
-                if (!isNotMap)
+                cmd.CommandType = CommandType.StoredProcedure;
+                //lấy danh sách property của entity
+                var listProperties = typeof(T).GetProperties();
+                foreach (var prop in listProperties)
                 {
-                    //giá trị mới được truyền vào
-                    var newVal = entity.GetType().GetProperty(prop.Name).GetValue(entity);
-                    dynamicParam.Add($"{prop.Name}", newVal);
+                    //xem prop có cho phép map vào database không
+                    var isNotMap = prop.IsDefined(typeof(NotMap), false);
+                    if (!isNotMap)
+                    {
+                        //giá trị mới được truyền vào
+                        var type = entity.GetType().GetProperty(prop.Name).PropertyType.Name;
+                        var newVal = entity.GetType().GetProperty(prop.Name).GetValue(entity);
+                        if (type.Equals("Guid"))
+                        {
+                            cmd.Parameters.Add(new NpgsqlParameter($"@{BindingEntity.ToSnakeCase(prop.Name)}", newVal.ToString()));
+                        }
+                        else cmd.Parameters.Add(new NpgsqlParameter($"@{BindingEntity.ToSnakeCase(prop.Name)}", newVal));
+
+
+                    }
                 }
+                cmd.Prepare();
+                var retuntcnt = cmd.ExecuteScalar();
+                return 1;
             }
-            //update dữ liệu
-            var res = sqlConnection.Execute(sql: sqlCommand, param: dynamicParam, commandType: System.Data.CommandType.StoredProcedure);
-            //trả về kết quả
-            return res;
+            return 0;
+            
+            ////update dữ liệu
+            //var res = sqlConnection.Execute(sql: sqlCommand, param: dynamicParam, commandType: System.Data.CommandType.StoredProcedure);
+            ////trả về kết quả
+            //return res;
         }
         /// <summary>
         /// Lấy nhân viên theo mã id
@@ -158,16 +205,26 @@ namespace MISA.WEB02.Infrastructure.Repository
         {
             var entityName = typeof(T).Name;
             //khởi tạo kết nối
-            var sqlConnection = new MySqlConnection(_sqlConnectionString);
+            var sqlConnection = new NpgsqlConnection(_sqlConnectionString);
+
+            sqlConnection.Open();
             //lấy dữ liệu
-            string sqlCommand = $"SELECT * FROM {entityName} as e WHERE {entityName}Id = @{entityName}Id";
-            //khởi tạo tham số
-            var dynamicParam = new DynamicParameters();
-            dynamicParam.Add($"@{entityName}Id", id);
-            //dữ liệu trả về gồm các propperty của T
-            var data = sqlConnection.Query<T>(sql: sqlCommand, param: dynamicParam).FirstOrDefault();
-            //trả về kết quả
-            return data;
+            string sqlCommand = $"SELECT * FROM {entityName} as e WHERE {entityName}_id = @{entityName}_id";
+
+            //var data = new List<T>();
+
+            NpgsqlCommand cmd = new NpgsqlCommand(sqlCommand, sqlConnection);
+
+            var entityId = $"@{entityName}_Id";
+
+
+            cmd.Parameters.Add(new NpgsqlParameter(entityId, id.ToString()));
+            NpgsqlDataReader reader = cmd.ExecuteReader();
+
+            //dữ liệu trả về gồm các propperty của Employee
+            //và thêm các property: DeparmentId,DeparmentCode,PositionCode,PositionId
+            var data = BindingEntity.BindingData<T>(reader);
+            return data.FirstOrDefault<T>();
         }
 
         /// <summary>
@@ -182,16 +239,23 @@ namespace MISA.WEB02.Infrastructure.Repository
         {
             var entityName = typeof(T).Name;
             //khởi tạo kết nối
-            var sqlConnection = new MySqlConnection(_sqlConnectionString);
+            var sqlConnection = new NpgsqlConnection(_sqlConnectionString);
+
+            sqlConnection.Open();
             //lấy dữ liệu
-            string sqlCommand = $"DELETE FROM {entityName} WHERE {entityName}Id = @{entityName}Id";
-            //khởi tạo tham số
-            var dynamicParam = new DynamicParameters();
-            dynamicParam.Add($"@{entityName}Id", id);
-            //dữ liệu trả về gồm các propperty của Employee
-            var data = sqlConnection.Execute(sql: sqlCommand, param: dynamicParam);
-            //trả về kết quả
-            return data;
+            string sqlCommand = $"DELETE FROM {entityName} as e WHERE {entityName}_id = @{entityName}_id";
+
+            //var data = new List<T>();
+
+            NpgsqlCommand cmd = new NpgsqlCommand(sqlCommand, sqlConnection);
+
+            var entityId = $"@{entityName}_Id";
+
+
+            cmd.Parameters.Add(new NpgsqlParameter(entityId, id.ToString()));
+            NpgsqlDataReader reader = cmd.ExecuteReader();
+
+            return 1;
         }
         /// <summary>
         /// xóa nhiều bản ghi trong database
@@ -234,16 +298,26 @@ namespace MISA.WEB02.Infrastructure.Repository
         {
             var entityName = typeof(T).Name;
             //khởi tạo kết nối
-            var sqlConnection = new MySqlConnection(_sqlConnectionString);
+            var sqlConnection = new NpgsqlConnection(_sqlConnectionString);
+
+            sqlConnection.Open();
             //lấy dữ liệu
-            string sqlCommand = $"SELECT * FROM {entityName} WHERE {entityName}Code = @{entityName}Code";
-            //khởi tạo tham số
-            var dynamicParam = new DynamicParameters();
-            dynamicParam.Add($"@{entityName}Code", code);
-            //dữ liệu trả về thông tin của đối tượng
-            var data = sqlConnection.Query<T>(sql: sqlCommand, param: dynamicParam).FirstOrDefault();
-            //trả về kết quả
-            return data;
+            string sqlCommand = $"SELECT * FROM {entityName} as e WHERE {entityName}_code = @{entityName}_code";
+
+            //var data = new List<T>();
+
+            NpgsqlCommand cmd = new NpgsqlCommand(sqlCommand, sqlConnection);
+
+            var entityId = $"@{entityName}_code";
+
+
+            cmd.Parameters.Add(new NpgsqlParameter(entityId, code));
+            NpgsqlDataReader reader = cmd.ExecuteReader();
+
+            //dữ liệu trả về gồm các propperty của Employee
+            //và thêm các property: DeparmentId,DeparmentCode,PositionCode,PositionId
+            var data = BindingEntity.BindingData<T>(reader);
+            return data.FirstOrDefault<T>();
         }
         #endregion
     }
