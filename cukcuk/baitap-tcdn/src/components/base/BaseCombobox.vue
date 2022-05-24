@@ -14,6 +14,7 @@
       v-show="isShow"
       :class="{ dropUp: !isDropDown }"
       v-bind:style="{ left: leftAction + 'px','min-width': widthAction + 'px',}"
+      @scroll="lazyLoad()"
     >
       <table ref="baseTable" :class="{ 'table-one-column': isOneColumn }">
         <thead>
@@ -57,7 +58,9 @@ export default {
       topAction:0,
       leftAction:0,
       widthAction:0,
-      postitionBind:'top'
+      postitionBind:'top',
+      pageSize:10,
+      currentPage:1,
     };
   },
   props: {
@@ -66,7 +69,7 @@ export default {
       default: "",
     },
     modelValue: {
-      type: String,
+      type: [String,Number],
       default: "",
     },
     id: {
@@ -104,6 +107,10 @@ export default {
     className:{
       type:String,
       default:""
+    },
+    isLazyloading:{
+      type:Boolean,
+      default:false
     }
   },
   created() {
@@ -129,35 +136,67 @@ export default {
     }
   },
   methods: {
+    /**------------------------------------------
+    *lazyloading cho combobox
+    *Author: quyetkaito (19/04/2022)
+    --------------------------------------------*/
+    lazyLoad() {
+      //nếu lazyLoading bằng true thì mới loading.
+      if (this.isLazyloading) {
+        //độ cao dropdown
+        let dropdownHeight = this.$refs.comboboxAction.clientHeight;
+        //phần đã bị tràn khỏi top.
+        let scrollTop = this.$refs.comboboxAction.scrollTop;
+        //toàn bộ độ cao có thể scroll
+        let scrollHeight = this.$refs.comboboxAction.scrollHeight;
+        //vị trí hiện tại của con lăn
+        var total = dropdownHeight + Math.floor(scrollTop);
+        //nếu bằng scrollHeight thì là đang ở bottom
+        if (total >= (scrollHeight-10)) {
+          console.log("đang ở bottom");
+          this.currentPage++
+          this.loadMoreData()
+          total = 0;
+          //emit tới cha load tiếp thông tin, truyền vào dữ liệu filter nếu có để lazy load tiếp thông tin đó.
+          // this.$emit("eLoadNext", this.selectedText);
+        }
+      }
+    },
     onClickAction(){
       var combobox = this.$refs['combobox'].getBoundingClientRect()
       var action = this.$refs['comboboxAction']
       var comboboxAction = this.$refs['comboboxAction'].getBoundingClientRect()
+
+      //ví trí bên trái của input
       this.leftAction = parseInt(combobox.left )
+      // Vị trí bên trên của input
       this.topAction = parseInt(combobox.top+36)
       var bottomAction = parseInt(combobox.top- combobox.height )
       this.widthAction = parseInt(combobox.width)
       this.isShow =! this.isShow
-      action.style.top = this.topAction +'px'
+      // action.style.top = this.topAction +'px'
       const me = this
       nextTick(function(){
+        console.log(action.scrollHeight)
         if(!me.isDropDown) {
-          console.log(comboboxAction.height)
-          me.topAction = me.topAction - comboboxAction.height
-          console.log(comboboxAction.height)
-          action.style.top = me.topAction +'px'
+          
+          //me.topAction = me.topAction - comboboxAction.height
+          console.log(screen.height)
+          action.style.bottom = screen.height - me.topAction - 66+'px'
         }
+        else action.style.top = me.topAction +'px'
       })
     },
-    loadData(){
-      //Lấy dữ liệu combobox
-      //Nếu Api có, gọi Api lấy giữ liệu
-      if (this.Api != "") {
+    loadMoreData(){
         axios
-          .get(this.Api)
+          .get(`${this.Api}?currentPage=${this.currentPage}&pageSize=20`)
           .then((response) => {
             if (response.status === 200) {
-              this.values = response.data;
+              console.log(response)
+              
+              this.values = [...this.values,...response.data.List]
+              console.log(response.data.List)
+              console.log(this.values);
               //Nếu modelValue khác rỗng và số giá trị mảng option combobox lớn hơn không thì gán
               // giá trị input bằng giá trị value tương ứng
               if (this.modelValue !== "" && this.values.length > 0) {
@@ -173,23 +212,75 @@ export default {
           .catch((e) => {
             console.log(e);
           });
-      } 
-      else {
-        this.values = this.valueOption;
-        /**
-         * Nếu Api không có, lấy mảng trong prop
-         * Nếu modelValue khác rỗng và số giá trị mảng option combobox
-         * lớn hơn không thì gán giá trị input bằng giá trị value tương ứng
-         */
-        if (!!this.modelValue && this.values.length > 0) {
-          var value = this.values.find(
-            (item) => item[this.id] == this.modelValue
-          );
-          if (value != undefined) {
-            this.valueCB = value[this.name];
+    },
+    loadData(){
+      
+      if(!this.isLazyloading){
+        //Lấy dữ liệu combobox
+        //Nếu Api có, gọi Api lấy giữ liệu
+        if (this.Api != "") {
+          axios
+            .get(this.Api)
+            .then((response) => {
+              if (response.status === 200) {
+                this.values = response.data;
+                //Nếu modelValue khác rỗng và số giá trị mảng option combobox lớn hơn không thì gán
+                // giá trị input bằng giá trị value tương ứng
+                if (this.modelValue !== "" && this.values.length > 0) {
+                  var value = this.values.find(
+                    (item) => item[this.id] == this.modelValue
+                  );
+                  if (value != undefined) {
+                    this.valueCB = value[this.name];
+                  }
+                }
+              }
+            })
+            .catch((e) => {
+              console.log(e);
+            });
+        } 
+        else {
+          this.values = this.valueOption;
+          /**
+           * Nếu Api không có, lấy mảng trong prop
+           * Nếu modelValue khác rỗng và số giá trị mảng option combobox
+           * lớn hơn không thì gán giá trị input bằng giá trị value tương ứng
+           */
+          if (!!this.modelValue && this.values.length > 0) {
+            var value = this.values.find(
+              (item) => item[this.id] == this.modelValue
+            );
+            if (value != undefined) {
+              this.valueCB = value[this.name];
+            }
           }
+          
         }
-        
+      }
+      else{
+        console.log(this.isLazyloading)
+        axios
+          .get(`${this.Api}?currentPage=1&pageSize=20`)
+          .then((response) => {
+            if (response.status === 200) {
+              console.log(response)
+              this.values = response.data.List;
+              //Nếu modelValue khác rỗng và số giá trị mảng option combobox lớn hơn không thì gán
+              // giá trị input bằng giá trị value tương ứng
+              if (this.modelValue !== "" && this.values.length > 0) {
+                var value = this.values.find(
+                  (item) => item[this.id] == this.modelValue
+                );
+                if (value != undefined) {
+                  this.valueCB = value[this.name];
+                }
+              }
+            }
+          })
+          .catch((e) => {
+            console.log(e);
+          });
       }
     },
     /**
@@ -309,7 +400,6 @@ export default {
   border-radius: 2px;
   z-index: 100;
   max-height: 160px;
-  min-height: 50px;
   background-color: #fff;
   overflow-y: auto;
 }

@@ -1,5 +1,7 @@
 ﻿using MISA.WEB02.Core.Entities;
+using MISA.WEB02.Core.Exceptions;
 using MISA.WEB02.Core.Interfaces;
+using MISA.WEB02.Core.Resources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -142,6 +144,29 @@ namespace MISA.WEB02.Core.Services
         {
             var result = this._vendorRepository.Filter(filterText,vendorType,isOwed,isUsed, currentPage, pageSize);
             return result;
+        }
+
+        public override int DeleteService(Guid entityId)
+        {
+            //validate dữ liệu
+            Dictionary<string, string> errorMsg = new Dictionary<string, string>();
+            //kiểm tra bản ghi đã tồn tại
+            var employeeData = _vendorRepository.GetById(entityId);
+            if (employeeData == null)
+            {
+                errorMsg.Add($"PaymentEmpty", $"Payment không tồn tại");
+            }
+            if (errorMsg.Count() > 0)
+            {
+                throw new MISAExceptions($"{Resource.VN_EntityNotFound}", errorMsg);
+            }
+            
+            else
+            {
+                var result = _vendorRepository.Delete(entityId);
+                return result;
+            }
+            return 1;
         }
         #endregion
     }

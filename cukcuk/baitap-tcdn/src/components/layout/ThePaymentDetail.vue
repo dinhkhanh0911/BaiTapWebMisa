@@ -44,7 +44,7 @@
                   <div class="left col c-5">
                     <div class="lable"><label for="">Đối tượng</label></div>
                     <BaseCombobox
-                      :Api="vendorsApi"
+                      :Api="'http://localhost:5158/api/v1/Vendors/filterAdvanced'"
                       :id="'VendorId'"
                       :name="'VendorName'"
                       :code="'VendorCode'"
@@ -52,6 +52,7 @@
                       ref="VendorId"
                       v-model="payment.VendorId"
                       @change="handleChangeVendor"
+                      :isLazyloading="'true'"
                     />
                   </div>
                   <div class="right col c-7">

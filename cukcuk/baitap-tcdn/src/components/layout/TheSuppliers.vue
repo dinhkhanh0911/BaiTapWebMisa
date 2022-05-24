@@ -351,21 +351,9 @@ export default {
         FilterDebtId:2,
         FilterStatusId:2,
       },
-      filterType:[
-        {Id:2,Value:"Tất cả"},
-        {Id:0,Value:"Tổ chức"},
-        {Id:1,Value:"Cá nhân"},
-      ],
-      filterDebt:[
-        {Id:2,Value:"Tất cả"},
-        {Id:0,Value:"Còn nợ"},
-        {Id:1,Value:"Hết nợ"},
-      ],
-      filterStatus:[
-        {Id:2,Value:"Tất cả"},
-        {Id:0,Value:"Đang sử dụng"},
-        {Id:1,Value:"Ngưng sử dụng"},
-      ]
+      filterType:DB.filterType,
+      filterDebt:DB.filterDebt,
+      filterStatus:DB.filterStatus
     };
 
   },
@@ -454,17 +442,22 @@ export default {
             Lấy dữ liệu 
         */
     reloadData(currentPage = 1) {
+      this.isShowFilter = false;
       var queryString =""
-      if(this.filterObject.FilterTypeId != 2){
+      if(this.filterObject.FilterTypeId == 1){
         queryString += `&vendorType=${this.filterObject.FilterTypeId}`
       }
-      if(this.filterObject.FilterDebtId ==0 ){
+      if(this.filterObject.FilterTypeId == 3){
+        queryString += `&vendorType=0`
+        console.log("0")
+      }
+      if(this.filterObject.FilterDebtId ==3 ){
         queryString += `&isOwed=${true}`
       }
       if(this.filterObject.FilterDebtId ==1 ){
         queryString += `&isOwed=${false}`
       }
-      if(this.filterObject.FilterStatusId == 0){
+      if(this.filterObject.FilterStatusId == 3){
         queryString += `&isUsed=${true}`
       }
       if(this.filterObject.FilterStatusId == 1){
@@ -575,17 +568,24 @@ export default {
           .then((response) => {
             if (response.status == 200) {
               this.reloadData();
-              this.showToast(this.toastMsg.deleteEmpSuccessMsg, "success");
+              this.showToast(this.toastMsg.deleteVendorSuccessMsg, "success");
               this.VendorIds = [];
               
             }
           })
           .catch((e) => {
-            
-            this.showToast(
-              e.response.data.data[Object.keys(e.response.data.data)[0]],
-              "error"
-            );
+            try{
+              this.showToast(
+                e.response.data.data[Object.keys(e.response.data.data)[0]],
+                "error"
+              );
+            }
+            catch(e){
+              this.showToast(
+                "Có lỗi xảy ra.Liên hệ Misa để được hỗ trợ",
+                "error"
+              );
+            }
           });
       }
     },

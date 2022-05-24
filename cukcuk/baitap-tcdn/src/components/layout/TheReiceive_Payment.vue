@@ -761,7 +761,7 @@ export default {
   height: calc(100vh - 48px - 88px);
 }
 .title-distance {
-  padding: var(--title-list-padding-top) 30px var(--title-list-padding-top) 0;
+  padding: var(--title-list-padding-top) 39px var(--title-list-padding-top) 0;
   transition: top 0.25s;
   position: absolute;
   top: 0px;

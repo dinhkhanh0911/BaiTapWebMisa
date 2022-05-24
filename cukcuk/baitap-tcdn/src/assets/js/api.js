@@ -24,13 +24,9 @@ const Api =  {
 
     getColumnOption:"http://localhost:3003/table",
 
-    country:[
-        {
-            Id:1,Value:'Việt Nam'
-        }
-    ],
-    provincies:"https://localhost:7268/api/v1/Provincies",
-    districts:"https://localhost:7268/api/v1/Districts",
-    ward:"https://localhost:7268/api/v1/Wards"
+    
+    provincies:"https://localhost:5001/api/v1/Provincies",
+    districts:"https://localhost:5001/api/v1/Districts",
+    ward:"https://localhost:5001/api/v1/Wards"
 }
 export default Api

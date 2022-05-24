@@ -713,6 +713,7 @@ import DatePicker from "vue-datepicker-next";
 import "vue-datepicker-next/index.css";
 import Helpers from "@/assets/js/helpers.js";
 import Api from "@/assets/js/api.js";
+import DB from "@/assets/js/hashDatabase";
 export default {
   components: {
     BaseInput,
@@ -747,36 +748,16 @@ export default {
       errorRefsName: "",
 
       /* Tab */
-      tabActive:"tab-4",
+      tabActive:"tab-1",
 
       tableBankAccountApi:`${Api.getColumnOption}/BankAccount`,
       tableBankAccountModel:[],
-      contact:[
-        {ContactId:1,ContactName:"Ông"},
-        {ContactId:2,ContactName:"Bà"},
-        {ContactId:3,ContactName:"Cha"},
-        {ContactId:4,ContactName:"Mẹ"}
-      ],
-      contract:[
-        {ContractId:1,ContractCode:"ĐK1",ContractName:"Điều khoản 1"},
-        {ContractId:2,ContractCode:"ĐK2",ContractName:"Điều khoản 2"},
-        {ContractId:3,ContractCode:"ĐK3",ContractName:"Điều khoản 3"},
-        {ContractId:4,ContractCode:"ĐK4",ContractName:"Điều khoản 4"},
-      ],
-      debitPaymentAccount:[
-        {DebitPaymentAccountId:1,BankAccount:"123456",BankName:"Phải thu của khách hàng"},
-        {DebitPaymentAccountId:2,BankAccount:"1234562",BankName:"Thuê GTGT được khấu trừ"},
-        {DebitPaymentAccountId:3,BankAccount:"1234563",BankName:"Đầu tư chứng khoán"},
-        {DebitPaymentAccountId:4,BankAccount:"1234565",BankName:"Ngoại tệ"},
-      ],
-      debitReceiptAccount:[
-        {DebitReceiptAccountId:1,BankAccount:"123456",BankName:"Phải thu của khách hàng"},
-        {DebitReceiptAccountId:2,BankAccount:"1234562",BankName:"Thuê GTGT được khấu trừ"},
-        {DebitReceiptAccountId:3,BankAccount:"1234563",BankName:"Đầu tư chứng khoán"},
-        {DebitReceiptAccountId:4,BankAccount:"1234565",BankName:"Ngoại tệ"},
-      ],
+      contact:DB.contact,
+      contract:DB.contract,
+      debitPaymentAccount:DB.debitPaymentAccount,
+      debitReceiptAccount:DB.debitReceiptAccount,
       //Địa chỉ
-      country:Api.country,
+      country:DB.country,
       provincies:'',
       districts:'',
       wards:''
@@ -839,8 +820,10 @@ export default {
     this.employee = this.modelPopup;
     this.vendor = this.modelPopup
     
-    this.setDefaultObject()
-    console.log(this.vendor)
+    if(this.vendor.VendorId == undefined){
+      this.setDefaultObject()
+    }
+    console.log(this.country)
   },
   methods: {
     onChangeAddress(id,refName){
@@ -873,10 +856,8 @@ export default {
     */
     setDefaultObject(){
       console.log(this.vendor)
-      //Nếu vendor không có mã code thì lấy mã code
-      if (this.vendor.VendorCode == undefined) {
-        this.getNewCode();
-      }
+      
+      this.getNewCode();
       if(this.vendor.VendorType == undefined){
         this.VendorType = 0
       }
@@ -959,7 +940,7 @@ export default {
     handleSaveAndContinue() {
       console.log(this.vendor)
       // if (this.validate()) {
-      //   this.save(true);
+          this.save(true);
       // }
     },
     //Xử lý sự kiện luu thông tin nhân viên
@@ -1007,13 +988,13 @@ export default {
                 "success"
               );
               this.$emit("addSuccess", true);
-              // if (!isContinue) {
-              //   this.closePopup();
-              // } else {
-              //   this.vendor = {};
-              //   this.employee.Gender = 1;
-              //   this.getNewCode();
-              // }
+              if (!isContinue) {
+                this.closePopup();
+              } else {
+                this.vendor = {};
+                this.employee.Gender = 1;
+                this.getNewCode();
+              }
               // this.employee = response.data
               // console.log(this.employee)
             }
@@ -1045,22 +1026,22 @@ export default {
               this.$refs["VendorCode"].focus();
               this.$emit("showToast", this.toastMsg.addSuccessMsg, "success");
               this.$emit("addSuccess", true);
-              // if (!isContinue) {
-              //   this.closePopup();
-              // } else {
-              //   this.employee = {};
-              //   this.employee.Gender = 1;
-              //   this.getNewCode();
-              // }
+              if (!isContinue) {
+                this.closePopup();
+              } else {
+                this.setDefaultObject()
+              }
               // this.employee = response.data
               // console.log(this.employee)
             }
           })
           .catch((e) => {
             var keys = Object.keys(e.response.data.data);
+            console.log(e.response.data)
             if (keys.length > 0) {
               var errorMsg = e.response.data.data[keys[0]];
               this.errorRefsName = keys[0];
+              console.log(this.typePopupName.warningNotify)
               this.showPopupInfo(this.typePopupName.warningNotify, errorMsg, "validate");
             } else {
               this.showPopupInfo(
@@ -1137,7 +1118,7 @@ export default {
       if (key === "validate") {
         this.isShowPopupInfo = false;
         
-        this.$refs[`${this.errorRefsName}`].focus();
+        // this.$refs[`${this.errorRefsName}`].focus();
       }
 
       //Popup xác nhận

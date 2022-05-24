@@ -67,10 +67,6 @@ namespace MISA.WEB02.Core.Services
             Dictionary<string, string> errorMsg = new Dictionary<string, string>();
             //validate dữ liệu trống
             var validateEmptyResult = ValidateEmpty(entity);
-            if (validateEmptyResult.Count() > 0)
-            {
-                throw new MISAExceptions($"{Resource.VN_DataNull}", errorMsg);
-            }
             foreach (var item in validateEmptyResult)
             {
                 errorMsg.Add(item.Key, item.Value);
@@ -136,7 +132,7 @@ namespace MISA.WEB02.Core.Services
             if (data == null)
             {
                 errorMsg.Add($"{entityName}NotFound", $"{Resource.VN_EntityNotFound}");
-                throw new MISAExceptions($"{Resource.VN_DataIllegal}", errorMsg);
+                //throw new MISAExceptions($"{Resource.VN_DataIllegal}", errorMsg);
             }
             var newCode = typeof(T).GetProperty($"{entityName}Code").GetValue(data).ToString();
             //kiểm tra mã code trùng

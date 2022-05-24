@@ -137,16 +137,16 @@ namespace MISA.WEB02.Infrastructure.Repository
                         //giá trị mới được truyền vào
                         var type = entity.GetType().GetProperty(prop.Name).PropertyType.Name;
                         var newVal = entity.GetType().GetProperty(prop.Name).GetValue(entity);
-                        if(prop.Name == "paymentDetails")
-                        {
 
-                        }
                         if (type.Equals("Guid") || (newVal != null && newVal.GetType().Name.Equals("Guid")))
                         {
+
                             cmd.Parameters.Add(new NpgsqlParameter($"@{BindingEntity.ToSnakeCase(prop.Name)}", newVal.ToString()));
                         }
-                        else if (newVal != null) cmd.Parameters.Add(new NpgsqlParameter($"@{BindingEntity.ToSnakeCase(prop.Name)}", newVal));
-
+                        else if (newVal != null)
+                            cmd.Parameters.AddWithValue($"@{BindingEntity.ToSnakeCase(prop.Name)}", newVal.ToString());
+                        else if (newVal == null)
+                            cmd.Parameters.AddWithValue($"@{BindingEntity.ToSnakeCase(prop.Name)}", DBNull.Value);
 
                     }
                 }
@@ -189,12 +189,16 @@ namespace MISA.WEB02.Infrastructure.Repository
                         //giá trị mới được truyền vào
                         var type = entity.GetType().GetProperty(prop.Name).PropertyType.Name;
                         var newVal = entity.GetType().GetProperty(prop.Name).GetValue(entity);
+
                         if (type.Equals("Guid") || (newVal != null && newVal.GetType().Name.Equals("Guid")))
                         {
+
                             cmd.Parameters.Add(new NpgsqlParameter($"@{BindingEntity.ToSnakeCase(prop.Name)}", newVal.ToString()));
                         }
-                        else if(newVal != null) cmd.Parameters.Add(new NpgsqlParameter($"@{BindingEntity.ToSnakeCase(prop.Name)}", newVal));
-
+                        else if (newVal != null)
+                            cmd.Parameters.AddWithValue($"@{BindingEntity.ToSnakeCase(prop.Name)}", newVal.ToString());
+                        else if (newVal == null)
+                            cmd.Parameters.AddWithValue($"@{BindingEntity.ToSnakeCase(prop.Name)}", NpgsqlTypes.NpgsqlDbType.Text, DBNull.Value);
 
                     }
                 }

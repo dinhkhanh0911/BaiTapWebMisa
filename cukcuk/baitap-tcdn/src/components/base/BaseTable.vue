@@ -1,7 +1,7 @@
 <template>
   <div class="table-container">
     <table id="table" class="tableEmployee">
-      <thead>
+      <thead >
         <tr class="sticky-top--87">
           <th class="padding-td"></th>
           <th
@@ -22,20 +22,7 @@
             </div>
             <!-- <Checkbox v-model="selectAll"/> -->
           </th>
-          <!-- <th>Mã nhân viên</th>
-          <th class="overflow-content">
-            <div>Tên nhân viên</div>
-          </th>
-          <th>Giới tính</th>
-          <th class="text-center">Ngày sinh</th>
-          <th :title="'Số chứng minh nhân dân'">Số CMND</th>
-
-          <th>Chức danh</th>
-          <th class="td-min-width">Tên đơn vị</th>
-          <th class="td-min-width">Số tài khoản</th>
-          <th>Tên ngân hàng</th>
-          <th class="border-right-none">Chi nhánh tk ngân hàng</th> -->
-          <th v-for="(column, index) in columnsDescription" :key="index" :class="column.columnClass" 
+          <th v-for="(column, index) in columnsDescription" :key="index" :class="column.columnClass" class="resizeable" 
           v-bind:style="{'min-width': column.columnWidth + 'px'}" > {{column.viewColumnName}}</th>
           
           <th
@@ -50,52 +37,51 @@
       <tbody class="m-tbody loading-body" v-if="isLoading">
         <tr v-for="index in 13" :key="index">
           <td class="padding-td"></td>
-          <td class="sticky-left-30 bg-while checkbox-column checkbox-column">
-            <div class="checkbox-container">
-              <input
-                type="checkbox"
-                class="checkbox"
-                v-model="checkboxs"
-                :value="entity[entityId]"
-                @dblclick="onDbClick($event)"
-              />
+          <td class="sticky-left-30 bg-while checkbox-column alignt-center">
+            <div class="column-container d-flex justify-space-center alignt-center">
+              <div class="checkbox-container">
+                <input
+                  type="checkbox"
+                  class="checkbox"
+                  v-model="checkboxs"
+                  :value="entity[entityId]"
+                  @dblclick="onDbClick($event)"
+                />
 
-              <span
-                class="checkbox-border"
-                :class="{
-                  'checkbox-border-active': checkboxs.includes(
-                    entity[entityId]
-                  ),
-                }"
-              >
                 <span
-                  class="mi mi-16"
+                  class="checkbox-border"
                   :class="{
-                    'checkbox-active': checkboxs.includes(entity[entityId]),
+                    'checkbox-border-active': checkboxs.includes(
+                      entity[entityId]
+                    ),
                   }"
-                ></span>
-              </span>
+                >
+                  <span
+                    class="mi mi-16"
+                    :class="{
+                      'checkbox-active': checkboxs.includes(entity[entityId]),
+                    }"
+                  ></span>
+                </span>
+              </div>
             </div>
           </td>
-          <td><div class="loading-1"></div></td>
-          <td><div class="loading-1"></div></td>
-          <td><div class="loading-1"></div></td>
-          <td class="text-center"><div class="loading-1"></div></td>
-          <td><div class="loading-1"></div></td>
-          <td><div class="loading-1"></div></td>
-          <td class="overflow-content">
+          <td v-for="(column, index) in columnsDescription" :key="index" :class="column.columnClass" > 
             <div class="loading-1"></div>
           </td>
-
-          <td><div class="loading-1"></div></td>
-          <td class="overflow-content">
-            <div class="loading-1"></div>
-          </td>
-          <td class="border-right-none"><div class="loading-1"></div></td>
           <td
             class="option-column-td sticky-right-30 bg-while d-flex justify-space-center alignt-center"
           >
-            <div class="loading-1"></div>
+            <div class="option-column d-flex alignt-center">
+              <div class="edit-btn" @click="handleEdit(entity)">Sửa</div>
+              <div class="option-btn d-flex justify-space-center">
+                <div
+                  class="option-column-icon mi mi-16 relative"
+                  @click="handleOptionItemClick($event, entity, index)"
+                  @dblclick="onDbClick($event)"
+                ></div>
+              </div>
+            </div>
           </td>
           <td class="padding-td padding-right-td"></td>
           <td class="hidden-td"></td>
@@ -139,24 +125,10 @@
               </div>
             </div>
           </td>
-          <td v-for="(column, index) in columnsDescription" :key="index" :class="column.columnClass" > 
+          <td v-for="(column, index) in columnsDescription" :key="index" :class="column.columnClass"
+            v-bind:style="{'min-width': column.columnWidth + 'px'}" > 
             {{convertData(entity[column.columnField],column.columnType)}}
           </td>
-          <!-- <td>{{ employee.EmployeeCode }}</td>
-          <td>{{ employee.FullName }}</td>
-          <td>{{ employee.GenderName }}</td>
-          <td class="text-center">{{ formatDate(employee.DateOfBirth) }}</td>
-          <td>{{ employee.IdentityNumber }}</td>
-          <td>{{ employee.PositionName }}</td>
-          <td class="overflow-content">
-            <div>{{ employee.DepartmentName }}</div>
-          </td>
-
-          <td>{{ employee.BankAccount }}</td>
-          <td class="overflow-content">
-            <div>{{ employee.BankName }}</div>
-          </td>
-          <td class="border-right-none">{{ employee.BankBranch }}</td> -->
           <td
             class="option-column-td sticky-right-30 bg-while d-flex justify-space-center alignt-center"
           >
@@ -204,6 +176,7 @@ import axios from "axios";
 import BasePopup from "@/components/base/BasePopup.vue";
 import Api from "@/assets/js/api.js";
 import Helpers from "@/assets/js/helpers";
+import { nextTick } from '@vue/runtime-core';
 export default {
   components: {
     BasePopup,
@@ -328,6 +301,60 @@ export default {
   },
   methods: {
 
+    /**
+    * Mô tả: Chỉnh sửa độ rộng của bảng
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 25/05/2022
+    */
+    handleResizeTable(){
+      nextTick(function(){
+        var thElm
+        var startOffset
+
+        // Lặp qua từng cột lắng nghe sự kiện
+        Array.prototype.forEach.call(
+        document.querySelectorAll("table th"),
+        function (th) {
+            th.style.position = 'sticky'
+
+            //Tạo lớp bắt sự kiện kéo thả cho mỗi cột
+            var grip = document.createElement('div')
+            grip.innerHTML = "&nbsp"
+            grip.style.top = 0
+            grip.style.right = 0
+            grip.style.bottom = 0
+            grip.style.width = '5px'
+            grip.style.position = 'absolute'
+            grip.style.cursor = 'col-resize'
+
+
+            //lắng nghe sự kiện nhấn chuột
+            grip.addEventListener('mousedown', function (e) {
+                
+                // Kiểm tra cột có được thay đổi độ rộng không?
+                if(th.classList.contains('resizeable')){
+                  thElm = th
+                }
+
+                // Lấy vị trí bắt đầu
+                startOffset = th.offsetWidth - e.pageX
+            });
+
+            th.appendChild(grip)
+        })
+
+        // Lắng nghe sự kiện di chuyển chuột
+        document.addEventListener('mousemove', function (e) {
+            if (thElm) {
+                thElm.style.minWidth = startOffset + e.pageX + 'px'
+            }
+        })
+        // Xóa sự kiện di chuyển chuột
+        document.addEventListener('mouseup', function () {
+            thElm = undefined
+        })
+      })
+    },
     convertData(value,type){
       if(type === 'date'){
         if(!!value) return this.formatDate(value)
@@ -411,7 +438,8 @@ export default {
         .then((response) => {
           if (response.status === 200) {
             this.isLoading = false;
-            this.dataTable = response.data.List;
+            this.dataTable = response.data.List != null ? response.data.List:[];
+            this.handleResizeTable()
             this.loadHandle(
               response.data.List,
               currentPage,
