@@ -2,6 +2,8 @@
 using MISA.WEB02.Core.Exceptions;
 using MISA.WEB02.Core.Interfaces.Base;
 using MISA.WEB02.Core.Resources;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,8 +77,10 @@ namespace MISA.WEB02.Core.Services
             }
             //lấy code của entity truyền vào
             var code = typeof(T).GetProperty($"{entityName}Code").GetValue(entity).ToString();
+            //Lấy id của entity truyền vào
+            var id = typeof(T).GetProperty($"{entityName}Id");
             //code đúng format
-            var rx = new Regex(@"^[a-zA-Z]{2}-[0-9]{6}$");
+            var rx = new Regex(@"^[a-zA-Z]{3}-[0-9]{6}$");
             if (!rx.IsMatch(code.ToUpper()))
             {
                 errorMsg.Add($"{entityName}Code", $"{Resource.VN_CodeWrongFormat}");
@@ -94,6 +98,8 @@ namespace MISA.WEB02.Core.Services
             {
                 throw new MISAExceptions($"{Resource.VN_DataIllegal}", errorMsg);
             }
+            var newGuid = Guid.NewGuid();
+            typeof(T).GetProperty($"{entityName}Id").SetValue(entity,newGuid);
             //thêm mới database
             return _baseRespository.Insert(entity);
 
@@ -119,7 +125,7 @@ namespace MISA.WEB02.Core.Services
             //lấy code của entity truyền vào
             var code = typeof(T).GetProperty($"{entityName}Code").GetValue(entity).ToString();
             //code đúng format
-            var rx = new Regex(@"^[a-zA-Z]{2}-[0-9]{6}$");
+            var rx = new Regex(@"^[a-zA-Z]{3}-[0-9]{6}$");
             if (!rx.IsMatch(code.ToUpper()))
             {
                 errorMsg.Add($"{entityName}Code", $"{Resource.VN_CodeWrongFormat}");
@@ -191,7 +197,7 @@ namespace MISA.WEB02.Core.Services
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        private Dictionary<string, string> ValidateEmpty(T entity)
+        public virtual Dictionary<string, string> ValidateEmpty(T entity)
         {
             Dictionary<string, string> errorMsg = new Dictionary<string, string>();
             //kiểm tra các trường required có bị null không
@@ -242,6 +248,27 @@ namespace MISA.WEB02.Core.Services
             var result = _baseRespository.GetNewCode();
             return result;
         }
+
+        /// <summary>
+        /// Tìm kiếm nhân viên theo điều kiện
+        /// </summary>
+        /// <param name="filterText">Điều kiện tìm kiếm</param>
+        /// <param name="currentPage">Trang hiện tại</param>
+        /// <param name="pageSize">Số lượng bản ghi</param>
+        /// <returns>
+        /// Danh sách nhà cung cấp 
+        /// Tổng số bản ghi
+        /// Số lượng trang
+        /// </returns>
+        public Object FilterService(string filterText, int currentPage, int pageSize)
+        {
+            var result = _baseRespository.Filter(filterText, currentPage, pageSize);
+            return result;
+        }
+
+        
+
+        
         #endregion
     }
 }

@@ -82,6 +82,7 @@ export default {
         objectChecked:[],
 
         timeOut: null,
+        model:[]
     };
   },
   props: {
@@ -90,8 +91,8 @@ export default {
       default: "",
     },
     modelValue: {
-      type: String,
-      default: "",
+      type:String,
+      default:""
     },
     id: {
       type: String,
@@ -124,13 +125,17 @@ export default {
     timer:{
       type:Number,
       default:1000,
-    }
+    },
   },
   created() {
     
     //Lấy dữ liệu combobox
     //Nếu Api có, gọi Api lấy giữ liệu
-    console.log(this.Api)
+    console.log(this.modelValue)
+    if(!!this.modelValue){
+      this.valueChecked = JSON.parse(this.modelValue)
+    }
+    
     if (this.Api != "") {
       axios
         .get(this.Api)
@@ -139,14 +144,14 @@ export default {
             this.values = response.data;
             //Nếu modelValue khác rỗng và số giá trị mảng option combobox lớn hơn không thì gán
             // giá trị input bằng giá trị value tương ứng
-            if (this.modelValue !== "" && this.values.length > 0 && this.valueCB == null) {
-              var value = this.values.find(
-                (item) => item[this.id] == this.modelValue
-              );
-              if (value != undefined) {
-                this.valueCB = value[this.name];
-              }
-            }
+            // if (this.modelValue !== "" && this.values.length > 0 && this.valueCB == null) {
+            //   var value = this.values.find(
+            //     (item) => item[this.id] == this.modelValue
+            //   );
+            //   if (value != undefined) {
+            //     this.valueCB = value[this.name];
+            //   }
+            // }
           }
         })
         .catch((e) => {
@@ -168,7 +173,7 @@ export default {
         }
       }
     }
-  },
+  }, 
   watch: {
     
     /**
@@ -181,6 +186,7 @@ export default {
       if (this.modelValue == "") {
         this.valueCB = "";
       }
+      
     },
   },
   methods: {
@@ -268,8 +274,9 @@ export default {
      */
     handleSelect(value, index) {
     //   this.isShow = false;
-    //   this.$emit("update:modelValue", id);
+    //    this.$emit("update:modelValue", id);
     //   this.valueCB = name;
+        
         var ok = !!this.valueChecked.find(x => x[this.id]==value[this.id])
         if(!ok){
             this.valueChecked.push(value)
@@ -277,6 +284,19 @@ export default {
         else{
             this.valueChecked = this.valueChecked.filter(x => x[this.id] != value[this.id])
         }
+        var id = this.id
+        var code = this.code
+        var name = this.name
+        var modelValue = this.valueChecked.map((x) => {
+          var obj = {}
+          obj[id]= x[id]
+          obj[code] = x[code]
+          obj[name] = x[name]
+          return obj
+        })
+        
+        this.$emit("update:modelValue",JSON.stringify(modelValue));
+        
         // this.removeClass("error");
 
         // //Thêm class vào hàng được chọn
@@ -471,3 +491,4 @@ th {
   font-family: MISA notosans bold;
 }
 </style>
+                   

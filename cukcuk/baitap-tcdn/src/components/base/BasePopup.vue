@@ -113,7 +113,7 @@ export default {
   },
   created(){
       this.typeClass = this.typePopup[`${this.type}`]
-      
+      console.log(this.typePopup)
   },
   methods: {
     //Đóng popup

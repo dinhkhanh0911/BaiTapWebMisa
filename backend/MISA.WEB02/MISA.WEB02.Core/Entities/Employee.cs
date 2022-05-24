@@ -19,7 +19,7 @@ namespace MISA.WEB02.Core.Entities
         /// <summary>
         /// Tên nhân viên: bắt buộc
         /// </summary>
-        public string FullName { get; set; }
+        public string EmployeeName { get; set; }
         public DateTime? DateOfBirth { get; set; }
         /// <summary>
         /// Giới tính: (1-nam, 0-nữ, 2-khác)

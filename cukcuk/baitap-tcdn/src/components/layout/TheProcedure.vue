@@ -42,11 +42,11 @@
                     <div class="content-icon">
                         <div class="mi mi-24"></div>
                     </div>
-                    <div class="content-des">
+                    <router-link to="/suppliers"  class="content-des">
                         <span>
                             Nhà cung cấp
                         </span>
-                    </div>
+                    </router-link>
                 </div>
                 <div class="content-option d-flex employee" >
                     <div class="content-icon">

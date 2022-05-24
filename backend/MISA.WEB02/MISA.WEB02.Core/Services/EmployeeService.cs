@@ -28,9 +28,6 @@ namespace MISA.WEB02.Core.Services
         /// <summary>
         /// Xuất file excel
         /// </summary>
-        /// <param name="filterText">Điều kiện đầu vào</param>
-        /// <param name="currentPage">Trang hiện tại</param>
-        /// <param name="pageSize">Số lượng bản ghi 1 trang</param>
         /// <returns>File excel dạng byte</returns>
         /// created by: Đinh Văn Khánh - MF1112
 
@@ -78,7 +75,7 @@ namespace MISA.WEB02.Core.Services
                     //mã Nhân viên
                     workSheet.Cells[index, 2].Value = item.EmployeeCode == null ? "" : item.EmployeeCode.Trim();
                     //tên nhân viên
-                    workSheet.Cells[index, 3].Value = item.FullName == null ? "" : item.FullName.Trim();
+                    workSheet.Cells[index, 3].Value = item.EmployeeName == null ? "" : item.EmployeeName.Trim();
                     //giới tính
                     workSheet.Cells[index, 4].Value = item.GenderName == null ? "" : item.GenderName.Trim();
                     //ngày sinh

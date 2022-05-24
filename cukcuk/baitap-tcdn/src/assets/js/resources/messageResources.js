@@ -15,6 +15,7 @@ const toastMsg = {
     updateSuccessMsg: "Sửa dữ liệu thành công",
     addSuccessMsg: "Thêm mới dữ liệu thành công",
     deleteEmpSuccessMsg: "Đã xóa nhân viên thành công",
+    deletePaymentSuccessMsg: "Đã xóa phiếu thu,chi thành công",
     
 }
 

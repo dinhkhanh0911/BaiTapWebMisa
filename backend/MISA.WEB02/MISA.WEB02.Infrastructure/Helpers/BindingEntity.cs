@@ -1,9 +1,13 @@
-﻿using Npgsql;
+﻿using MISA.WEB02.Core.Entities;
+using Newtonsoft.Json;
+using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace MISA.WEB02.Infrastructure.Helpers
@@ -15,29 +19,22 @@ namespace MISA.WEB02.Infrastructure.Helpers
             var listItem = new List<T>();
             while (reader.Read())
             {
-                //Department department = new Department();
-                //int i = 0;
-                //dynamic obj = new ExpandoObject();
-                var item = (T)Activator.CreateInstance(typeof(T));
-                foreach (PropertyInfo prop in item.GetType().GetProperties())
+                
+                dynamic entity = new ExpandoObject();
+                for (int i = 0; i < reader.FieldCount; i++)
                 {
-
-
-                    var type = prop.PropertyType;
-                    var value = reader[ToSnakeCase(prop.Name)];
-                    if (type.Name == "Guid")
+                    var propName = ToPascalCase(reader.GetName(i));
+                    var propValue = reader.GetValue(i);
+                    if (typeof(T).IsPrimitive || typeof(T).Name == "String")
                     {
-                        value = new Guid(value.ToString());
+                        entity = propValue;
+                        continue;
                     }
-                    var a = reader[ToSnakeCase(prop.Name)];
-                    prop.GetType();
-                    prop.SetValue(item, value, null);
-                    //department.GetType().GetProperty(prop.Name) = reader[ToSnakeCase(prop.Name)];
-
-
-
+                    else if(propValue!=null) ((IDictionary<string, object>)entity).Add(propName, propValue);
                 }
-                listItem.Add(item);
+
+                var entityData = JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(entity));
+                listItem.Add(entityData);
                 
             }
             return listItem;
@@ -68,6 +65,16 @@ namespace MISA.WEB02.Infrastructure.Helpers
                 }
             }
             return sb.ToString();
+        }
+        public static string ToPascalCase(string str)
+        {
+            string result = Regex.Replace(str, "_[a-z]", delegate (Match m) {
+                return m.ToString().TrimStart('_').ToUpper();
+            });
+
+            result = char.ToUpper(result[0]) + result.Substring(1);
+
+            return result;
         }
     }
 }

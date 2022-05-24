@@ -303,7 +303,7 @@ export default {
       },
       set(date) {
         this.employee.IdentityDate = new Date(date);
-        this.employee.IdentityDate = this.employee.DateOfBirth.toDateString();
+        this.employee.IdentityDate = this.employee.IdentityDate.toDateString();
       },
     },
   },

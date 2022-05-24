@@ -10,8 +10,8 @@
               </div>
               <div class="btn-container">
                 <BaseButton
-                  :classBtn="'btn-default btn-sq btn-no-op btn-primary'"
-                  :content="'Thêm mới nhân viên'"
+                  :classBtn="'btn-default btn-primary'"
+                  :content="'Thêm mới nhà cung cấp'"
                   @click="handleAddClick()"
                 />
               </div>
@@ -23,13 +23,24 @@
           </div>
           <div class="layout-dictionary-body" @scroll="handleScroll($event)">
             <div class="table-option">
-              <div class="table-option-left">
-                <BaseButton
-                  :classBtn="'btn-default'"
-                  :content="'Thực hiện hàng loạt'"
-                  :disabled="isDisableMultipleDeleteBtn"
-                  @click="handleMultipleDeleteClick()"
-                />
+              <div class="table-option-left d-flex">
+                <div class="btn-delete-multi">
+                  <BaseButton
+                    :classBtn="'btn-default'"
+                    :content="'Thực hiện hàng loạt'"
+                    :disabled="isDisableMultipleDeleteBtn"
+                    @click="handleMultipleDeleteClick()"
+                  />
+                </div>
+                <div class="btn-filter">
+                  <BaseButton
+                    :classBtn="'btn-default'"
+                    :content="'Lọc'"
+                    ref="filter"
+                    @click="handlefilterClick('filter')"
+                  />
+                  
+                </div>
               </div>
 
               <div class="table-option-right d-flex alignt-center">
@@ -61,7 +72,7 @@
               </div>
             </div>
             <BaseTable
-              ref="tableEmployee"
+              ref="tableVendor"
               @employeeValue="handleEdit"
               :searchValue="searchValue"
               :currentPage="currentPage"
@@ -71,7 +82,12 @@
               @loading="isNoData = false"
               @check="handleCheckDataTable"
               :api="apiColumn"
-              tableName="Employee"
+              tableName="Vendor"
+              entityId="VendorId"
+              entityCode="VendorCode"
+              entityName="VendorName"
+              :apiFilter="filterVendorApi"
+              :apiDelelte="deleteVendorApi"
             />
             <div class="router-pagination">
               <div
@@ -133,11 +149,11 @@
       :valueTooltip="valueTooltip"
     />
     <TheSuppliersPopup
-      v-if="true"
-      @showPopup="togglePopupEmployee"
-      :modelPopup="employee"
+      v-if="isShowPopupSuppliers"
+      @showPopup="togglePopupSuppliers"
+      :modelPopup="Vendor"
       @showToast="showToast"
-      @addSuccess="reloadData"
+      @addSuccess="reloadData(currentPage)"
     />
     <div id="toast">
       <BaseToast
@@ -155,10 +171,101 @@
     />
     <BaseSettingViewForm 
       :api="apiColumn"
-      tableName="Employee"
+      tableName="Vendor"
       v-if="isShowSettingViewForm"
       @close="handleCloseSettingViewForm"
     />
+    <div class="filter-option-container" v-if="isShowFilter" v-bind:style="{ top: filterBtnTop + 'px', left: filterBtnLeft + 'px' }">
+      <div class="filter-option grid">
+          <!-- Tổ chức -->
+        <div class="primary-input">
+          <div class="row">
+            <div class="col c-6">
+              <div class="form-group">
+                <label for=""
+                  >Loại</label
+                >
+                <BaseCombobox
+                  :valueOption="filterType"
+                  :id="'Id'"
+                  :name="'Value'"
+                  :code="'Id'"
+                  :isOneColumn="'true'"
+                  v-model="filterObject.FilterTypeId"
+                />
+              </div>
+            </div>
+            <div class="col c-6">
+              <div class="form-group">
+                <label for=""
+                  >Loại</label
+                >
+                <BaseCombobox
+                  :valueOption="filterType"
+                  :id="'Id'"
+                  :name="'Value'"
+                  :code="'Id'"
+                  :isOneColumn="'true'"
+                  v-model="filterObject.FilterTypeId"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col c-6">
+              <div class="form-group">
+                <label for=""
+                  >Trình trạng công nợ</label
+                >
+                <BaseCombobox
+                  :valueOption="filterDebt"
+                  :id="'Id'"
+                  :name="'Value'"
+                  :code="'Id'"
+                  :isOneColumn="'true'"
+                  v-model="filterObject.FilterDebtId"
+                />
+              </div>
+            </div>
+            <div class="col c-6">
+              <div class="form-group">
+                <label for=""
+                  >Trạng thái</label
+                >
+                <BaseCombobox
+                  :valueOption="filterStatus"
+                  :id="'Id'"
+                  :name="'Value'"
+                  :code="'Id'"
+                  :isOneColumn="'true'"
+                  v-model="filterObject.FilterStatusId"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col c-6">
+              <div class="btn-default-filter">
+                  <BaseButton
+                    :classBtn="'btn-default btn-sq btn-no-op'"
+                    :content="'Đặt lại'"
+                    @click="setDefaultFilter()"
+                  />
+              </div>
+            </div>
+            <div class="col c-6">
+              <div class="btn-filter">
+                  <BaseButton
+                    :classBtn="'btn-default btn-sq btn-no-op btn-primary'"
+                    :content="'Lọc'"
+                    @click="reloadData()"
+                  />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>            
+    </div>
   </div>
 </template>
 
@@ -179,6 +286,7 @@ import BasePopup from "@/components/base/BasePopup.vue";
 import BaseCombobox from "@/components/base/BaseCombobox.vue";
 import BaseSettingViewForm from '@/components/base/BaseSettingViewForm.vue'
 import Api from "@/assets/js/api";
+import DB from "@/assets/js/hashDatabase"
 import axios from "axios";
 export default {
   components: {
@@ -195,8 +303,10 @@ export default {
   },
   data() {
     return {
+      filterVendorApi : Api.filterVendor,
+      deleteVendorApi : Api.deleteVendor,
       isNoData: false,
-      employeeIds: [],
+      VendorIds: [],
       isDisableMultipleDeleteBtn: true,
       isShowOptionItem: false,
       //tooltip
@@ -204,8 +314,8 @@ export default {
       leftTooltip: 0,
       isShowTooltip: false,
       valueTooltip: "",
-      isShowPopupEmployee: false,
-      employee: {},
+      isShowPopupSuppliers: false,
+      Vendor: {},
 
       //filter
       searchValue: "",
@@ -227,16 +337,35 @@ export default {
       typePopupInfo: "error",
 
       //Combobox phân trang
-      valueOption: [
-        { Id: 10, Value: "10 bản ghi trên 1 trang" },
-        { Id: 20, Value: "20 bản ghi trên 1 trang" },
-        { Id: 30, Value: "30 bản ghi trên 1 trang" },
-        { Id: 50, Value: "50 bản ghi trên 1 trang" },
-        { Id: 100, Value: "100 bản ghi trên 1 trang" },
-      ],
+      valueOption: DB.valueOption,
 
       apiColumn:`${Api.getColumnOption}`,
       isShowSettingViewForm:false,
+
+      //Filter
+      filterBtnLeft:0,
+      filterBtnTop:0,
+      isShowFilter:false,
+      filterObject:{
+        FilterTypeId:2,
+        FilterDebtId:2,
+        FilterStatusId:2,
+      },
+      filterType:[
+        {Id:2,Value:"Tất cả"},
+        {Id:0,Value:"Tổ chức"},
+        {Id:1,Value:"Cá nhân"},
+      ],
+      filterDebt:[
+        {Id:2,Value:"Tất cả"},
+        {Id:0,Value:"Còn nợ"},
+        {Id:1,Value:"Hết nợ"},
+      ],
+      filterStatus:[
+        {Id:2,Value:"Tất cả"},
+        {Id:0,Value:"Đang sử dụng"},
+        {Id:1,Value:"Ngưng sử dụng"},
+      ]
     };
 
   },
@@ -260,6 +389,31 @@ export default {
     window.removeEventListener("keydown", this.handleKeyEventDown);
   },
   methods: {
+    /**
+    * Mô tả: Chỉnh mặc định các trường lọc
+    @param
+    *@return
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 20/05/2022
+    */
+    setDefaultFilter(){
+      this.filterObject.FilterTypeId = 2
+      this.filterObject.FilterDebtId = 2
+      this.filterObject.FilterStatusId = 2
+    },
+
+    /**
+    * Mô tả: Xử lý vị trí của nút button
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 20/05/2022
+    */
+    handlefilterClick(refName){
+      
+      this.filterBtnLeft = parseInt(this.$refs[refName].$el.getBoundingClientRect().left)
+      this.filterBtnTop = parseInt(this.$refs[refName].$el.getBoundingClientRect().top+50)
+      this.isShowFilter = !this.isShowFilter
+      console.log(this.filterBtnLeft,this.filterBtnTop)
+    },
     //Hiển thị toast message
     showPopupInfo(message = "Thành công", type = "success") {
       this.contentPopupInfo = message;
@@ -269,8 +423,8 @@ export default {
     /*
             Hiểm thị popup thêm nhân viên
         */
-    togglePopupEmployee(value) {
-      this.isShowPopupEmployee = value;
+    togglePopupSuppliers(value) {
+      this.isShowPopupSuppliers = value;
     },
 
     // Hiển thị toast
@@ -285,23 +439,40 @@ export default {
             Xử ly sự kiện khi bấm nút thêm nhân viên
         */
     handleAddClick() {
-      this.employee = {};
-      this.togglePopupEmployee(true);
+      this.Vendor = {};
+      this.togglePopupSuppliers(true);
     },
     /*
             Xử lý sự kiện khi bấm nút sửa nhân viên
         */
-    handleEdit(employee) {
-      this.employee = employee;
-      this.togglePopupEmployee(true);
+    handleEdit(Vendor) {
+      this.Vendor = Vendor;
+      this.togglePopupSuppliers(true);
     },
 
     /*
             Lấy dữ liệu 
         */
-    reloadData() {
+    reloadData(currentPage = 1) {
+      var queryString =""
+      if(this.filterObject.FilterTypeId != 2){
+        queryString += `&vendorType=${this.filterObject.FilterTypeId}`
+      }
+      if(this.filterObject.FilterDebtId ==0 ){
+        queryString += `&isOwed=${true}`
+      }
+      if(this.filterObject.FilterDebtId ==1 ){
+        queryString += `&isOwed=${false}`
+      }
+      if(this.filterObject.FilterStatusId == 0){
+        queryString += `&isUsed=${true}`
+      }
+      if(this.filterObject.FilterStatusId == 1){
+        queryString += `&isUsed=${false}`
+      }
+      console.log(queryString)
       // this.currentPage = 1
-      this.$refs.tableEmployee.loadAllData(1);
+      this.$refs.tableVendor.loadAllData(currentPage,queryString);
       
     },
 
@@ -326,6 +497,7 @@ export default {
         */
     clickCallback(pageNum) {
       this.currentPage = pageNum;
+      this.reloadData(this.currentPage)
     },
 
     /**
@@ -334,8 +506,8 @@ export default {
         * Created by: Đinh Văn Khánh - MF1112
         * Created date: 20/04/2022
         */
-    loadHandle(employees, currentPage, totalPage, count) {
-      if (employees.length > 0) {
+    loadHandle(Vendors, currentPage, totalPage, count) {
+      if (Vendors.length > 0) {
         this.isNoData = false;
       } else this.isNoData = true;
       this.currentPage = currentPage;
@@ -346,7 +518,7 @@ export default {
 
     //Xử lý khi bấm nút xuất dữ liệu
     handleExport() {
-      var apiConnectionString = `${Api.exportEmployee}?currentPage=${this.currentPage}&pageSize=${this.pageSize}`;
+      var apiConnectionString = `${Api.exportVendor}?currentPage=${this.currentPage}&pageSize=${this.pageSize}`;
       axios({
         url: apiConnectionString,
         method: "GET",
@@ -383,8 +555,8 @@ export default {
     //Xử lý chọn nhân viên
     handleCheckDataTable(checkboxs) {
       
-      this.employeeIds = checkboxs;
-      if (this.employeeIds.length > 0) {
+      this.VendorIds = checkboxs;
+      if (this.VendorIds.length > 0) {
         this.isDisableMultipleDeleteBtn = false;
       } else this.isDisableMultipleDeleteBtn = true;
     },
@@ -393,9 +565,10 @@ export default {
     handleConfirmBtn(confirm) {
       this.isShowPopupInfo = false;
       if (confirm) {
-        let value = Object.values(this.employeeIds);
+        let value = Object.values(this.VendorIds);
+        console.log(value)
         axios({
-          url: `${Api.deleteMultiEmployee}`,
+          url: `${Api.deleteMultiVendor}`,
           method: "DELETE",
           data: value,
         })
@@ -403,7 +576,7 @@ export default {
             if (response.status == 200) {
               this.reloadData();
               this.showToast(this.toastMsg.deleteEmpSuccessMsg, "success");
-              this.employeeIds = [];
+              this.VendorIds = [];
               
             }
           })
@@ -419,7 +592,7 @@ export default {
     //Xử lý xóa nhiều nhân viên
     handleMultipleDeleteClick() {
       this.isShowOptionItem = !this.isShowOptionItem;
-      if (this.employeeIds.length > 0) {
+      if (this.VendorIds.length > 0) {
         this.showPopupInfo(this.popupMsg.confirmMultipleDeleteMsg, this.typePopupName.warningConfirm);
       }
     },
@@ -452,7 +625,7 @@ export default {
     handleCloseSettingViewForm(isShow){
       this.isShowSettingViewForm = false
       if(isShow){
-        this.$refs.tableEmployee.loadColumnTable(1)
+        this.$refs.tableVendor.loadColumnTable(1)
       }
     }
   },
@@ -536,6 +709,29 @@ export default {
 .table-option-left {
   position: relative;
 }
+.btn-filter{
+  margin-left: 10px;
+  position: relative;
+}
+.filter-option-container{
+  
+  height: auto;
+  position:fixed;
+  
+  z-index: 30;
+}
+.filter-option{
+  border: 1px solid #c7c7c7;
+  background-color: #fff;
+  padding: 20px;
+  width: 533px;
+  padding-top: 0px;
+}
+.filter-option .row{
+  margin-top: 20px;
+}
+
+
 .table-option-right {
   padding: 5px;
 }
@@ -629,5 +825,10 @@ export default {
   background-color: #fff;
   border: 1px solid black;
   z-index: 10000;
+}
+
+.btn-filter{
+  display: flex;
+  justify-content: right;
 }
 </style>

@@ -1,19 +1,21 @@
 <template>
-  <div class="combobox-container" ref="combobox" :title="titleError">
-    <div class="value-combobox">
-      <input type="text" :value="valueCB" />
+  <div class="combobox-container" ref="combobox" :title="titleError" :class="className">
+    <div class="value-combobox" ref="valueCombobox" >
+      <input type="text" :value="valueCB" :placeholder="placeholder"/>
     </div>
-    <div class="action">
-      <button @click="isShow = !isShow">
+    <div class="action" >
+      <button @click="onClickAction()">
         <div class="mi mi-16"></div>
       </button>
     </div>
     <div
       class="combobox-option"
+      ref="comboboxAction"
       v-show="isShow"
       :class="{ dropUp: !isDropDown }"
+      v-bind:style="{ left: leftAction + 'px','min-width': widthAction + 'px',}"
     >
-      <table :class="{ 'table-one-column': isOneColumn }">
+      <table ref="baseTable" :class="{ 'table-one-column': isOneColumn }">
         <thead>
           <tr>
             <th>Mã đơn vị</th>
@@ -25,7 +27,7 @@
             v-for="(value, index) in values"
             :key="index"
             @click="handleSelect(value[id], value[name], index)"
-            :class="{ active: value[id] == modelValue }"
+            :class="{ active: (value[id] === modelValue) }"
           >
             <td>{{ value[code] }}</td>
             <td>{{ value[name] }}</td>
@@ -43,6 +45,7 @@
  * Created date: 14/04/2022
  */
 import axios from "axios";
+import { nextTick } from '@vue/runtime-core';
 export default {
   data() {
     return {
@@ -51,6 +54,10 @@ export default {
       values: [],
       titleError: "",
       error: false,
+      topAction:0,
+      leftAction:0,
+      widthAction:0,
+      postitionBind:'top'
     };
   },
   props: {
@@ -90,48 +97,18 @@ export default {
       type: Boolean,
       default: false,
     },
-  },
-  created() {
-    //Lấy dữ liệu combobox
-    //Nếu Api có, gọi Api lấy giữ liệu
-    if (this.Api != "") {
-      axios
-        .get(this.Api)
-        .then((response) => {
-          if (response.status === 200) {
-            this.values = response.data;
-            //Nếu modelValue khác rỗng và số giá trị mảng option combobox lớn hơn không thì gán
-            // giá trị input bằng giá trị value tương ứng
-            if (this.modelValue !== "" && this.values.length > 0) {
-              var value = this.values.find(
-                (item) => item[this.id] == this.modelValue
-              );
-              if (value != undefined) {
-                this.valueCB = value[this.name];
-              }
-            }
-          }
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    } else {
-      this.values = this.valueOption;
-      /**
-       * Nếu Api không có, lấy mảng trong prop
-       * Nếu modelValue khác rỗng và số giá trị mảng option combobox
-       * lớn hơn không thì gán giá trị input bằng giá trị value tương ứng
-       */
-      if (this.modelValue !== "" && this.values.length > 0) {
-        var value = this.values.find(
-          (item) => item[this.id] == this.modelValue
-        );
-        if (value != undefined) {
-          this.valueCB = value[this.name];
-        }
-      }
+    placeholder:{
+      type:String,
+      default:''
+    },
+    className:{
+      type:String,
+      default:""
     }
   },
+  created() {
+    this.loadData()
+  },   
   watch: {
     /**
      * Mô tả:  Lăng nghe thay đổi giá trị model
@@ -140,12 +117,81 @@ export default {
      * Created date: 14/04/2022
      */
     modelValue: function () {
-      if (this.modelValue == "") {
+      
+      if (this.modelValue === "") {
         this.valueCB = "";
       }
+      else this.valueCB = this.values.find(x => x[this.id] === this.modelValue)[this.name]
     },
+    Api:function(){
+      this.valueCB = ""
+      this.loadData()
+    }
   },
   methods: {
+    onClickAction(){
+      var combobox = this.$refs['combobox'].getBoundingClientRect()
+      var action = this.$refs['comboboxAction']
+      var comboboxAction = this.$refs['comboboxAction'].getBoundingClientRect()
+      this.leftAction = parseInt(combobox.left )
+      this.topAction = parseInt(combobox.top+36)
+      var bottomAction = parseInt(combobox.top- combobox.height )
+      this.widthAction = parseInt(combobox.width)
+      this.isShow =! this.isShow
+      action.style.top = this.topAction +'px'
+      const me = this
+      nextTick(function(){
+        if(!me.isDropDown) {
+          console.log(comboboxAction.height)
+          me.topAction = me.topAction - comboboxAction.height
+          console.log(comboboxAction.height)
+          action.style.top = me.topAction +'px'
+        }
+      })
+    },
+    loadData(){
+      //Lấy dữ liệu combobox
+      //Nếu Api có, gọi Api lấy giữ liệu
+      if (this.Api != "") {
+        axios
+          .get(this.Api)
+          .then((response) => {
+            if (response.status === 200) {
+              this.values = response.data;
+              //Nếu modelValue khác rỗng và số giá trị mảng option combobox lớn hơn không thì gán
+              // giá trị input bằng giá trị value tương ứng
+              if (this.modelValue !== "" && this.values.length > 0) {
+                var value = this.values.find(
+                  (item) => item[this.id] == this.modelValue
+                );
+                if (value != undefined) {
+                  this.valueCB = value[this.name];
+                }
+              }
+            }
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      } 
+      else {
+        this.values = this.valueOption;
+        /**
+         * Nếu Api không có, lấy mảng trong prop
+         * Nếu modelValue khác rỗng và số giá trị mảng option combobox
+         * lớn hơn không thì gán giá trị input bằng giá trị value tương ứng
+         */
+        if (!!this.modelValue && this.values.length > 0) {
+          var value = this.values.find(
+            (item) => item[this.id] == this.modelValue
+          );
+          if (value != undefined) {
+            this.valueCB = value[this.name];
+          }
+        }
+        
+      }
+    },
     /**
      * Mô tả: Xử lý khi chọn combobox
      * Created by: Đinh Văn Khánh - MF1112
@@ -154,14 +200,14 @@ export default {
     handleSelect(id, name, index) {
       this.isShow = false;
       this.$emit("update:modelValue", id);
+      this.$emit("change",id,name)
       this.valueCB = name;
       this.removeClass("error");
 
       //Thêm class vào hàng được chọn
-      var trElement = document.querySelectorAll(
-        ".combobox-option table tbody tr"
+      var trElement = this.$refs['baseTable'].querySelectorAll(
+        "tbody tr"
       );
-      console.log(trElement);
       for (var tr of trElement) {
         tr.classList.remove("active");
       }
@@ -244,6 +290,7 @@ export default {
   justify-content: center;
   align-items: center;
   background-color: #fff;
+  
 }
 .action button:hover {
   background-color: #e0e0e0;
@@ -256,14 +303,15 @@ export default {
 }
 
 .combobox-option {
-  position: absolute;
-  left: -1px;
-  right: -1px;
-  top: 130%;
+  position: fixed;
   background-color: #fff;
   border: 1px solid #afafaf;
   border-radius: 2px;
   z-index: 100;
+  max-height: 160px;
+  min-height: 50px;
+  background-color: #fff;
+  overflow-y: auto;
 }
 .dropUp {
   top: unset;

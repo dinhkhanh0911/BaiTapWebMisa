@@ -10,26 +10,60 @@
               </div>
               <div class="btn-container">
                 <BaseButton
-                  :classBtn="'btn-default btn-sq btn-no-op btn-primary'"
-                  :content="'Thêm mới nhân viên'"
+                  :classBtn="'btn-default btn-primary'"
+                  :content="'Thêm mới phiếu chi'"
                   @click="handleAddClick()"
                 />
               </div>
             </div>
-            <!-- <div class="breadcrumb">
-                            <div class="breadcrumb-icon mi mi-16"></div>
-                            <span> Tất cả danh mục</span>
-                        </div> -->
+          </div>
+          <div class="counter grid" :style="{ top: topTitle + 'px' }">
+            <div class="row" style="width:100%">
+              <div class="view-total total-receipt col c-4">
+                <div class="total">100,0</div>
+                <div class="text">Tổng thu đầu năm đến hiện tại</div>
+              </div>
+              <div class="view-total total-payment col c-4">
+                <div class="total">100,0</div>
+                <div class="text">Tổng chi đầu năm đến hiện tại</div>
+              </div>
+              <div class="view-total total-count col c-4">
+                <div class="total">100,0</div>
+                <div class="text">Tổng quỹ đầu năm đến hiện tại</div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-table-container" style="width:100%" :style="{ top: topTitle + 'px' }">
+            <div class="tab-item">
+              <div class="text">Tất cả</div>
+            </div>
+            <div class="tab-item">
+              <div class="text">Thu tiền</div>
+            </div>
+            <div class="tab-item">
+              <div class="text">Chi tiền</div>
+            </div>
           </div>
           <div class="layout-dictionary-body" @scroll="handleScroll($event)">
             <div class="table-option">
-              <div class="table-option-left">
-                <BaseButton
-                  :classBtn="'btn-default'"
-                  :content="'Thực hiện hàng loạt'"
-                  :disabled="isDisableMultipleDeleteBtn"
-                  @click="handleMultipleDeleteClick()"
-                />
+              <div class="table-option-left d-flex">
+                <div class="btn-delete-multi">
+                  <BaseButton
+                    :classBtn="'btn-default'"
+                    :content="'Thực hiện hàng loạt'"
+                    :disabled="isDisableMultipleDeleteBtn"
+                    @click="handleMultipleDeleteClick()"
+                  />
+                </div>
+                <div class="btn-filter">
+                  <BaseButton
+                    :classBtn="'btn-default'"
+                    :content="'Lọc'"
+                    ref="filter"
+                    @click="handlefilterClick('filter')"
+                  />
+                  
+                </div>
               </div>
 
               <div class="table-option-right d-flex alignt-center">
@@ -61,8 +95,8 @@
               </div>
             </div>
             <BaseTable
-              ref="tableEmployee"
-              @employeeValue="handleEdit"
+              ref="tableVendor"
+              @EmployeeValue="handleEdit"
               :searchValue="searchValue"
               :currentPage="currentPage"
               :pageSize="pageSize"
@@ -71,7 +105,12 @@
               @loading="isNoData = false"
               @check="handleCheckDataTable"
               :api="apiColumn"
-              tableName="Employee"
+              tableName="Payment"
+              entityId="PaymentId"
+              entityCode="PaymentCode"
+              entityName="PaymentName"
+              :apiFilter="paymentsFilterApi"
+              :apiDelelte="paymentsApi"
             />
             <div class="router-pagination">
               <div
@@ -132,13 +171,13 @@
       v-if="isShowTooltip"
       :valueTooltip="valueTooltip"
     />
-    <TheEmployeePopup
-      v-if="isShowPopupEmployee"
-      @showPopup="togglePopupEmployee"
-      :modelPopup="employee"
+    <!-- <ThePaymentPopup
+      v-if="isShowPopupPayment"
+      @showPopup="togglePopupPayment"
+      :modelPopup="Payment"
       @showToast="showToast"
       @addSuccess="reloadData"
-    />
+    /> -->
     <div id="toast">
       <BaseToast
         v-for="(toast, index) in toasts"
@@ -155,10 +194,121 @@
     />
     <BaseSettingViewForm 
       :api="apiColumn"
-      tableName="Employee"
+      tableName="Payment"
       v-if="isShowSettingViewForm"
       @close="handleCloseSettingViewForm"
     />
+    <ThePaymentDetail
+      v-if="isShowPopupPayment"
+      :model="payment"
+      @showPopup="togglePopupPayment"
+      @showToast="showToast"
+    />
+    <div class="filter-option-container" v-if="isShowFilter" v-bind:style="{ top: filterBtnTop + 'px', left: filterBtnLeft + 'px' }">
+      <div class="filter-option grid">
+          <!-- Tổ chức -->
+        <div class="primary-input">
+          <div class="row">
+            <div class="col c-12">
+              <div class="form-group">
+                <label for=""
+                  >Lý do</label
+                >
+                <BaseCombobox
+                  :valueOption="filterTypePayments"
+                  :id="'Id'"
+                  :name="'Value'"
+                  :code="'Id'"
+                  :isOneColumn="'true'"
+                  v-model="filterObject.FilterTypePaymentId"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col c-12">
+              <div class="form-group">
+                <label for=""
+                  >Trạng thái ghi nợ</label
+                >
+                <BaseCombobox
+                  :valueOption="filterRecordPayments"
+                  :id="'Id'"
+                  :name="'Value'"
+                  :code="'Id'"
+                  :isOneColumn="'true'"
+                  v-model="filterObject.FilterRecordPaymentId"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col c-4">
+              <div class="form-group">
+                <label for=""
+                  >Tùy chọn</label
+                >
+                <BaseCombobox
+                  :valueOption="filterOptionPayments"
+                  :id="'Id'"
+                  :name="'Value'"
+                  :code="'Id'"
+                  :isOneColumn="'true'"
+                  v-model="filterObject.FilterOptionPaymentId"
+                  @change="handleChangeOptionFilter"
+                />
+              </div>
+            </div>
+            <div class="col c-4">
+              <div class="form-group">
+                <label for="">Từ ngày</label>
+                <DatePicker
+                  v-model:value="formatStartDate"
+                  :format="'DD/MM/YYYY'"
+                  :placeholder="'DD/MM/YYYY'"
+                  :lang="'vi'"
+                  :clearable="false"
+                  title-format="DD/MM/YYYY"
+                />
+              </div>
+            </div>
+            <div class="col c-4">
+              <div class="form-group">
+                <label for="">Đến ngày</label>
+                <DatePicker
+                  v-model:value="formatEndDate"
+                  :format="'DD/MM/YYYY'"
+                  :placeholder="'DD/MM/YYYY'"
+                  :lang="'vi'"
+                  :clearable="false"
+                  title-format="DD/MM/YYYY"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col c-6">
+              <div class="btn-default-filter">
+                  <BaseButton
+                    :classBtn="'btn-default btn-sq btn-no-op'"
+                    :content="'Đặt lại'"
+                    @click="setDefaultFilter()"
+                  />
+              </div>
+            </div>
+            <div class="col c-6">
+              <div class="btn-filter-form">
+                  <BaseButton
+                    :classBtn="'btn-default btn-sq btn-no-op btn-primary'"
+                    :content="'Lọc'"
+                    @click="reloadData()"
+                  />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>            
+    </div>
   </div>
 </template>
 
@@ -178,8 +328,12 @@ import BaseToast from "@/components/base/BaseToast.vue";
 import BasePopup from "@/components/base/BasePopup.vue";
 import BaseCombobox from "@/components/base/BaseCombobox.vue";
 import BaseSettingViewForm from '@/components/base/BaseSettingViewForm.vue'
+import ThePaymentDetail from "@/components/layout/ThePaymentDetail.vue";
 import Api from "@/assets/js/api";
 import axios from "axios";
+import DB from '@/assets/js/hashDatabase'
+import DatePicker from "vue-datepicker-next";
+import "vue-datepicker-next/index.css";
 export default {
   components: {
     BaseButton,
@@ -191,12 +345,14 @@ export default {
     BaseToast,
     BasePopup,
     BaseCombobox,
-    BaseSettingViewForm
-  },
+    BaseSettingViewForm,
+    ThePaymentDetail,
+    DatePicker
+},
   data() {
     return {
       isNoData: false,
-      employeeIds: [],
+      PaymentIds: [],
       isDisableMultipleDeleteBtn: true,
       isShowOptionItem: false,
       //tooltip
@@ -204,8 +360,8 @@ export default {
       leftTooltip: 0,
       isShowTooltip: false,
       valueTooltip: "",
-      isShowPopupEmployee: false,
-      employee: {},
+      isShowPopupPayment: false,
+      payment: {},
 
       //filter
       searchValue: "",
@@ -227,20 +383,68 @@ export default {
       typePopupInfo: "error",
 
       //Combobox phân trang
-      valueOption: [
-        { Id: 10, Value: "10 bản ghi trên 1 trang" },
-        { Id: 20, Value: "20 bản ghi trên 1 trang" },
-        { Id: 30, Value: "30 bản ghi trên 1 trang" },
-        { Id: 50, Value: "50 bản ghi trên 1 trang" },
-        { Id: 100, Value: "100 bản ghi trên 1 trang" },
-      ],
+      valueOption: DB.valueOption,
 
-      apiColumn:`${Api.getColumnOption}`,
+      apiColumn:Api.getColumnOption,
       isShowSettingViewForm:false,
+      paymentsFilterApi:`${Api.payments}/filterAdvanced`,
+      paymentsApi:Api.payments,
+
+      //Filter
+      filterBtnLeft:0,
+      filterBtnTop:0,
+      isShowFilter:false,
+      filterObject:{},
+      filterTypePayments:DB.filterTypePayments,
+      filterRecordPayments:DB.filterRecordPayments,
+      filterOptionPayments:DB.filterOptionPayments,
     };
 
   },
+  computed:{
+    /**
+     * Mô tả:  Chuyển định dạng bắt đầu filter
+     * Created by: Đinh Văn Khánh - MF1112
+     * Created date: 22/05/2022
+     */
+    formatStartDate: {
+      get() {
+        if(this.filterObject.StartDate != null){
+          var date = new Date(this.filterObject.StartDate);
+          return date;
+        }
+      },
+      set(date) {
+        this.filterObject.StartDate = new Date(date);
+        this.filterObject.StartDate = this.filterObject.StartDate.toDateString();
+        
+      },
+    },
+    /**
+     * Mô tả:  Chuyển định dạng bắt đầu filter
+     * Created by: Đinh Văn Khánh - MF1112
+     * Created date: 22/05/2022
+     */
+    formatEndDate: {
+      get() {
+        if(this.filterObject.EndDate != null){
+          var date = new Date(this.filterObject.EndDate);
+          return date;
+        }
+      },
+      set(date) {
+        this.filterObject.EndDate = new Date(date);
+        this.filterObject.EndDate = this.filterObject.EndDate.toDateString();
+        
+      },
+    },
+  }, 
+  watch:{
 
+  },
+  created(){
+    this.setDefaultFilter()
+  },   
   /**
    * Mô tả: Lắng nghe sự kiện
    * Created by: Đinh Văn Khánh - MF1112
@@ -260,6 +464,66 @@ export default {
     window.removeEventListener("keydown", this.handleKeyEventDown);
   },
   methods: {
+    handleChangeOptionFilter(id,name){
+      var startDate = new Date()
+      var endDate = new Date()
+      switch(id){
+        //Năm nay
+        case 5:
+          startDate.setDate(1)
+          startDate.setMonth(1)
+          endDate.setDate(1)
+          endDate.setMonth(12)
+          break
+        case 2:
+          startDate.setDate(1)
+          startDate.setMonth(1)
+          endDate.setDate(1)
+          endDate.setMonth(12)
+          break
+        case 1:
+          startDate.setDate(1)
+          startDate.setMonth(startDate.getMonth())
+          endDate.setDate(1)
+          endDate.setMonth(endDate.getMonth()+1)
+          break
+      }
+      this.filterObject.StartDate = startDate
+      this.filterObject.EndDate = endDate
+    },
+    /**
+    * Mô tả: Chỉnh mặc định các trường lọc
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 20/05/2022
+    */
+    setDefaultFilter(){
+      var startDate = new Date()
+      startDate.setDate(1)
+      startDate.setMonth(1)
+      var endDate = new Date()
+      endDate.setDate(1)
+      endDate.setMonth(12)
+      this.filterObject = {
+        FilterTypePaymentId:7,
+        FilterRecordPaymentId:2,
+        FilterOptionPaymentId:5,
+        StartDate:startDate,
+        EndDate:endDate
+      }
+    },
+
+    /**
+    * Mô tả: Xử lý vị trí của nút button
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 20/05/2022
+    */
+    handlefilterClick(refName){
+      
+      this.filterBtnLeft = parseInt(this.$refs[refName].$el.getBoundingClientRect().left)
+      this.filterBtnTop = parseInt(this.$refs[refName].$el.getBoundingClientRect().top+50)
+      this.isShowFilter = !this.isShowFilter
+      console.log(this.filterBtnLeft,this.filterBtnTop)
+    },
     //Hiển thị toast message
     showPopupInfo(message = "Thành công", type = "success") {
       this.contentPopupInfo = message;
@@ -269,8 +533,8 @@ export default {
     /*
             Hiểm thị popup thêm nhân viên
         */
-    togglePopupEmployee(value) {
-      this.isShowPopupEmployee = value;
+    togglePopupPayment(value) {
+      this.isShowPopupPayment = value;
     },
 
     // Hiển thị toast
@@ -285,23 +549,42 @@ export default {
             Xử ly sự kiện khi bấm nút thêm nhân viên
         */
     handleAddClick() {
-      this.employee = {};
-      this.togglePopupEmployee(true);
+      this.payment = {};
+      this.togglePopupPayment(true);
     },
     /*
             Xử lý sự kiện khi bấm nút sửa nhân viên
         */
-    handleEdit(employee) {
-      this.employee = employee;
-      this.togglePopupEmployee(true);
+    handleEdit(payment) {
+      this.payment = payment;
+      this.togglePopupPayment(true);
     },
 
     /*
-            Lấy dữ liệu 
-        */
-    reloadData() {
+        Lấy dữ liệu 
+    */
+    reloadData(currentPage = 1) {
+      //Đóng form lọc
+      this.isShowFilter = false
+
+      var queryString =""
+      if(this.filterObject.FilterTypePaymentId != 8){
+        queryString += `&paymentType=${this.filterObject.FilterTypePaymentId}`
+      }
+      if(this.filterObject.FilterRecordPaymentId == 3 ){
+        queryString += `&isRecord=${true}`
+      }
+      if(this.filterObject.FilterRecordPaymentId ==1 ){
+        queryString += `&isRecord=${false}`
+      }
+      console.log(this.filterObject.EndDate)
+      var startDate = new Date(this.filterObject.StartDate)
+      var endDate = new Date(this.filterObject.EndDate)
+      queryString += `&startDate=${startDate.toDateString()}`
+      queryString += `&endDate=${endDate.toDateString()}`
+      console.log(queryString)
       // this.currentPage = 1
-      this.$refs.tableEmployee.loadAllData(1);
+      this.$refs.tableVendor.loadAllData(currentPage,queryString);
       
     },
 
@@ -326,6 +609,7 @@ export default {
         */
     clickCallback(pageNum) {
       this.currentPage = pageNum;
+      this.reloadData(this.currentPage)
     },
 
     /**
@@ -334,8 +618,8 @@ export default {
         * Created by: Đinh Văn Khánh - MF1112
         * Created date: 20/04/2022
         */
-    loadHandle(employees, currentPage, totalPage, count) {
-      if (employees.length > 0) {
+    loadHandle(Payments, currentPage, totalPage, count) {
+      if (Payments.length > 0) {
         this.isNoData = false;
       } else this.isNoData = true;
       this.currentPage = currentPage;
@@ -346,7 +630,7 @@ export default {
 
     //Xử lý khi bấm nút xuất dữ liệu
     handleExport() {
-      var apiConnectionString = `${Api.exportEmployee}?currentPage=${this.currentPage}&pageSize=${this.pageSize}`;
+      var apiConnectionString = `${Api.exportPayment}?currentPage=${this.currentPage}&pageSize=${this.pageSize}`;
       axios({
         url: apiConnectionString,
         method: "GET",
@@ -383,27 +667,27 @@ export default {
     //Xử lý chọn nhân viên
     handleCheckDataTable(checkboxs) {
       
-      this.employeeIds = checkboxs;
-      if (this.employeeIds.length > 0) {
+      this.PaymentIds = checkboxs;
+      if (this.PaymentIds.length > 0) {
         this.isDisableMultipleDeleteBtn = false;
       } else this.isDisableMultipleDeleteBtn = true;
     },
 
-    //Xác nhận confirm
+    //Xóa nhiều bản ghi
     handleConfirmBtn(confirm) {
       this.isShowPopupInfo = false;
       if (confirm) {
-        let value = Object.values(this.employeeIds);
+        let value = Object.values(this.PaymentIds);
         axios({
-          url: `${Api.deleteMultiEmployee}`,
+          url: `${Api.deleteMultiPayment}`,
           method: "DELETE",
           data: value,
         })
           .then((response) => {
             if (response.status == 200) {
               this.reloadData();
-              this.showToast(this.toastMsg.deleteEmpSuccessMsg, "success");
-              this.employeeIds = [];
+              this.showToast(this.toastMsg.deletePaymentSuccessMsg, "success");
+              this.PaymentIds = [];
               
             }
           })
@@ -419,7 +703,7 @@ export default {
     //Xử lý xóa nhiều nhân viên
     handleMultipleDeleteClick() {
       this.isShowOptionItem = !this.isShowOptionItem;
-      if (this.employeeIds.length > 0) {
+      if (this.PaymentIds.length > 0) {
         this.showPopupInfo(this.popupMsg.confirmMultipleDeleteMsg, this.typePopupName.warningConfirm);
       }
     },
@@ -452,7 +736,7 @@ export default {
     handleCloseSettingViewForm(isShow){
       this.isShowSettingViewForm = false
       if(isShow){
-        this.$refs.tableEmployee.loadColumnTable(1)
+        this.reloadData(1)
       }
     }
   },
@@ -477,11 +761,11 @@ export default {
   height: calc(100vh - 48px - 88px);
 }
 .title-distance {
-  padding: var(--title-list-padding-top) 39px var(--title-list-padding-top) 0;
+  padding: var(--title-list-padding-top) 30px var(--title-list-padding-top) 0;
   transition: top 0.25s;
   position: absolute;
   top: 0px;
-  z-index: 5;
+  z-index: 7;
   width: 100%;
   align-items: center;
 }
@@ -514,7 +798,7 @@ export default {
   flex: 1;
   padding: calc(
       var(--title-list-padding-bottom) + var(--title-list-padding-bottom) +
-        var(--rounded-button-height) + 3px
+        var(--rounded-button-height) + 140px
     )
     30px 0 0;
   overflow: auto;
@@ -641,5 +925,479 @@ export default {
   background-color: #fff;
   border: 1px solid black;
   z-index: 10000;
+}
+.m-table {
+    width: calc(100% - 20px);
+    height: 100%;
+    position: relative;
+    background-color: #fff;
+    margin-right: 30px;
+}
+
+.m-table::-webkit-scrollbar {
+    height: 10px;
+}
+
+.table-tool {
+    padding: 16px;
+    height: 68px;
+    position: sticky;
+    left: 0px;
+    /*test*/
+}
+
+.table-tool .tool-search {
+    max-width: 250px;
+    margin-right: 10px;
+}
+
+.table-tool .m-right {
+    display: flex;
+    align-items: center;
+}
+
+.table-tool .m-right .ultility-button {
+    display: flex;
+    align-items: center;
+}
+
+.table-tool .m-right .ultility-button>div {
+    margin: 0 6px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.table-tool .m-right .ultility-button .refresh {
+    background: url('@/assets/img/Sprites.64af8f61.svg') no-repeat;
+    background-position: -423px -201px;
+}
+
+.table-tool .m-right .ultility-button .refresh:hover {
+    background-position: -1097px -88px;
+}
+
+.table-tool .m-right .ultility-button .export {
+    background: url('@/assets/img/Sprites.64af8f61.svg') no-repeat;
+    background-position: -704px -200px;
+}
+
+.table-tool .m-right .ultility-button .export:hover {
+    background-position: -704px -256px;
+}
+
+.table-tool .m-right .ultility-button .setting {
+    background: url('@/assets/img/Sprites.64af8f61.svg') no-repeat;
+    background-position: -88px -200px;
+}
+
+.table-tool .m-right .ultility-button .setting:hover {
+    background-position: -88px -256px;
+}
+
+
+/*end table tool*/
+
+.m-table .table-content {
+    width: 100%;
+    /* height: calc(100% - 68px); */
+    /* overflow: scroll; */
+    /* padding-bottom: 56px; */
+}
+
+.m-table .table-content::-webkit-scrollbar {
+    position: absolute;
+    width: 5px;
+    height: 10px;
+    background-color: #f1f1f1;
+}
+
+.m-table .table-content::-webkit-scrollbar-thumb {
+    background-color: #b8bcc3;
+}
+
+.m-table .table-content::-webkit-scrollbar-thumb:hover {
+    background-color: #a5a5a5;
+}
+
+.m-table .table-content::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+    /* overflow: hidden; */
+    width: 100%;
+}
+
+.table-content thead>tr>th {
+    border-bottom: 1px solid #c7c7c7;
+    margin: 0;
+    /* min-width: 120px; */
+    position: sticky;
+    top: 0;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-style: bold;
+    padding: 0 10px;
+    text-align: left;
+    border-right: 1px solid #c7c7c7;
+}
+
+.table-content thead>tr {
+    margin: 0;
+    height: 35px;
+    z-index: 2;
+    background-color: #eceef1;
+}
+
+.table-content tbody>tr td {
+    border-right: 1px dotted #c7c7c7;
+    padding: 0 10px;
+}
+
+.table-content tfoot>tr td {
+    padding: 0 10px;
+}
+
+.table-content tbody>tr>td {
+    border-bottom: 1px solid #c7c7c7;
+    box-sizing: border-box;
+    min-height: 44px;
+    height: 44px;
+}
+
+.table-content tfoot>tr>td {
+    box-sizing: border-box;
+    min-height: 44px;
+    height: 44px;
+}
+
+.table-content tbody>tr:last-child {
+    border-bottom: 1px solid #c7c7c7;
+}
+
+.table-content thead th {
+    border-right: 1px solid #c7c7c7;
+    background-color: #eceef1;
+    z-index: 2;
+}
+
+.table-content tbody td {
+    background-color: #fff;
+}
+
+.table-content tfoot td {
+    background-color: #eceef1;
+    position: sticky;
+    bottom: 0px;
+}
+
+.table-content tbody tr.selected>td {
+    background-color: #e5f3ff;
+}
+
+.table-content tbody tr.checked>td {
+    background-color: #e5f3ff;
+}
+
+.table-content tbody tr:hover>td {
+    background-color: #f2f9ff;
+}
+
+.table-content thead th.table-checkbox {
+    position: sticky;
+    left: 16px;
+    z-index: 3;
+    max-width: 40px;
+    min-width: 40px;
+    box-sizing: border-box;
+}
+
+.table-content thead th.table-function {
+    border-right: none;
+    position: sticky;
+    right: 40px;
+    z-index: 3;
+    width: 120px;
+    text-align: center;
+    border-left: 1px solid #c7c7c7;
+}
+
+.table-content tbody td.table-function {
+    border-right: none;
+    position: sticky;
+    right: 40px;
+    z-index: 2;
+    border-left: 1px dotted #c7c7c7;
+    /* min-width: 120px; */
+    text-align: center;
+}
+
+.table-content tfoot td.table-function {
+    border-right: none;
+    position: sticky;
+    right: 40px;
+    z-index: 2;
+    text-align: center;
+    background-color: #eceef1;
+}
+
+.table-content tbody td.table-checkbox {
+    position: sticky;
+    left: 16px;
+    z-index: 2;
+    max-width: 40px;
+    min-width: 40px;
+    box-sizing: border-box;
+}
+
+.table-content tfoot td.table-checkbox {
+    position: sticky;
+    left: 16px;
+    z-index: 2;
+    max-width: 40px;
+    min-width: 40px;
+    box-sizing: border-box;
+    background-color: #eceef1;
+}
+
+.table-content .hidden-left {
+    position: sticky;
+    left: 0px;
+    z-index: 4;
+    max-width: 16px;
+    min-width: 16px;
+    border: none;
+    padding: 0;
+    background-color: #fff;
+    pointer-events: none;
+}
+
+.table-content .hidden-right {
+    pointer-events: none;
+    position: sticky;
+    right: 0px;
+    padding: 0;
+    z-index: 4;
+    max-width: 20px;
+    min-width: 20px;
+    border: none;
+    background-color: #fff;
+}
+
+
+/* table function*/
+
+.table-function .table-function-button {
+    /* height: 36px; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.table-function .table-function-button .button-edit {
+    color: #0075c0;
+    margin-left: 10px;
+    font-weight: 600;
+}
+
+.table-function .table-function-button .arrow-down-button {
+    /* height: 16px; */
+    padding: 0px 5px;
+    margin: 0px 9px;
+    border: 1px solid transparent;
+}
+
+.table-function .table-function-button .arrow-down-button .icon {
+    background: url('@/assets/img/Sprites.64af8f61.svg') no-repeat;
+    background-position: -896px -359px;
+    width: 16px;
+    height: 16px;
+}
+
+.table-function .table-function-button .arrow-down-button:hover {
+    border: 1px solid #0075c0;
+}
+
+.table-function .table-function-button .button-edit:hover {
+    cursor: pointer;
+}
+
+.table-function .table-function-button .arrow-down-button:hover {
+    cursor: pointer;
+}
+
+
+/*table footer , paging*/
+
+.table-footer {
+    position: sticky;
+    bottom: 0px;
+    height: 56px;
+    width: 100%;
+    z-index: 5;
+    padding-right: 5px;
+    left: 0;
+    top: calc(100% - 56px);
+}
+
+.table-footer .footer {
+    background-color: #fff;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+}
+
+.table-footer .footer .count {
+    font-weight: 600;
+}
+
+.table-footer .footer .paging {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.table-footer .footer .paging .select-max-row {
+    min-width: 200px;
+}
+
+.table-footer .footer .count-row {
+    display: flex;
+    align-items: center;
+}
+
+.table-footer .footer .paging-index {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.table-footer .footer .paging-index .index {
+    height: 20px;
+    margin-left: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.table-footer .footer .paging-index .index .number-index {
+    height: 20px;
+    margin-left: 5px;
+    display: flex;
+    align-items: center;
+    padding: 0 6.5px;
+}
+
+.table-footer .footer .paging-index .index .number-index.selected {
+    border: 1px solid #00000021;
+}
+
+.table-footer .footer .paging-index .next {
+    height: 20px;
+    margin-left: 5px;
+}
+
+.table-footer .footer .paging-index .prev {
+    height: 20px;
+    margin-left: 5px;
+}
+.counter {
+  padding: calc(var(--title-list-padding-top) + 65px) 30px var(--title-list-padding-top) 0;
+  transition: top 0.25s;
+  position: absolute;
+  top: 0px;
+  z-index: 5;
+  width: 100%;
+  align-items: center;
+}
+.counter .row{
+  margin-right: 0!important;
+}
+.view-total{
+  min-height: 64px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 15px;
+}
+.total-receipt{
+  background: #ff7f2c;
+  color: #fff;
+  padding-left: 20px;
+}
+.total-payment{
+  background: #00a9f2;
+  color: #fff;
+}
+.total-count{
+  background: #74cb2f;
+}
+.total-count .total{
+  color: #ff7f2c;
+}
+.total-count .text{
+  color: #fff;
+}
+.total{
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+.text{
+  font-size:14px;
+}
+.tab-table-container{
+  display: flex;
+  padding: calc(var(--title-list-padding-top) + 153px) 30px var(--title-list-padding-top) 0;
+  transition: top 0.25s;
+  position: absolute;
+  top: 0px;
+  z-index: 5;
+  width: 100%;
+  align-items: center;
+  padding-left: 15px;
+
+}
+.tab-item + .tab-item{
+  margin-left: 30px;
+}
+
+.btn-filter{
+  margin-left: 10px;
+  position: relative;
+}
+.filter-option-container{
+  
+  height: auto;
+  position:fixed;
+  
+  z-index: 30;
+}
+.filter-option{
+  border: 1px solid #c7c7c7;
+  background-color: #fff;
+  padding: 20px;
+  width: 456px;
+  padding-top: 0px;
+}
+.filter-option .row{
+  margin-top: 20px;
+}
+.btn-filter-form{
+  display: flex;
+  justify-content: right;
+}
+</style>
+<style>
+.sticky-top--87{
+  top:-224px!important;
 }
 </style>

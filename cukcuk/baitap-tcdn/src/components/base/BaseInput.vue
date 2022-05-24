@@ -50,6 +50,10 @@ export default {
       type: String,
       default: "",
     },
+    // isNumber:{
+    //   type:boolean,
+    //   default:false
+    // }
   },
   data() {
     return {
@@ -58,6 +62,21 @@ export default {
       timeOut: null,
       title: "",
     };
+  },
+  computed:{
+    formatNumber: {
+      get() {
+        if(this.employee.IdentityDate != null){
+          var date = new Date(this.employee.IdentityDate);
+        
+          return date;
+        }
+      },
+      set(date) {
+        this.employee.IdentityDate = new Date(date);
+        this.employee.IdentityDate = this.employee.IdentityDate.toDateString();
+      },
+    },
   },
   methods: {
     /**
@@ -135,6 +154,17 @@ export default {
   },
 };
 </script>
+<style scoped>
+.text-center input{
+    text-align: center!important;
+}
+.text-left input{
+    text-align: left!important;
+}
+.text-right input{
+    text-align: right!important;
+}
+</style>
 <style>
 @import url("@/assets/css/input/input.css");
 </style>

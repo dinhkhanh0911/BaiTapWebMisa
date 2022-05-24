@@ -4,9 +4,49 @@
       <div class="popup-dialog" role="document">
         <div class="popup-content">
           <div class="popup-header d-flex justify-space-between">
-            <div class="popup-title-box">
-              <div class="header-popup d-flex">
+            <div class="popup-title-box d-flex alignt-center">
+              <div class="header-popup">
                 <h1 class="popup-title">Thông tin nhà cung cấp</h1>
+              </div>
+
+              <div class="header-option d-flex justify-space-between">
+                <div class="checkbox-container d-flex">
+                  <BaseRadioButton
+                    :classCheckbox="'right-10'"
+                    :nameRadio="'popupBody'"
+                    :labelRadio="'Tổ chức'"
+                    v-model="vendor.VendorType"
+                    :valueRadio="0"
+                  />
+                  <BaseRadioButton
+                    :nameRadio="'popupBody'"
+                    :labelRadio="'Cá nhân'"
+                    v-model="vendor.VendorType"
+                    :valueRadio="1"
+                  />
+                </div>
+                <div class="checkbox-container d-flex alignt-center">
+                  <input
+                    type="checkbox"
+                    class="checkbox"
+                    v-model="vendor.IsCustomer"
+                  />
+
+                  <span
+                    class="checkbox-border"
+                    :class="{
+                      'checkbox-border-active': vendor.IsCustomer,
+                    }"
+                  >
+                    <span
+                      class="mi mi-16"
+                      :class="{
+                        'checkbox-active': vendor.IsCustomer,
+                      }"
+                    ></span>
+                  </span>
+                  <label for="">Là khách hàng</label>
+                </div>
               </div>
             </div>
             <div class="close-popup">
@@ -16,7 +56,119 @@
           </div>
           <div class="popup-body">
             <div class="grid">
-              <div class="primary-input" >
+              <!-- Tổ chức -->
+              <div class="primary-input" v-if="vendor.VendorType == 0">
+                <div class="row">
+                  <div class="col c-2-5">
+                    <div class="form-group">
+                      <label for=""
+                        >Mã số thuế<span class="required-text">*</span></label
+                      >
+                      <BaseInput
+                        v-model="vendor.TaxCode"
+                        ref="TaxCode"
+                        :componentDes="'Mã số thuế'"
+                      />
+                    </div>
+                  </div>
+                  <div class="col c-3-5 padding-right-8">
+                    <div class="form-group">
+                      <label for=""
+                        >Mã nhà cung cấp<span class="required-text">*</span></label
+                      >
+                      <BaseInput
+                        v-model="vendor.VendorCode"
+                        ref="VendorCode"
+                        :componentDes="'Mã nhà cung cấp'"
+                      />
+                    </div>
+                  </div>
+                  <div class="col c-2-5 padding-left-8">
+                    <div class="form-group">
+                      <label for=""
+                        >Điện thoại</label
+                      >
+                      <BaseInput
+                        v-model="vendor.PhoneNumber"
+                        ref="PhoneNumber"
+                        :componentDes="'Số điện thoại'"
+                      />
+                    </div>
+                  </div>
+                  <div class="col c-3-5 padding-right-8">
+                    <div class="form-group">
+                      <label for=""
+                        >Website</label
+                      >
+                      <BaseInput
+                        v-model="vendor.Website"
+                        ref="Website"
+                        :componentDes="'Website'"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col c-6 padding-right-8">
+                    <div class="form-group">
+                      <label for=""
+                        >Tên nhà cung cấp<span class="required-text">*</span></label
+                      >
+                      <BaseInput
+                        v-model="vendor.VendorName"
+                        ref="VendorName"
+                        :componentDes="'Tên'"
+                      />
+                    </div>
+                  </div>
+                  <div class="col c-6 padding-left-8">
+                    <div class="form-group">
+                      <label for="" :title="'Số chứng minh nhân dân'"
+                        >Nhóm nhà cung cấp</label
+                      >
+                      <BaseComboboxMulti
+                        :Api="vendorGroupApi"
+                        v-model="vendor.VendorGroup"
+                        :id="'VendorGroupId'"
+                        :name="'VendorGroupName'"
+                        :code="'VendorGroupCode'"
+                        :componentDes="'Nhóm nhà cung cấp'"
+                        ref="VendorGroup"
+                      />
+                    </div>
+                  </div>
+                  
+                </div>
+                <div class="row">
+                  <div class="col c-6 padding-right-8">
+                    <div class="form-group">
+                      <label for="">Địa chỉ</label>
+                      <textarea v-model="vendor.Address" style="width:100%"
+                        placeholder="VD: số 82 Duy Tân Dịch Vọng Hậu Cầu Giấy Hà Nội"
+                      />
+                    </div>
+                  </div>
+                  <div class="col c-6 padding-left-8">
+                    <div class="form-group">
+                      <label for=""
+                        >Nhóm nhà cung cấp</label
+                      >
+                      <BaseCombobox
+                        :Api="employeeApi"
+                        v-model="vendor.EmployeeId"
+                        :id="'EmployeeId'"
+                        :name="'EmployeeName'"
+                        :code="'EmployeeCode'"
+                        :componentDes="'Nhân viên mua hàng'"
+                        ref="EmployeeId"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cá nhân -->
+              <div class="primary-input" v-else>
                 <div class="row">
                   <div class="col c-2-5">
                     <div class="form-group">
@@ -24,8 +176,8 @@
                         >Mã nhà cung cấp<span class="required-text">*</span></label
                       >
                       <BaseInput
-                        v-model="employee.EmployeeCode"
-                        ref="EmployeeCode"
+                        v-model="vendor.VendorCode"
+                        ref="VendorCode"
                         :componentDes="'Mã'"
                       />
                     </div>
@@ -36,10 +188,9 @@
                         >Mã số thuế<span class="required-text">*</span></label
                       >
                       <BaseInput
-                        v-model="employee.FullName"
-                        ref="FullName"
+                        v-model="vendor.TaxCode"
+                        ref="TaxCode"
                         :componentDes="'Tên'"
-                        @blur="onBlur($event,'FullName')"
                       />
                     </div>
                   </div>
@@ -50,13 +201,12 @@
                       >
                       <BaseComboboxMulti
                         :Api="vendorGroupApi"
-                        v-model="employee.DepartmentId"
+                        v-model="vendor.VendorGroup"
                         :id="'VendorGroupId'"
                         :name="'VendorGroupName'"
                         :code="'VendorGroupCode'"
-                        :componentDes="'Đơn vị'"
+                        :componentDes="'Nhóm nhà cung cấp'"
                         ref="VendorGroupId"
-                        :timer="1000"
                       />
                     </div>
                   </div>
@@ -65,40 +215,39 @@
                   <div class="col c-2-5">
                     <div class="form-group">
                       <label for=""
-                        >Đơn vị<span class="required-text">*</span></label
+                        >Tên nhà cung cấp</label
                       >
                       <BaseCombobox
-                        :Api="departmentApi"
-                        v-model="employee.DepartmentId"
-                        :id="'DepartmentId'"
-                        :name="'DepartmentName'"
-                        :code="'DepartmentCode'"
-                        :componentDes="'Đơn vị'"
-                        ref="DepartmentId"
+                        :valueOption="contact"
+                        :isOneColumn="'true'"
+                        :id="'ContactId'"
+                        :name="'ContactName'"
+                        :code="'ContactId'"
+                        :componentDes="'Xưng hô'"
+                        ref="PrefixNameId"
+                        v-model="vendor.PrefixNameId"
                       />
                     </div>
                   </div>
                   <div class="col c-3-5 padding-left-8">
                     <div class="form-group">
-                      <label for="" :title="'Số chứng minh nhân dân'"
-                        >Số CMND</label
-                      >
-                      <BaseInput v-model="employee.IdentityNumber" />
+                      <label for="" style="opacity:0">a </label>
+                      <BaseInput v-model="vendor.VendorName" />
                     </div>
                   </div>
                   <div class="col c-6 padding-left-8">
                     <div class="form-group">
                       <label for=""
-                        >Nhóm nhà cung cấp</label
+                        >Nhân viên mua hàng</label
                       >
                       <BaseCombobox
-                        :Api="departmentApi"
-                        v-model="employee.DepartmentId"
-                        :id="'DepartmentId'"
-                        :name="'DepartmentName'"
-                        :code="'DepartmentCode'"
-                        :componentDes="'Đơn vị'"
-                        ref="DepartmentId"
+                        :Api="employeeApi"
+                        v-model="vendor.EmployeeId"
+                        :id="'EmployeeId'"
+                        :name="'EmployeeName'"
+                        :code="'EmployeeCode'"
+                        :componentDes="'Nhân viên mua hàng'"
+                        ref="EmployeeId"
                       />
                     </div>
                   </div>
@@ -107,105 +256,7 @@
                   <div class="col c-6 padding-right-8">
                     <div class="form-group">
                       <label for="">Địa chỉ</label>
-                      <textarea v-model="employee.PositionName" style="width:100%"
-                        placeholder="VD: số 82 Duy Tân Dịch Vọng Hậu Cầu Giấy Hà Nội"
-                      />
-                    </div>
-                  </div>
-                  
-                </div>
-              </div>
-              <div class="primary-input" style="display:none">
-                <div class="row">
-                  <div class="col c-2-5">
-                    <div class="form-group">
-                      <label for=""
-                        >Mã nhà cung cấp<span class="required-text">*</span></label
-                      >
-                      <BaseInput
-                        v-model="employee.EmployeeCode"
-                        ref="EmployeeCode"
-                        :componentDes="'Mã'"
-                      />
-                    </div>
-                  </div>
-                  <div class="col c-3-5 padding-right-8">
-                    <div class="form-group">
-                      <label for=""
-                        >Mã số thuế<span class="required-text">*</span></label
-                      >
-                      <BaseInput
-                        v-model="employee.FullName"
-                        ref="FullName"
-                        :componentDes="'Tên'"
-                        @blur="onBlur($event,'FullName')"
-                      />
-                    </div>
-                  </div>
-                  <div class="col c-6 padding-left-8">
-                    <div class="form-group">
-                      <label for=""
-                        >Nhóm nhà cung cấp</label
-                      >
-                      <BaseCombobox
-                        :Api="departmentApi"
-                        v-model="employee.DepartmentId"
-                        :id="'DepartmentId'"
-                        :name="'DepartmentName'"
-                        :code="'DepartmentCode'"
-                        :componentDes="'Đơn vị'"
-                        ref="DepartmentId"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col c-2-5">
-                    <div class="form-group">
-                      <label for=""
-                        >Đơn vị<span class="required-text">*</span></label
-                      >
-                      <BaseCombobox
-                        :Api="departmentApi"
-                        v-model="employee.DepartmentId"
-                        :id="'DepartmentId'"
-                        :name="'DepartmentName'"
-                        :code="'DepartmentCode'"
-                        :componentDes="'Đơn vị'"
-                        ref="DepartmentId"
-                      />
-                    </div>
-                  </div>
-                  <div class="col c-3-5 padding-left-8">
-                    <div class="form-group">
-                      <label for="" :title="'Số chứng minh nhân dân'"
-                        >Số CMND</label
-                      >
-                      <BaseInput v-model="employee.IdentityNumber" />
-                    </div>
-                  </div>
-                  <div class="col c-6 padding-left-8">
-                    <div class="form-group">
-                      <label for=""
-                        >Nhóm nhà cung cấp</label
-                      >
-                      <BaseCombobox
-                        :Api="departmentApi"
-                        v-model="employee.DepartmentId"
-                        :id="'DepartmentId'"
-                        :name="'DepartmentName'"
-                        :code="'DepartmentCode'"
-                        :componentDes="'Đơn vị'"
-                        ref="DepartmentId"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col c-6 padding-right-8">
-                    <div class="form-group">
-                      <label for="">Địa chỉ</label>
-                      <textarea v-model="employee.PositionName" style="width:100%" />
+                      <textarea v-model="vendor.Address" style="width:100%" />
                     </div>
                   </div>
                   
@@ -237,19 +288,45 @@
                         <span>Ghi chú</span>
                     </div>
                 </div>
+
+                <!-- Tab-1 Tổ chức -->
                 <div class="sub-input-container" 
-                  v-if="tabActive == 'tab-1'">
+                  v-if="tabActive == 'tab-1' && vendor.VendorType == 0 && vendor.IsCustomer == false">
+                  <div class="row">
+                    <div class="col c-2-5">
+                      <div class="form-group">
+                        <label for="">Người liên hệ</label>
+                        <BaseCombobox
+                        :valueOption="contact"
+                        :isOneColumn="'true'"
+                        :id="'ContactId'"
+                        :name="'ContactName'"
+                        :code="'ContactId'"
+                        :componentDes="'Xưng hô'"
+                        ref="PrefixNameId"
+                        v-model="vendor.PrefixNameId"
+                      />
+                      </div>
+                    </div>
+                    <div class="col c-3-5 padding-right-8">
+                      <div class="form-group">
+                        <label for="">Thông tin CMND/Thẻ căn cước</label>
+                        <BaseInput v-model="vendor.VendorName" :placeholder="'Họ và tên'"/>
+                      </div>
+                    </div>
+                    <div class="col c-6 padding-left-8">
+                      <div class="form-group">
+                        <label for="">Đại diện theo PL</label>
+                        <BaseInput v-model="employee.ContactAddress" />
+                      </div>
+                    </div>
+                  </div>
                   <div class="row">
                     <div class="col c-6">
                       <div class="form-group">
-                        <label for="">Thông tin liên hệ</label>
-                        <BaseInput v-model="employee.ContactAddress" :placeholder="'Email'"/>
-                      </div>
-                    </div>
-                    <div class="col c-3">
-                      <div class="form-group">
-                        <label for="">Thông tin CMND/Thẻ căn cước</label>
-                        <BaseInput v-model="employee.ContactAddress" :placeholder="'Số CMND/Thẻ căn cước'"/>
+                        
+                        <BaseInput v-model="vendor.ContactName"
+                        :placeholder="'Email'"/>
                       </div>
                     </div>
                   </div>
@@ -257,7 +334,106 @@
                     <div class="col c-3">
                       <div class="form-group">
                         
-                        <BaseInput v-model="employee.PhoneNumber" 
+                        <BaseInput v-model="vendor.PhoneNumber" 
+                        :placeholder="'Điện thoại di động'"/>
+                      </div>
+                    </div>
+                
+                  </div>
+                </div>
+
+                <!-- Tab-1 Tổ chức khách hàng -->
+                <div class="sub-input-container" 
+                  v-if="tabActive == 'tab-1' && vendor.VendorType == 0 && vendor.IsCustomer == true">
+                  <div class="row">
+                    <div class="col c-2-5">
+                      <div class="form-group">
+                        <label for="">Người liên hệ</label>
+                        <BaseCombobox
+                        :valueOption="contact"
+                        :isOneColumn="'true'"
+                        :id="'ContactId'"
+                        :name="'ContactName'"
+                        :code="'ContactId'"
+                        :componentDes="'Xưng hô'"
+                        ref="PrefixNameId"
+                        v-model="vendor.PrefixNameId"
+                      />
+                      </div>
+                    </div>
+                    <div class="col c-3-5 padding-right-8">
+                      <div class="form-group">
+                        <label for="">Thông tin CMND/Thẻ căn cước</label>
+                        <BaseInput v-model="vendor.VendorName" :placeholder="'Họ và tên'"/>
+                      </div>
+                    </div>
+                    <div class="col c-6 padding-left-8">
+                      <div class="form-group">
+                        <label for="">Người nhận hóa đơn điện tử</label>
+                        <BaseInput v-model="vendor.VendorName" :placeholder="'Họ và tên'"/>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col c-6 padding-right-8">
+                      <div class="form-group">
+                        
+                        <BaseInput v-model="vendor.ContactEmail"
+                        :placeholder="'Email'"/>
+                      </div>
+                    </div>
+                    <div class="col c-6 padding-left-8">
+                      <div class="form-group">
+                        
+                        <BaseInput v-model="vendor.ContactEmail"
+                        :placeholder="'Email'"/>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col c-3">
+                      <div class="form-group">
+                        
+                        <BaseInput v-model="vendor.PhoneNumber" 
+                        :placeholder="'Điện thoại di động'"/>
+                      </div>
+                    </div>
+                    <div class="col c-3">
+                      
+                    </div>
+                    <div class="col c-3 padding-left-8">
+                      <div class="form-group">
+                        
+                        <BaseInput v-model="vendor.PhoneNumber" 
+                        :placeholder="'Điện thoại di động'"/>
+                      </div>
+                    </div>
+                
+                  </div>
+                </div>
+
+                <!-- Tab-1 Cá nhân -->
+                <div class="sub-input-container" 
+                  v-else-if="tabActive == 'tab-1' && vendor.VendorType == 1">
+                  <div class="row">
+                    <div class="col c-6">
+                      <div class="form-group">
+                        <label for="">Thông tin liên hệ</label>
+                        <BaseInput v-model="vendor.ContactEmail" :placeholder="'Email'"/>
+                      </div>
+                    </div>
+                    <div class="col c-3">
+                      <div class="form-group">
+                        <label for="">Thông tin CMND/Thẻ căn cước</label>
+                        <BaseInput v-model="vendor.IdentityNumber" :placeholder="'Số CMND/Thẻ căn cước'"/>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col c-3">
+                      <div class="form-group">
+                        
+                        <BaseInput v-model="vendor.PhoneNumber" 
                         :placeholder="'Điện thoại di động'"/>
                       </div>
                     </div>
@@ -266,7 +442,7 @@
                     </div>
                     <div class="col c-3">
                       <DatePicker
-                        v-model:value="formatBrithDay"
+                        v-model:value="formatIdentityDate"
                         :format="'DD/MM/YYYY'"
                         :placeholder="'Ngày cấp'"
                         :lang="'vi'"
@@ -280,7 +456,7 @@
                     <div class="col c-3">
                       <div class="form-group">
                         
-                        <BaseInput v-model="employee.PhoneNumber"
+                        <BaseInput v-model="vendor.LandLineNumber"
                         :placeholder="'Điện thoại cố định'"/>
                       </div>
                     </div>
@@ -288,7 +464,7 @@
                       
                     </div>
                     <div class="col c-6">
-                      <BaseInput v-model="employee.PhoneNumber" 
+                      <BaseInput v-model="vendor.IdentityPlace" 
                         :placeholder="'Nơi cấp'"/>
                     </div>
                   </div>
@@ -309,39 +485,39 @@
                       <div class="form-group">
                         <label for="">Điều khoản thanh toán</label>
                         <BaseCombobox
-                          :Api="departmentApi"
-                          v-model="employee.DepartmentId"
-                          :id="'DepartmentId'"
-                          :name="'DepartmentName'"
-                          :code="'DepartmentCode'"
+                          :valueOption="contract"
+                          v-model="vendor.ContractId"
+                          :id="'ContractId'"
+                          :name="'ContractName'"
+                          :code="'ContractCode'"
                           :componentDes="'Đơn vị'"
-                          ref="DepartmentId"
+                          ref="ContractId"
                         />
                       </div>
                     </div>
                     <div class="col c-3">
                       <div class="form-group">
                         <label for="">Số ngày được nợ</label>
-                        <BaseInput v-model="employee.ContactAddress" />
+                        <BaseInput v-model="vendor.MaxDebitDate" />
                       </div>
                     </div>
                     <div class="col c-3">
                       <div class="form-group">
                         <label for="">Số nợ phải trả</label>
-                        <BaseInput v-model="employee.ContactAddress" />
+                        <BaseInput v-model="vendor.MaxDebitAmount" />
                       </div>
                     </div>
                   </div>
                   <div class="row">
-                    <div class="col c-3">
+                    <div class="col c-3" v-if="vendor.IsCustomer">
                       <div class="form-group">
                         <label for="">Tài khoản công nợ phải thu</label>
                         <BaseCombobox
-                          :Api="departmentApi"
-                          v-model="employee.DepartmentId"
-                          :id="'DepartmentId'"
-                          :name="'DepartmentName'"
-                          :code="'DepartmentCode'"
+                          :valueOption="debitReceiptAccount"
+                          v-model="vendor.DebitReceiptAccountId"
+                          :id="'DebitReceiptAccountId'"
+                          :name="'BankName'"
+                          :code="'BankAccount'"
                           :componentDes="'Đơn vị'"
                           ref="DepartmentId"
                         />
@@ -351,11 +527,11 @@
                       <div class="form-group">
                         <label for="">Tài khoản công nợ phải trả</label>
                         <BaseCombobox
-                          :Api="departmentApi"
-                          v-model="employee.DepartmentId"
-                          :id="'DepartmentId'"
-                          :name="'DepartmentName'"
-                          :code="'DepartmentCode'"
+                          :valueOption="debitPaymentAccount"
+                          v-model="vendor.DebitPaymentAccountId"
+                          :id="'DebitPaymentAccountId'"
+                          :name="'BankName'"
+                          :code="'BankAccount'"
                           :componentDes="'Đơn vị'"
                           ref="DepartmentId"
                         />
@@ -369,9 +545,21 @@
                   <div class="row">
                     <div class="col c-12">
                       <div class="form-group">
-                        <label for="">Địa chỉ 3</label>
-                        <BaseEditableTable v-model="employee.ContactAddress" 
+                        <BaseEditableTable
+                          ref="tableAccount"
                           :api="tableBankAccountApi"
+                          v-model="vendor.Bank"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row add-btn-content">
+                    <div class="col c-12">
+                      <div class="form-group" style="margin-top: 10px">
+                        <BaseButton
+                          @click="addRowTableAccount()"
+                          :classBtn="'btn-default btn-sq btn-no-op'"
+                          :content="'Thêm mới'"
                         />
                       </div>
                     </div>
@@ -381,97 +569,85 @@
                 <div class="sub-input-container" 
                   v-if="tabActive == 'tab-4'">
                   <div class="row">
-                    <div class="col c-6">
-                      <div class="form-group">
-                        <label for="">Địa chỉ 4</label>
-                        <BaseInput v-model="employee.ContactAddress" />
-                      </div>
-                    </div>
                     <div class="col c-3">
                       <div class="form-group">
-                        <label for="">Thông tin CMND/Thẻ căn cước</label>
-                        <BaseInput v-model="employee.ContactAddress" />
+                        <label for=""
+                          >Địa chỉ</label
+                        >
+                        <BaseCombobox
+                          :valueOption="country"
+                          :isOneColumn="'true'"
+                          :id="'Id'"
+                          :name="'Value'"
+                          :code="'Id'"
+                          :componentDes="'Đất nước'"
+                          ref="Country"
+                          v-model="vendor.CountryId"
+                          @change="onChangeAddress($event,'Country')"
+                        />
                       </div>
                     </div>
+                    <div class="col c-3 padding-left-8">
+                      <div class="form-group">
+                        <label for="" style="opacity:0" >a </label>
+                        <BaseCombobox
+                          :Api="provincies"
+                          :isOneColumn="'true'"
+                          :id="'ProvinceId'"
+                          :name="'ProvinceName'"
+                          :code="'ProvinceCode'"
+                          :componentDes="'Tỉnh'"
+                          ref="Province"
+                          v-model="vendor.ProvinceId"
+                          @change="onChangeAddress($event,'Province')"
+                          :placeholder="'Tỉnh,thành phố'"
+                        />
+                    </div>
+                  </div>
+                  
                   </div>
                   <div class="row">
                     <div class="col c-3">
                       <div class="form-group">
-                        
-                        <BaseInput v-model="employee.PhoneNumber" />
+                        <BaseCombobox
+                          :Api="districts"
+                          :isOneColumn="'true'"
+                          :id="'DistrictId'"
+                          :name="'DistrictName'"
+                          :code="'DistrictCode'"
+                          :componentDes="'Tỉnh'"
+                          ref="District"
+                          v-model="vendor.DistrictId"
+                          @change="onChangeAddress($event,'District')"
+                          :placeholder="'Quận,huyện'"
+                        />
                       </div>
                     </div>
-                    <div class="col c-3">
+                    <div class="col c-3 padding-left-8">
                       <div class="form-group">
-                        
-                        
-                      </div>
-                    </div>
-                    <div class="col c-3">
-                      <div class="form-group">
-                        <BaseInput
-                          v-model="employee.Email"
-                          ref="Email"
-                          :componentDes="'Email'"
+                        <BaseCombobox
+                          :Api="wards"
+                          :isOneColumn="'true'"
+                          :id="'WardId'"
+                          :name="'WardName'"
+                          :code="'WardCode'"
+                          :componentDes="'Tỉnh'"
+                          ref="Ward"
+                          v-model="vendor.WardId"
+                          :placeholder="'Xã,phường'"
+
                         />
                       </div>
                     </div>
                   </div>
-                  <div class="row">
-                    <div class="col c-6">
-                      <div class="form-group">
-                        <label for="">Đại diện theo PL</label>
-                        <BaseInput v-model="employee.ContactAddress" />
-                      </div>
-                    </div>
                   
-                  </div>
                 </div>
                 <div class="sub-input-container" 
                   v-if="tabActive == 'tab-5'">
                   <div class="row">
-                    <div class="col c-6">
-                      <div class="form-group">
-                        <label for="">Địa chỉ 5</label>
-                        <BaseInput v-model="employee.ContactAddress" />
-                      </div>
-                    </div>
-                    <div class="col c-3">
-                      <div class="form-group">
-                        <label for="">Thông tin CMND/Thẻ căn cước</label>
-                        <BaseInput v-model="employee.ContactAddress" />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col c-3">
-                      <div class="form-group">
-                        
-                        <BaseInput v-model="employee.PhoneNumber" />
-                      </div>
-                    </div>
-                    <div class="col c-3">
-                      <div class="form-group">
-                        
-                        
-                      </div>
-                    </div>
-                    <div class="col c-3">
-                      <div class="form-group">
-                        <BaseInput
-                          v-model="employee.Email"
-                          ref="Email"
-                          :componentDes="'Email'"
-                          :placeholder="'Email'"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col c-6">
-                      <div class="form-group">
-                        <label for="">Đại diện theo PL</label>
-                        <BaseInput v-model="employee.ContactAddress" />
+                    <div class="col c-12">
+                      <div class="form-group note">
+                        <textarea class="note" v-model="employee.ContactAddress" />
                       </div>
                     </div>
                   
@@ -547,7 +723,7 @@ export default {
     DatePicker,
     BaseComboboxMulti,
     BaseEditableTable,
-    BaseEditableTable
+    BaseEditableTable,
 },
   props: {
     modelPopup: {
@@ -557,9 +733,9 @@ export default {
   },
   data() {
     return {
-      employee: {},
-      employeeValiate: {},
-      departmentApi: Api.getDepartment,
+      vendor: {},
+      vendorValiate: {},
+      employeeApi: Api.getEmployeeById,
       vendorGroupApi:Api.getVendorGroup,
       required: ["EmployeeCode", "FullName", "DepartmentId"],
       email: ["Email"],
@@ -571,9 +747,39 @@ export default {
       errorRefsName: "",
 
       /* Tab */
-      tabActive:"tab-3",
+      tabActive:"tab-4",
 
-      tableBankAccountApi:`${Api.getColumnOption}/BankAccount`
+      tableBankAccountApi:`${Api.getColumnOption}/BankAccount`,
+      tableBankAccountModel:[],
+      contact:[
+        {ContactId:1,ContactName:"Ông"},
+        {ContactId:2,ContactName:"Bà"},
+        {ContactId:3,ContactName:"Cha"},
+        {ContactId:4,ContactName:"Mẹ"}
+      ],
+      contract:[
+        {ContractId:1,ContractCode:"ĐK1",ContractName:"Điều khoản 1"},
+        {ContractId:2,ContractCode:"ĐK2",ContractName:"Điều khoản 2"},
+        {ContractId:3,ContractCode:"ĐK3",ContractName:"Điều khoản 3"},
+        {ContractId:4,ContractCode:"ĐK4",ContractName:"Điều khoản 4"},
+      ],
+      debitPaymentAccount:[
+        {DebitPaymentAccountId:1,BankAccount:"123456",BankName:"Phải thu của khách hàng"},
+        {DebitPaymentAccountId:2,BankAccount:"1234562",BankName:"Thuê GTGT được khấu trừ"},
+        {DebitPaymentAccountId:3,BankAccount:"1234563",BankName:"Đầu tư chứng khoán"},
+        {DebitPaymentAccountId:4,BankAccount:"1234565",BankName:"Ngoại tệ"},
+      ],
+      debitReceiptAccount:[
+        {DebitReceiptAccountId:1,BankAccount:"123456",BankName:"Phải thu của khách hàng"},
+        {DebitReceiptAccountId:2,BankAccount:"1234562",BankName:"Thuê GTGT được khấu trừ"},
+        {DebitReceiptAccountId:3,BankAccount:"1234563",BankName:"Đầu tư chứng khoán"},
+        {DebitReceiptAccountId:4,BankAccount:"1234565",BankName:"Ngoại tệ"},
+      ],
+      //Địa chỉ
+      country:Api.country,
+      provincies:'',
+      districts:'',
+      wards:''
 
     };
   },
@@ -599,28 +805,30 @@ export default {
     },
     formatIdentityDate: {
       get() {
-        if(this.employee.IdentityDate != null){
-          var date = new Date(this.employee.IdentityDate);
+        if(this.vendor.IdentityDate != null){
+          var date = new Date(this.vendor.IdentityDate);
         
           return date;
         }
       },
       set(date) {
-        this.employee.IdentityDate = new Date(date);
-        this.employee.IdentityDate = this.employee.DateOfBirth.toDateString();
+        this.vendor.IdentityDate = new Date(date);
+        this.vendor.IdentityDate = this.vendor.IdentityDate.toDateString();
       },
     },
   },
 
   mounted() {
-    this.$refs.EmployeeCode.focus();
+    console.log(this.vendor.VendorType)
+    this.$refs["VendorCode"].focus();
     //lắng nghe sự kiện bàn phím
     window.addEventListener("keyup", this.handleKeyEvent);
     window.addEventListener("keydown", this.handleKeyEventDown);
 
     //set draggable popup
     Helpers.draggable("#popup");
-    Object.assign(this.employeeValiate, this.employee);
+    Object.assign(this.vendorValiate, this.vendor);
+    console.log(this.modelPopup)
   },
   //Bỏ lắng nghe xự kiện
   beforeUnmount() {
@@ -629,13 +837,56 @@ export default {
   },
   created() {
     this.employee = this.modelPopup;
-    //Nếu employee không có mã code thì lấy mã code
-    if (this.employee.EmployeeCode == undefined) {
-      this.getNewCode();
-    }
+    this.vendor = this.modelPopup
+    
+    this.setDefaultObject()
+    console.log(this.vendor)
   },
-
   methods: {
+    onChangeAddress(id,refName){
+      console.log(id,refName)
+      switch(refName){
+        case 'Country':
+          this.provincies = `${Api.provincies}/ByCountry/${id}`
+          break
+        case 'Province':
+          this.districts = `${Api.districts}/ByProvince/${id}`
+          break
+        case 'District':
+          this.wards = `${Api.ward}/ByDistrict/${id}`
+          break
+      }
+      console.log(this.districts)
+    },
+    /**
+    * Mô tả: Thêm dòng vào bảng tài khoản ngân hàng
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 20/05/2022
+    */
+    addRowTableAccount(){
+      this.$refs.tableAccount.addRow()
+    },
+    /**
+    * Mô tả: Set giá trị mặc định cho object
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 20/05/2022
+    */
+    setDefaultObject(){
+      console.log(this.vendor)
+      //Nếu vendor không có mã code thì lấy mã code
+      if (this.vendor.VendorCode == undefined) {
+        this.getNewCode();
+      }
+      if(this.vendor.VendorType == undefined){
+        this.VendorType = 0
+      }
+      if(this.vendor.IsCustomer == undefined){
+        this.vendor.IsCustomer = false
+      }
+      this.vendor.IsUsed = true
+      this.vendor.IsOwed = true
+    },
+
     /**
     * Mô tả: Xử lý sự kiện chuyển tab trong form thêm
     * Created by: Đinh Văn Khánh - MF1112
@@ -688,8 +939,8 @@ export default {
      * Created date: 12/04/2022
      */
     handleClosePopup() {
-      this.compareObject(this.employee, this.employeeValiate);
-      if (this.compareObject(this.employee, this.employeeValiate)) {
+      this.compareObject(this.vendor, this.vendorValiate);
+      if (this.compareObject(this.vendor, this.vendorValiate)) {
         this.showPopupInfo(
           this.typePopupName.info,
           this.popupMsg.confirmChangeDataMsg,
@@ -706,15 +957,17 @@ export default {
 
     //Xử lý sự kiện luu thông tin nhân viên và tiếp tục thêm
     handleSaveAndContinue() {
-      if (this.validate()) {
-        this.save(true);
-      }
+      console.log(this.vendor)
+      // if (this.validate()) {
+      //   this.save(true);
+      // }
     },
     //Xử lý sự kiện luu thông tin nhân viên
     handleSave() {
-      if (this.validate()) {
-        this.save(false);
-      }
+      this.save(false);
+      // if (this.validate()) {
+      //   this.save(false);
+      // }
     },
     /**
         * Mô tả: Hiển thị popup thông báo
@@ -738,28 +991,29 @@ export default {
      */
     save(isContinue) {
       // Cập nhật thông tin
-      if (this.employee.EmployeeId != undefined) {
-        axios
-          .put(
-            `${Api.updateEmployee}/${this.employee.EmployeeId}`,
-            this.employee
+      if (this.vendor.VendorId != undefined) {
+        console.log(this.vendor)
+        axios.put(
+            `${Api.vendors}/${this.vendor.VendorId}`,
+            this.vendor
           )
           .then((response) => {
+            console.log(response)
             if (response.status === 200) {
-              this.$refs["EmployeeCode"].focus();
+              this.$refs["VendorCode"].focus();
               this.$emit(
                 "showToast",
                 this.toastMsg.updateSuccessMsg,
                 "success"
               );
               this.$emit("addSuccess", true);
-              if (!isContinue) {
-                this.closePopup();
-              } else {
-                this.employee = {};
-                this.employee.Gender = 1;
-                this.getNewCode();
-              }
+              // if (!isContinue) {
+              //   this.closePopup();
+              // } else {
+              //   this.vendor = {};
+              //   this.employee.Gender = 1;
+              //   this.getNewCode();
+              // }
               // this.employee = response.data
               // console.log(this.employee)
             }
@@ -785,19 +1039,19 @@ export default {
       else {
         
         axios
-          .post(Api.addEmployee, this.employee)
+          .post(Api.vendors, this.vendor)
           .then((response) => {
             if (response.status === 201) {
-              this.$refs["EmployeeCode"].focus();
+              this.$refs["VendorCode"].focus();
               this.$emit("showToast", this.toastMsg.addSuccessMsg, "success");
               this.$emit("addSuccess", true);
-              if (!isContinue) {
-                this.closePopup();
-              } else {
-                this.employee = {};
-                this.employee.Gender = 1;
-                this.getNewCode();
-              }
+              // if (!isContinue) {
+              //   this.closePopup();
+              // } else {
+              //   this.employee = {};
+              //   this.employee.Gender = 1;
+              //   this.getNewCode();
+              // }
               // this.employee = response.data
               // console.log(this.employee)
             }
@@ -909,10 +1163,11 @@ export default {
     getNewCode() {
       // Gọi API lấy dữ liệu
 
-      axios.get(`${Api.getNewEmployeeCode}`).then((response) => {
+      axios.get(`${Api.newCodeVendor}`).then((response) => {
         if (response.status === 200) {
-          this.employee.EmployeeCode = response.data;
-          this.employeeValiate.EmployeeCode = response.data;
+          this.vendor.VendorCode = response.data;
+          this.vendorValiate.VendorCode = response.data;
+          console.log(this.vendor.VendorCode)
         }
       });
     },
@@ -947,11 +1202,7 @@ export default {
     afterToday(date) {
       return date > new Date();
     },
-    onBlur($event,ref){
-      if(this.employee[ref].trim() === ''){
-        this.$refs[ref].addError("error", 'Trường dữ liệu không được để trống');
-      }
-    }
+    
   },
 };
 </script>
@@ -985,15 +1236,18 @@ export default {
   right: 0;
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .popup {
   width: 900px;
   background-color: #fff;
-  position: absolute;
+  /* position: absolute;
   top: 50%;
 
   left: 50%;
-  transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%); */
   /* animation: moveUpToDown linear 0.3s; */
 }
 
@@ -1010,11 +1264,16 @@ export default {
   background-position: -89px -144px;
   cursor: pointer;
 }
+.checkbox-container{
+  margin-left: 20px;
+}
 .close {
   background-position: -144px -144px;
   cursor: pointer;
   margin-left: 10px;
 }
+
+/* popup body */
 .popup-body {
   padding: 0px 32px 0px 32px;
 }
@@ -1053,6 +1312,12 @@ export default {
   height: 100%;
   outline: none;
   min-height: 56px;
+}
+.note{
+  margin: 0;
+}
+.note textarea{
+  min-height: 176px;
 }
 .required-text {
   color: red;
@@ -1099,5 +1364,55 @@ export default {
   border: 1px solid #c7c7c7;
   padding: 5px 10px;
   min-height: 186px;
+  max-height: 216px;
+  overflow-y: auto;
+  position: relative;
+  padding-bottom: 0;
+}
+.add-btn-content{
+  position: sticky;
+  bottom: 0;
+  background-color: #fff;
+}
+/* Checkbox */
+@keyframes rotate {
+  from {
+    transform: rotate(90deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+.checkbox-container {
+  position: relative;
+}
+.checkbox-container label{
+  margin-left: 10px;
+}
+.checkbox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  z-index: 2;
+  opacity: 0;
+}
+.checkbox-border {
+  background-color: #fff;
+  border-radius: 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #c7c7c7;
+}
+.checkbox-border-active {
+  border: 1px solid #2ca01c;
+  animation: rotate linear 0.1s;
+}
+.checkbox-active {
+  background-position: -1224px -360px;
+  margin-bottom: 2px;
 }
 </style>
+      

@@ -249,5 +249,37 @@ namespace MISA.WEB02.Api.Controllers
                 return StatusCode(500, result);
             }
         }
+
+        [HttpGet]
+        [Route("NewCode")]
+        public virtual IActionResult GetNewCode()
+        {
+            try
+            {
+                var result = _baseService.GetNewCodeService();
+                return Ok(result);
+
+            }
+            catch (MISAExceptions ex1)
+            {
+                var result = new MISAServiceResult()
+                {
+                    devMsg = ex1.Message,
+                    userMsg = Resource.VN_MisaExceptionMsg,
+                    data = ex1.Data,
+                };
+                return BadRequest(result);
+            }
+            catch (Exception ex)
+            {
+                var result = new MISAServiceResult()
+                {
+                    devMsg = ex.Message,
+                    userMsg = Resource.VN_MisaExceptionMsg,
+                    data = ex.Data,
+                };
+                return StatusCode(500, result);
+            }
+        }
     }
 }

@@ -70,5 +70,7 @@ namespace MISA.WEB02.Core.Interfaces.Base
         /// Author: Đinh Văn Khánh (13/04/2022)
         public T FindByCode(string entityCode);
 
+        public Object Filter(string filterText, int currentPage, int pageSize);
+
     }
 }

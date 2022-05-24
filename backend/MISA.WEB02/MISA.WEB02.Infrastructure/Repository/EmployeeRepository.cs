@@ -37,20 +37,6 @@ namespace MISA.WEB02.Infrastructure.Repository
         ///     Số lượng trang
         /// }
         /// </returns>
-
-        public override IEnumerable<Employee> Get()
-        {
-
-            //Khởi tạo kết nối
-            var sqlConnection = new MySqlConnection(_sqlConnectionString);
-
-            var sqlCommand = $"SELECT Employee.*,d.DepartmentCode,d.DepartmentName FROM Employee " +
-                "INNER JOIN Department d ON Employee.DepartmentId = d.DepartmentId " +
-                "ORDER BY EmployeeCode"; 
-
-            var data = sqlConnection.Query<Employee>(sqlCommand);
-            return data;
-        }
         public Object Filter(string filterText, int currentPage, int pageSize)
         {
             int offset = (currentPage - 1) * pageSize;

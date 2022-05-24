@@ -1,6 +1,6 @@
 <template>
   <div class="table-container">
-    <table id="table " class="tableEmployee">
+    <table id="table" class="tableEmployee">
       <thead>
         <tr class="sticky-top--87">
           <th class="padding-td"></th>
@@ -35,7 +35,8 @@
           <th class="td-min-width">Số tài khoản</th>
           <th>Tên ngân hàng</th>
           <th class="border-right-none">Chi nhánh tk ngân hàng</th> -->
-          <th v-for="(column, index) in columnsDescription" :key="index" :class="column.columnClass" > {{column.viewColumnName}}</th>
+          <th v-for="(column, index) in columnsDescription" :key="index" :class="column.columnClass" 
+          v-bind:style="{'min-width': column.columnWidth + 'px'}" > {{column.viewColumnName}}</th>
           
           <th
             class="option-column-td sticky-right-30 justify-space-center alignt-center text-center border-right-solid"
@@ -55,7 +56,7 @@
                 type="checkbox"
                 class="checkbox"
                 v-model="checkboxs"
-                :value="employee.EmployeeId"
+                :value="entity[entityId]"
                 @dblclick="onDbClick($event)"
               />
 
@@ -63,14 +64,14 @@
                 class="checkbox-border"
                 :class="{
                   'checkbox-border-active': checkboxs.includes(
-                    employee.EmployeeId
+                    entity[entityId]
                   ),
                 }"
               >
                 <span
                   class="mi mi-16"
                   :class="{
-                    'checkbox-active': checkboxs.includes(employee.EmployeeId),
+                    'checkbox-active': checkboxs.includes(entity[entityId]),
                   }"
                 ></span>
               </span>
@@ -102,11 +103,11 @@
       </tbody>
       <tbody v-else class="bg-while">
         <tr
-          v-for="(employee, index) in employees"
+          v-for="(entity, index) in dataTable"
           :key="index"
-          @click="handleClickColumn(index, employee)"
-          @dblclick="handleEdit(employee)"
-          :class="{ active: checkboxs.includes(employee.EmployeeId) }"
+          @click="handleClickColumn(index, entity)"
+          @dblclick="handleEdit(entity)"
+          :class="{ active: checkboxs.includes(entity[entityId]) }"
         >
           <td class="padding-td"></td>
           <td class="sticky-left-30 bg-while checkbox-column alignt-center">
@@ -116,7 +117,7 @@
                   type="checkbox"
                   class="checkbox"
                   v-model="checkboxs"
-                  :value="employee.EmployeeId"
+                  :value="entity[entityId]"
                   @dblclick="onDbClick($event)"
                 />
 
@@ -124,14 +125,14 @@
                   class="checkbox-border"
                   :class="{
                     'checkbox-border-active': checkboxs.includes(
-                      employee.EmployeeId
+                      entity[entityId]
                     ),
                   }"
                 >
                   <span
                     class="mi mi-16"
                     :class="{
-                      'checkbox-active': checkboxs.includes(employee.EmployeeId),
+                      'checkbox-active': checkboxs.includes(entity[entityId]),
                     }"
                   ></span>
                 </span>
@@ -139,7 +140,7 @@
             </div>
           </td>
           <td v-for="(column, index) in columnsDescription" :key="index" :class="column.columnClass" > 
-            {{convertData(employee[column.columnField],column.columnType)}}
+            {{convertData(entity[column.columnField],column.columnType)}}
           </td>
           <!-- <td>{{ employee.EmployeeCode }}</td>
           <td>{{ employee.FullName }}</td>
@@ -160,11 +161,11 @@
             class="option-column-td sticky-right-30 bg-while d-flex justify-space-center alignt-center"
           >
             <div class="option-column d-flex alignt-center">
-              <div class="edit-btn" @click="handleEdit(employee)">Sửa</div>
+              <div class="edit-btn" @click="handleEdit(entity)">Sửa</div>
               <div class="option-btn d-flex justify-space-center">
                 <div
                   class="option-column-icon mi mi-16 relative"
-                  @click="handleOptionItemClick($event, employee, index)"
+                  @click="handleOptionItemClick($event, entity, index)"
                   @dblclick="onDbClick($event)"
                 ></div>
               </div>
@@ -202,17 +203,18 @@
 import axios from "axios";
 import BasePopup from "@/components/base/BasePopup.vue";
 import Api from "@/assets/js/api.js";
+import Helpers from "@/assets/js/helpers";
 export default {
   components: {
     BasePopup,
   },
   data() {
     return {
-      employees: [],
+      dataTable: [],
       top: 0,
       left: 0,
       isShowOptionItem: false,
-      employee: {},
+      entity: {},
       isLoading: false,
       //Popup
       contentPopupInfo: "",
@@ -253,6 +255,26 @@ export default {
     tableName:{
       type:String,
       default:""
+    },
+    entityId:{
+      type:String,
+      default:""
+    },
+    entityCode:{
+      type:String,
+      default:""
+    },
+    entityName:{
+      type:String,
+      default:""
+    },
+    apiFilter:{
+      type:String,
+      default:""
+    },
+    apiDelelte:{
+      type:String,
+      default:""
     }
   },
   created() {
@@ -266,15 +288,16 @@ export default {
     // Chỉnh sửa select
     selectAll: {
       get: function () {
-        return this.employees.length
-          ? this.checkboxs.length == this.employees.length
+        return this.dataTable.length
+          ? this.checkboxs.length == this.dataTable.length
           : false;
       },
       set: function (value) {
         var checkboxs = [];
         if (value) {
-          this.employees.forEach(function (employee) {
-            checkboxs.push(employee.EmployeeId);
+          var me = this
+          this.dataTable.forEach(function (entity) {
+            checkboxs.push(entity[me.entityId]);
           });
         }
 
@@ -284,9 +307,9 @@ export default {
   },
   watch: {
     //Lắng nghe sự kiện phân trang
-    currentPage: function () {
-      this.loadAllData();
-    },
+    // currentPage: function () {
+    //   this.loadAllData();
+    // },
     //Lắng nghe input tìm kiếm có thay đổi sẽ tìm kiếm
     //Khi input rỗng sẽ không tìm kiếm
     searchValue: function () {
@@ -307,7 +330,7 @@ export default {
 
     convertData(value,type){
       if(type === 'date'){
-        return this.formatDate(value)
+        if(!!value) return this.formatDate(value)
       }
       else return value
     },
@@ -363,36 +386,37 @@ export default {
      * Xử lý sự kiện click sửa
      * @param  nhân viên
      */
-    handleEdit(employee) {
-      this.$emit("employeeValue", Object.assign({}, employee));
+    handleEdit(entity) {
+      this.$emit("employeeValue", Object.assign({}, entity));
     },
 
     /**
      * Lấy dữ liệu nhân viên
      */
-    loadAllData(currentPage = this.currentPage) {
+    loadAllData(currentPage = this.currentPage,queryString = "") {
       console.log(currentPage);
       //Bật hiệu ứng loading
       this.isLoading = true;
       this.$emit("loading", true);
       this.checkboxs = [];
-      this.employees = [];
+      this.dataTable = [];
       var apiConnectionString;
       if (this.searchValue.trim() == "") {
-        apiConnectionString = `${Api.filterEmployee}?currentPage=${currentPage}&pageSize=${this.pageSize}`;
+        apiConnectionString = `${this.apiFilter}?currentPage=${currentPage}&pageSize=${this.pageSize}${queryString}`;
       } else
-        apiConnectionString = `${Api.filterEmployee}?filterText=${this.searchValue}&currentPage=${currentPage}&pageSize=${this.pageSize}`;
+        apiConnectionString = `${this.apiFilter}?filterText=${this.searchValue}&currentPage=${currentPage}&pageSize=${this.pageSize}${queryString}`;
+      console.log(apiConnectionString)
       axios
         .get(apiConnectionString)
         .then((response) => {
           if (response.status === 200) {
             this.isLoading = false;
-            this.employees = response.data.employees;
+            this.dataTable = response.data.List;
             this.loadHandle(
-              response.data.employees,
+              response.data.List,
               currentPage,
-              response.data.totalPage,
-              response.data.count
+              response.data.TotalPage,
+              response.data.Count
             );
           }
         })
@@ -408,21 +432,21 @@ export default {
      * Khi chọn set this.employee = nhân viên hàng đó
      * @param chỉ mục hàng, nhân viên hàng đó
      */
-    handleClickColumn(index, employee) {
+    handleClickColumn(index, entity) {
       // var trElement = document.querySelectorAll('.tableEmployee tbody tr')
       // for(var tr of trElement){
       //     tr.classList.remove("active");
       // }
       // trElement[index].classList.add("active")
-      this.employee = employee;
+      this.entity = entity;
     },
 
     /**
      * Xử lý khi click vào nút option
      */
-    handleOptionItemClick(e, employee, index) {
+    handleOptionItemClick(e, entity, index) {
       e.stopPropagation();
-      this.employee = employee;
+      this.entity = entity;
       //Mở option
       if (index != this.indexOption) {
         this.isShowOptionItem = true;
@@ -440,7 +464,7 @@ export default {
     //Xử lý xóa nhân viên
     handleDelelte() {
       this.showPopupInfo(
-        `${this.popupMsg.confirmDeleteEmpMsg(this.employee.EmployeeCode)}`,
+        `${this.popupMsg.confirmDeleteEmpMsg(this.entity[this.entityCode])}`,
         this.typePopupName.warningConfirm
       );
     },
@@ -449,7 +473,7 @@ export default {
      */
     delete() {
       axios
-        .delete(`${Api.deleteEmployee}/${this.employee.EmployeeId}`)
+        .delete(`${this.apiDelelte}/${this.entity[this.entityId]}`)
         .then((response) => {
           if (response.status === 200) {
             this.loadAllData(1);
@@ -467,12 +491,11 @@ export default {
     },
     //Xử lý nhân bản nhân viên
     handleDuplicate() {
-      var employee = {};
-      Object.assign(employee, this.employee);
-      delete employee.EmployeeId;
-      delete employee.EmployeeCode;
-      console.log(this.employee);
-      this.$emit("employeeValue", employee);
+      var entity = {};
+      Object.assign(entity, this.entity);
+      delete entity[this.entityId];
+      delete entity[this.entityCode];
+      this.$emit("employeeValue", entity);
       this.isShowOptionItem = false;
     },
 
@@ -731,4 +754,5 @@ table tr:hover > .hidden-td {
   background-position: -1224px -360px;
   margin-bottom: 2px;
 }
+
 </style>
