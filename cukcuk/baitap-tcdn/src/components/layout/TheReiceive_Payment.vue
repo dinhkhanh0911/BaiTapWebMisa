@@ -1,5 +1,5 @@
 <template>
-  <div class="router-view">
+  <div class="router-view payment">
     <div class="router-content">
       <div class="content-area-content">
         <div class="layout-dictionary">
@@ -10,6 +10,7 @@
               </div>
               <div class="btn-container">
                 <BaseButton
+                  :addButton="'addButton'"
                   :classBtn="'btn-default btn-primary'"
                   :content="'Thêm mới phiếu chi'"
                   @click="handleAddClick()"
@@ -19,17 +20,26 @@
           </div>
           <div class="counter grid" :style="{ top: topTitle + 'px' }">
             <div class="row" style="width:100%">
-              <div class="view-total total-receipt col c-4">
-                <div class="total">100,0</div>
-                <div class="text">Tổng thu đầu năm đến hiện tại</div>
+              <div class="view-total  col c-4">
+                <div class="total-receipt">
+                  <div class="total">100,0</div>
+                  <div class="text">Tổng thu đầu năm đến hiện tại</div>
+
+                </div>
               </div>
-              <div class="view-total total-payment col c-4">
-                <div class="total">100,0</div>
-                <div class="text">Tổng chi đầu năm đến hiện tại</div>
+              <div class="view-total col c-4">
+                <div class="total-payment">
+                  <div class="total">100,0</div>
+                  <div class="text">Tổng chi đầu năm đến hiện tại</div>
+
+                </div>
               </div>
-              <div class="view-total total-count col c-4">
-                <div class="total">100,0</div>
-                <div class="text">Tổng quỹ đầu năm đến hiện tại</div>
+              <div class="view-total  col c-4">
+                <div class="total-count">
+
+                  <div class="total">100,0</div>
+                  <div class="text">Tổng quỹ đầu năm đến hiện tại</div>
+                </div>
               </div>
             </div>
           </div>
@@ -47,6 +57,9 @@
           <div class="layout-dictionary-body" @scroll="handleScroll($event)">
             <div class="table-option">
               <div class="table-option-left d-flex">
+                <div class="icon-table-option mi mi-24">
+
+                </div>
                 <div class="btn-delete-multi">
                   <BaseButton
                     :classBtn="'btn-default'"
@@ -69,7 +82,7 @@
               <div class="table-option-right d-flex alignt-center">
                 <div class="input-search">
                   <BaseInput
-                    :placeholder="'Tìm kiếm theo mã,tên nhân viên'"
+                    :placeholder="'Nhập từ khóa tìm kiếm'"
                     v-model="searchValue"
                     :timer="1000"
                     :searchClass="'search-container'"
@@ -78,25 +91,23 @@
                 <div
                   class="reload btn-icon mi mi-24"
                   @click="reloadData()"
-                  @mouseover="hover($event, 'Lấy lại dữ liệu')"
-                  @mouseleave="isShowTooltip = false"
+                  :title="'Lấy lại dữ liệu'"
                 ></div>
                 <div
                   class="export btn-icon mi mi-24"
-                  @mouseover="hover($event, 'Xuất ra excel')"
-                  @mouseleave="isShowTooltip = false"
+                  
                   @click="handleExport()"
+                  :title="'Xuất dữ liệu'"
                 ></div>
                 <div class="setting btn-icon mi mi-24 "
-                    @mouseover="hover($event,'Tùy chỉnh giao diện')" 
-                    @mouseleave="isShowTooltip = false"
+                   :title="'Chỉnh sửa giao diện'"
                     @click="isShowSettingViewForm = true"
                 ></div>
               </div>
             </div>
             <BaseTable
               ref="tableVendor"
-              @EmployeeValue="handleEdit"
+              @ObjectValue="handleEdit"
               :searchValue="searchValue"
               :currentPage="currentPage"
               :pageSize="pageSize"
@@ -111,6 +122,8 @@
               entityName="PaymentName"
               :apiFilter="paymentsFilterApi"
               :apiDelelte="paymentsApi"
+              :showBtn="'true'"
+              :className="'payment'"
             />
             <div class="router-pagination">
               <div
@@ -203,6 +216,7 @@
       :model="payment"
       @showPopup="togglePopupPayment"
       @showToast="showToast"
+      @addSuccess="reloadData()"
     />
     <div class="filter-option-container" v-if="isShowFilter" v-bind:style="{ top: filterBtnTop + 'px', left: filterBtnLeft + 'px' }">
       <div class="filter-option grid">
@@ -630,7 +644,7 @@ export default {
 
     //Xử lý khi bấm nút xuất dữ liệu
     handleExport() {
-      var apiConnectionString = `${Api.exportPayment}?currentPage=${this.currentPage}&pageSize=${this.pageSize}`;
+      var apiConnectionString = `${Api.payments}/export`;
       axios({
         url: apiConnectionString,
         method: "GET",
@@ -646,7 +660,7 @@ export default {
             new Blob([res.data], { type: "application/xlsx" })
           );
 
-          a.download = `Danh_sach_nhan_vien.xlsx`;
+          a.download = `Danh_sach_phieu_chi.xlsx`;
 
           document.body.appendChild(a);
           a.click();
@@ -736,7 +750,7 @@ export default {
     handleCloseSettingViewForm(isShow){
       this.isShowSettingViewForm = false
       if(isShow){
-        this.reloadData(1)
+        this.$refs.tableVendor.loadColumnTable(1)
       }
     }
   },
@@ -831,6 +845,11 @@ export default {
 }
 .table-option-left {
   position: relative;
+  align-items: center;
+}
+.icon-table-option{
+  background-position: -256px -143px;
+  margin: 0 12px;
 }
 .table-option-right {
   padding: 5px;
@@ -1327,19 +1346,22 @@ table {
   display: flex;
   justify-content: center;
   flex-direction: column;
-  padding: 0 15px;
+  padding: 0 0 0 12px;
 }
 .total-receipt{
   background: #ff7f2c;
   color: #fff;
   padding-left: 20px;
+  padding: 12px 30px 6px 12px;
 }
 .total-payment{
   background: #00a9f2;
   color: #fff;
+  padding: 12px 30px 6px 12px;
 }
 .total-count{
   background: #74cb2f;
+  padding: 12px 30px 6px 12px;
 }
 .total-count .total{
   color: #ff7f2c;
@@ -1394,10 +1416,5 @@ table {
 .btn-filter-form{
   display: flex;
   justify-content: right;
-}
-</style>
-<style>
-.sticky-top--87{
-  top:-224px!important;
 }
 </style>

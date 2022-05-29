@@ -23,35 +23,54 @@ namespace MISA.WEB02.Infrastructure.Repository
             int limit = pageSize;
 
             //khởi tạo kết nối
-            var sqlConnection = new NpgsqlConnection(_sqlConnectionString);
+            using (var sqlConnection = new NpgsqlConnection(_sqlConnectionString))
+            {
+                sqlConnection.Open();
+                //lấy dữ liệu
 
-            sqlConnection.Open();
-            //lấy dữ liệu
+                var vendorTypeValue = vendorType != null ? $"'{vendorType}'" : "null";
+                var isOwedValue = isOwed != null ? $"'{isOwed}'" : "null";
+                var isUsedValue = isUsed != null ? $"'{isUsed}'" : "null";
 
-            var vendorTypeValue = vendorType != null ? $"'{vendorType}'" : "null";
-            var isOwedValue = isOwed != null ? $"'{isOwed}'" : "null";
-            var isUsedValue = isUsed != null ? $"'{isUsed}'" : "null";
+                string sqlCommand = $"select public.func_filter_vendor('{filterText}',{vendorTypeValue},{isOwedValue},{isUsedValue},'{offset}','{limit}')";
 
-            string sqlCommand = $"select public.func_filter_vendor('{filterText}',{vendorTypeValue},{isOwedValue},{isUsedValue},'{offset}','{limit}')";
+                //var data = new List<T>();
 
-            //var data = new List<T>();
+                using (NpgsqlCommand cmd = new NpgsqlCommand(sqlCommand, sqlConnection))
+                {
+                    NpgsqlDataReader reader = cmd.ExecuteReader();
 
-            NpgsqlCommand cmd = new NpgsqlCommand(sqlCommand, sqlConnection);
+                    ////trả về kết quả
+                    var data = BindingEntity.BindingData<string>(reader);
+                    return data.FirstOrDefault();
+                }
 
-            //cmd.CommandType = CommandType.StoredProcedure;
-            
-            //cmd.Parameters.Add(new NpgsqlParameter("filter_text", filterText));
-            //cmd.Parameters.Add(new NpgsqlParameter("vendor_type", vendorTypeValue));
-            //cmd.Parameters.Add(new NpgsqlParameter("is_owed", isOwedValue));
-            //cmd.Parameters.Add(new NpgsqlParameter("is_used", isUsedValue));
-            
-            //cmd.Parameters.Add(new NpgsqlParameter("filter_offset", offset.ToString()));
-            //cmd.Parameters.Add(new NpgsqlParameter("filter_limit", limit.ToString()));
-            NpgsqlDataReader reader = cmd.ExecuteReader();
+            }
+        }
+        public bool checkExitsPayment(Guid vendorId)
+        {
+            //khởi tạo kết nối
+            using (var sqlConnection = new NpgsqlConnection(_sqlConnectionString))
+            {
+                sqlConnection.Open();
+                //lấy dữ liệu
+                string sqlCommand = $"SELECT * FROM payment p where p.vendor_id = '{vendorId}'";
 
-            ////trả về kết quả
-            var data = BindingEntity.BindingData<string>(reader);
-            return data.FirstOrDefault();
+                //var data = new List<T>();
+
+                using (NpgsqlCommand cmd = new NpgsqlCommand(sqlCommand, sqlConnection))
+                {
+                    //cmd.Parameters.Add(new NpgsqlParameter("@payment_id", paymentId));
+                    NpgsqlDataReader reader = cmd.ExecuteReader();
+                    //dữ liệu trả về gồm các propperty của Employee
+                    //và thêm các property: DeparmentId,DeparmentCode,PositionCode,PositionId
+                    var data = BindingEntity.BindingData<Payment>(reader);
+                    if (data.FirstOrDefault() != null) return true;
+                    else return false;
+                }
+            } 
+            //trả về kết quả
+            return false;
         }
         #endregion
     }

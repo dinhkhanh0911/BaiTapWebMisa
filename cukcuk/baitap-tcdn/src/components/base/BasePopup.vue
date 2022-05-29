@@ -113,7 +113,7 @@ export default {
   },
   created(){
       this.typeClass = this.typePopup[`${this.type}`]
-      console.log(this.typePopup)
+      
   },
   methods: {
     //Đóng popup
@@ -151,7 +151,7 @@ export default {
      * Created date: 18/04/2022
      */
     handleClickAgreeBtn() {
-      
+      console.log("a")
       this.$emit("confirm", true, this.keyCombobox);
     },
 
@@ -301,3 +301,4 @@ export default {
   margin-left: 10px;
 }
 </style>
+

@@ -7,11 +7,11 @@
             <div class="header-di">
               <div class="header-tab d-flex">
                   <div class="header-tab-left d-flex">
-                      <div class="header-tab-item header-tab-active" @click="handleClickRouter('CAProcess')" ref="CAProcess">
-                          <router-link to="/CA/CAProcess">Quy trình</router-link>
+                      <div class="header-tab-item " ref="CAProcess">
+                          <router-link to="/CA/CAProcess" active-class="header-tab-active">Quy trình</router-link>
                       </div>
-                      <div class="header-tab-item" ref="ReceiptPaymentList" @click="handleClickRouter('ReceiptPaymentList')">
-                          <router-link to="/CA/ReceiptPaymentList">Thu,Chi tiền</router-link>
+                      <div class="header-tab-item" ref="ReceiptPaymentList">
+                          <router-link to="/CA/ReceiptPaymentList" active-class="header-tab-active">Thu,Chi tiền</router-link>
                       </div>
                   </div>
                   <div class="header-tab-right"></div>
@@ -70,14 +70,17 @@ export default {
         TheProcedure,
         TheReiceive_Payment
     },
-    methods:{
-      handleClickRouter(name){
-        var tabs = document.querySelectorAll('.header-tab-item')
-        tabs.forEach(tab => {
-          tab.classList.remove('header-tab-active')
-        })
-        console.log(this.$refs[name].classList.add('header-tab-active'))
+    data(){
+      return {
+        //popup
+        contentPopupInfo: "",
+        isShowPopupInfo: false,
+        typePopupInfo: "error",
+        keyCombobox: "",
       }
+    },
+    methods:{
+      
     }
 }
 </script>
@@ -112,13 +115,16 @@ export default {
     padding: 0px 20px 15px 20px;
     display: block;
 }
-.header-tab-item a:hover{
+.header-tab-item a :hover{
     color: #2ca01c;
 }
 /* header tab active */
-.header-tab-active a{
+.header-tab-active{
     font-weight: 700;
-    border-bottom: 3px solid #2ca01c;
+    border-bottom: 3px solid #2ca01c!important;
+    z-index: 100;
+  
+    
 }
 
 .layout-dictionary-body{

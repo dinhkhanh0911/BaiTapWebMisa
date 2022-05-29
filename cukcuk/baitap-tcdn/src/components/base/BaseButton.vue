@@ -95,10 +95,21 @@ button {
 }
 .addButton .btn-option-2 {
   display: block;
+  padding: 0;
+  
+}
+.addButton .btn-option-2 .btn-content{
+  width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid #fff;
+  padding-right: 10px;
+  padding-bottom: 2px;
 }
 .addButton .btn:nth-child(1) {
   border-radius: 30px 0 0 30px;
-  border-right: 1px solid #fff;
+  
 }
 .addButton .btn:nth-child(2) {
   border-radius: 0 30px 30px 0;

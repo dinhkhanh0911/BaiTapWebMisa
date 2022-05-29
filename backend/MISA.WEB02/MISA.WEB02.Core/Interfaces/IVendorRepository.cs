@@ -26,5 +26,7 @@ namespace MISA.WEB02.Core.Interfaces
         /// </returns>
         public Object Filter(string filterText, int? vendorType, bool? isOwed,
             bool? isUsed, int currentPage, int pageSize);
+
+        public bool checkExitsPayment(Guid vendorId);
     }
 }

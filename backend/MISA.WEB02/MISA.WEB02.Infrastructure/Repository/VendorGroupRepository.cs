@@ -17,26 +17,27 @@ namespace MISA.WEB02.Infrastructure.Repository
         public IEnumerable<VendorGroup> search(string searchValue)
         {
             //khởi tạo kết nối
-            var sqlConnection = new NpgsqlConnection(_sqlConnectionString);
+            using (var sqlConnection = new NpgsqlConnection(_sqlConnectionString))
+            {
+                sqlConnection.Open();
+                //lấy dữ liệu
+                string sqlCommand = $"func_search_vendor_group";
 
-            sqlConnection.Open();
-            //lấy dữ liệu
-            string sqlCommand = $"func_search_vendor_group";
+                //var data = new List<T>();
 
-            //var data = new List<T>();
+                using (NpgsqlCommand cmd = new NpgsqlCommand(sqlCommand, sqlConnection))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
 
-            NpgsqlCommand cmd = new NpgsqlCommand(sqlCommand, sqlConnection);
-
-            cmd.CommandType = CommandType.StoredProcedure;
-
-            cmd.Parameters.Add(new NpgsqlParameter("search_value", searchValue.ToString()));
-            NpgsqlDataReader reader = cmd.ExecuteReader();
-
-            //dữ liệu trả về gồm các propperty của Employee
-            //và thêm các property: DeparmentId,DeparmentCode,PositionCode,PositionId
-            var data = BindingEntity.BindingData<VendorGroup>(reader);
-            //trả về kết quả
-            return data;
+                    cmd.Parameters.Add(new NpgsqlParameter("search_value", searchValue.ToString()));
+                    NpgsqlDataReader reader = cmd.ExecuteReader();
+                    //dữ liệu trả về gồm các propperty của Employee
+                    //và thêm các property: DeparmentId,DeparmentCode,PositionCode,PositionId
+                    var data = BindingEntity.BindingData<VendorGroup>(reader);
+                    //trả về kết quả
+                    return data;
+                }
+            }
         }
     }
 }

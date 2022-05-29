@@ -1,7 +1,12 @@
 ﻿using MISA.WEB02.Core.Entities;
 using MISA.WEB02.Core.Exceptions;
+using MISA.WEB02.Core.Helpers;
 using MISA.WEB02.Core.Interfaces;
 using MISA.WEB02.Core.Resources;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -94,7 +99,8 @@ namespace MISA.WEB02.Core.Services
             //validate dữ liệu trống
             if (paymentDetail.DebitAccountId == null)
             {
-                throw new MISAExceptions($"Tài khoản nợ số {index + 1}  không được để trống", errorMsg);
+                errorMsg.Add("DebitAccountIdError", $"Tài khoản nợ số {index + 1}  không được để trống");
+                throw new MISAExceptions($"{Resource.VN_MisaExceptionMsg}", errorMsg);
             }
             return true;
 
@@ -117,11 +123,9 @@ namespace MISA.WEB02.Core.Services
             //thêm mới database
             return _paymentRepository.InsertPaymentDetail(paymentDetail);
         }
-        /// <summary>
-        /// kiểm tra các trường required bị trống
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
+
+        
+        
         
         #endregion
     }

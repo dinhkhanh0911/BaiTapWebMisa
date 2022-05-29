@@ -3,12 +3,19 @@ const popupMsg = {
     empManyNotSelectedMsg: "Chưa chọn hàng loạt nhân viên để xóa",
     confirmChangeDataMsg: "Dữ liệu đã bị thay đổi. Bạn có muốn cất không?",
     confirmMultipleDeleteMsg:"Bạn có muốn xóa những nhân viên đã chọn?",
+    maintainMsg:"Tính năng đang phát triển",
+
+    //func
     confirmDeleteEmpMsg(empCode){
         return `Bạn có thực sự muốn xóa nhân viên <${empCode}> không?`
     },
     deleteSuccessEmpMany(empCount){
         return `Đã xóa thành công ${empCount} nhân viên`
-    }
+    },
+
+    //payment
+    paymentDetailNotFound:"Bạn phải nhập chứng từ chi tiết."
+    
 }
 
 const toastMsg = {
@@ -19,7 +26,20 @@ const toastMsg = {
     deletePaymentSuccessMsg: "Đã xóa phiếu thu,chi thành công",
     
 }
+const validateMsg = {
+    interger: 'không đúng dạng số nguyên',
+    numeric: 'không đúng dạng số thực',
+    required: 'không được để trống',
+    email: 'không đúng định dạng',
+    name: 'không đúng định dạng',
+    min: function (min) {
+        return ` phải lớn hơn ${min} ký tự`
 
+    },
+    max: function (max) {
+        return ` phải nhỏ hơn ${max} ký tự`
+    },
+}
 const errorMsg = {
     exceptionMessage:"Có lỗi xảy ra.Vui lòng liên hệ Misa để được hỗ trợ."
 }
@@ -64,5 +84,5 @@ const typePopup = {
     },
 }
 export default {
-    popupMsg, toastMsg , errorMsg, typePopup , typePopupName
+    popupMsg, toastMsg , errorMsg, typePopup , typePopupName,validateMsg
 }

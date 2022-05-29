@@ -68,5 +68,9 @@ namespace MISA.WEB02.Core.Entities
         
         public bool? IsRecord { get; set; }
         public int? PaymentType { get; set; }
+
+        public double? TotalMoney { get; set; }
+
+        public double? ExchangeRate { get; set; }
     }
 }

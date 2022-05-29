@@ -44,7 +44,10 @@ namespace MISA.WEB02.Core.Entities
         /// </summary>
         public Guid? VendorId { get; set; }
 
-
+        [NotMap]
+        public String? VendorCode { get; set; }
+        [NotMap]
+        public String? VendorName { get; set; }
         public DateTime? CreatedDate { get; set; }
         public string? CreatedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }

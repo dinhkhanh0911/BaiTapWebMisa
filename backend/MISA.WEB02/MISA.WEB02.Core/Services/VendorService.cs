@@ -151,10 +151,16 @@ namespace MISA.WEB02.Core.Services
             //validate dữ liệu
             Dictionary<string, string> errorMsg = new Dictionary<string, string>();
             //kiểm tra bản ghi đã tồn tại
-            var employeeData = _vendorRepository.GetById(entityId);
-            if (employeeData == null)
+            var vendorData = _vendorRepository.GetById(entityId);
+            if (vendorData == null)
             {
-                errorMsg.Add($"PaymentEmpty", $"Payment không tồn tại");
+                
+                errorMsg.Add($"VendorEmpty", $"Nhà cung cấp {vendorData.VendorName} không tồn tại");
+            }
+            else if (_vendorRepository.checkExitsPayment(entityId))
+            {
+                var style = "style=" + "\"font-weight: 700;\" ";
+                errorMsg.Add($"PaymentExit", $"Nhà cung cấp {vendorData.VendorName} đã có phát sinh. Bạn phải xóa các phát sinh liên quan trước khi xóa nhà cung cấp.");
             }
             if (errorMsg.Count() > 0)
             {
@@ -167,6 +173,37 @@ namespace MISA.WEB02.Core.Services
                 return result;
             }
             return 1;
+        }
+        public override object MultiDelete(List<Guid> listId)
+        {
+            //validate dữ liệu
+            Dictionary<string, string> deleteMsg = new Dictionary<string, string>();
+            int success = 0;
+            int failed = 0;
+            int totalRecord = listId.Count();
+            //kiểm tra bản ghi đã tồn tại
+            foreach (var entityId in listId)
+            {
+                var vendorData = _vendorRepository.GetById(entityId);
+                
+                if (vendorData == null)
+                {
+                    deleteMsg.Add($"{entityId}", $"{Resource.VN_VendorNotFound}");
+                    failed++;
+                }
+                else if (_vendorRepository.checkExitsPayment(entityId))
+                {
+                    deleteMsg.Add($"{entityId}", $"{Resource.VN_VendorHasPayment}");
+                    failed++;
+                }
+                else
+                {
+                    success++;
+                    _vendorRepository.Delete(entityId);
+
+                }
+            }
+            return new { TotalRecord = totalRecord, Success=success,Failed = failed,DeleteMsg = deleteMsg};
         }
         #endregion
     }

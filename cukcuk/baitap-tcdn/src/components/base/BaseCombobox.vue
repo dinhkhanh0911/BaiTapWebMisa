@@ -1,10 +1,10 @@
 <template>
   <div class="combobox-container" ref="combobox" :title="titleError" :class="className">
     <div class="value-combobox" ref="valueCombobox" >
-      <input type="text" :value="valueCB" :placeholder="placeholder"/>
+      <input type="text" :value="valueCB" :placeholder="placeholder" :disabled="disabled"/>
     </div>
     <div class="action" >
-      <button @click="onClickAction()">
+      <button @click="onClickAction()" :disabled="disabled">
         <div class="mi mi-16"></div>
       </button>
     </div>
@@ -16,22 +16,43 @@
       v-bind:style="{ left: leftAction + 'px','min-width': widthAction + 'px',}"
       @scroll="lazyLoad()"
     >
-      <table ref="baseTable" :class="{ 'table-one-column': isOneColumn }">
+      <table v-if="defaultTable" ref="baseTable" :class="{ 'table-one-column': isOneColumn }">
         <thead>
           <tr>
             <th>Mã đơn vị</th>
             <th>Tên đơn vị</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody ref="tbody">
           <tr
             v-for="(value, index) in values"
             :key="index"
-            @click="handleSelect(value[id], value[name], index)"
+            @click="handleSelect(value, index)"
             :class="{ active: (value[id] === modelValue) }"
           >
             <td>{{ value[code] }}</td>
             <td>{{ value[name] }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table v-else ref="baseTable" :class="{ 'table-one-column': isOneColumn }">
+        <thead>
+          <tr>
+            <th v-for="(column, index) in columnsDescription" :key="index" :class="column.columnClass" class="resizeable" 
+            > {{column.viewColumnName}}</th>
+          </tr>
+        </thead>
+        <tbody ref="tbody">
+          <tr
+            v-for="(value, index) in values"
+            :key="index"
+            @click="handleSelect(value, index)"
+            :class="{ active: (value[id] === modelValue) }"
+          >
+            <td v-for="(column, index) in columnsDescription" :key="index" :class="column.columnClass"
+            > 
+              {{value[column.columnField]}}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -55,12 +76,21 @@ export default {
       values: [],
       titleError: "",
       error: false,
+
+      // Chỉnh sửa bảng dữ liệu
+      defaultTable:true,
+      columnsDescription:[],
+      //position action
       topAction:0,
       leftAction:0,
       widthAction:0,
       postitionBind:'top',
+
+      //lazy loading
       pageSize:10,
       currentPage:1,
+
+      propShow:""
     };
   },
   props: {
@@ -111,10 +141,36 @@ export default {
     isLazyloading:{
       type:Boolean,
       default:false
+    },
+    dataValue:{
+      type:String,
+      default:''
+    },
+    disabled:{
+      type:Boolean,
+      default:false
+    },
+    apiColumn:{
+      type:String,
+      default:""
+    },
+    tableName:{
+      type:String,
+      default:""
+    },
+    propValue:{
+      type:String,
+      default:""
     }
   },
   created() {
-    this.loadData()
+    if(!!this.propValue) this.propShow = this.propValue
+    else this.propShow = this.name 
+    console.log(this.propShow)
+    if(!this.apiColumn) this.loadData()
+    else this.loadColumnTable()
+
+    
   },   
   watch: {
     /**
@@ -128,7 +184,10 @@ export default {
       if (this.modelValue === "") {
         this.valueCB = "";
       }
-      else this.valueCB = this.values.find(x => x[this.id] === this.modelValue)[this.name]
+      else {
+        this.valueCB = this.values.find(x => x[this.id] === this.modelValue)[this.propShow]
+        
+      }
     },
     Api:function(){
       this.valueCB = ""
@@ -136,10 +195,32 @@ export default {
     }
   },
   methods: {
-    /**------------------------------------------
-    *lazyloading cho combobox
-    *Author: quyetkaito (19/04/2022)
-    --------------------------------------------*/
+    /**
+    * Mô tả: Load cột của bảng
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 09/05/2022
+    */
+    loadColumnTable(){
+      this.defaultTable = false
+      axios
+        .get(`${this.apiColumn}/${this.tableName}`)
+        .then((response) => {
+          if (response.status === 200) {
+            this.columnsDescription = response.data.columns.filter(column => column.isShow === "True")
+            
+            this.loadData()
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+    
+    /**
+    * Mô tả: Xử lý lazy loading
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 29/05/2022
+    */
     lazyLoad() {
       //nếu lazyLoading bằng true thì mới loading.
       if (this.isLazyloading) {
@@ -165,23 +246,23 @@ export default {
     onClickAction(){
       var combobox = this.$refs['combobox'].getBoundingClientRect()
       var action = this.$refs['comboboxAction']
-      var comboboxAction = this.$refs['comboboxAction'].getBoundingClientRect()
 
       //ví trí bên trái của input
       this.leftAction = parseInt(combobox.left )
       // Vị trí bên trên của input
       this.topAction = parseInt(combobox.top+36)
-      var bottomAction = parseInt(combobox.top- combobox.height )
       this.widthAction = parseInt(combobox.width)
       this.isShow =! this.isShow
       // action.style.top = this.topAction +'px'
       const me = this
       nextTick(function(){
-        console.log(action.scrollHeight)
+        var documentWidth = document.body.clientWidth
+        var widthCombobox = action.getBoundingClientRect().width
+        var temp = widthCombobox + me.leftAction - documentWidth
+        if(temp > 0){
+          me.leftAction = me.leftAction - temp - 24
+        }
         if(!me.isDropDown) {
-          
-          //me.topAction = me.topAction - comboboxAction.height
-          console.log(screen.height)
           action.style.bottom = screen.height - me.topAction - 66+'px'
         }
         else action.style.top = me.topAction +'px'
@@ -206,6 +287,7 @@ export default {
                 if (value != undefined) {
                   this.valueCB = value[this.name];
                 }
+                
               }
             }
           })
@@ -214,7 +296,8 @@ export default {
           });
     },
     loadData(){
-      
+
+      //Trường hợp combobox không cho option lazy loading
       if(!this.isLazyloading){
         //Lấy dữ liệu combobox
         //Nếu Api có, gọi Api lấy giữ liệu
@@ -226,12 +309,18 @@ export default {
                 this.values = response.data;
                 //Nếu modelValue khác rỗng và số giá trị mảng option combobox lớn hơn không thì gán
                 // giá trị input bằng giá trị value tương ứng
-                if (this.modelValue !== "" && this.values.length > 0) {
+                if (!!this.modelValue && this.values.length > 0) {
                   var value = this.values.find(
                     (item) => item[this.id] == this.modelValue
                   );
+                  //Nếu dữ liệu lấy có chứa model
                   if (value != undefined) {
-                    this.valueCB = value[this.name];
+                    this.valueCB = value[this.propShow];
+                  }
+                  //Nếu dữ liệu mặc định tồn tại
+                  else if(!!this.dataValue.trim()){
+                    console.log(this.dataValue)
+                    this.valueCB = this.dataValue
                   }
                 }
               }
@@ -251,15 +340,19 @@ export default {
             var value = this.values.find(
               (item) => item[this.id] == this.modelValue
             );
+            //Nếu dữ liệu lấy có chứa model
             if (value != undefined) {
-              this.valueCB = value[this.name];
+              this.valueCB = value[this.propShow];
             }
           }
+          //Nếu dữ liệu mặc định tồn tại
+          // if(!this.valueCB.trim() && !!this.dataValue.trim()) this.valueCB = this.dataValue
           
         }
       }
+
+      //Trường hợp có lazy loading
       else{
-        console.log(this.isLazyloading)
         axios
           .get(`${this.Api}?currentPage=1&pageSize=20`)
           .then((response) => {
@@ -272,8 +365,14 @@ export default {
                 var value = this.values.find(
                   (item) => item[this.id] == this.modelValue
                 );
+                //Nếu dữ liệu lấy có chứa model
                 if (value != undefined) {
-                  this.valueCB = value[this.name];
+                  this.valueCB = value[this.propShow];
+                }
+                //Nếu dữ liệu mặc định tồn tại
+                else if(!!this.dataValue.trim()){
+                  console.log(this.dataValue)
+                  this.valueCB = this.dataValue
                 }
               }
             }
@@ -288,16 +387,16 @@ export default {
      * Created by: Đinh Văn Khánh - MF1112
      * Created date: 14/04/2022
      */
-    handleSelect(id, name, index) {
+    handleSelect(value, index) {
       this.isShow = false;
-      this.$emit("update:modelValue", id);
-      this.$emit("change",id,name)
-      this.valueCB = name;
+      this.$emit("update:modelValue", value[this.id]);
+      this.$emit("change",value)
+      this.valueCB = value[this.propShow];
       this.removeClass("error");
 
       //Thêm class vào hàng được chọn
-      var trElement = this.$refs['baseTable'].querySelectorAll(
-        "tbody tr"
+      var trElement = this.$refs['tbody'].querySelectorAll(
+        "tr"
       );
       for (var tr of trElement) {
         tr.classList.remove("active");
@@ -362,7 +461,7 @@ export default {
 .action {
   height: 100%;
   width: 30px;
-  background-color: bisque;
+  background-color: transparent;
   border-radius: 2px;
   border: none;
   position: relative;
@@ -435,6 +534,7 @@ td,
 th {
   text-align: left;
   padding: 0 14px 0 10px;
+  white-space: nowrap;
 }
 .combobox-option table tbody tr {
   cursor: pointer;
@@ -454,5 +554,10 @@ th {
 .parent {
   font-weight: 700;
   font-family: MISA notosans bold;
+}
+</style>
+<style>
+button:disabled{
+  background-color: transparent!important;;
 }
 </style>

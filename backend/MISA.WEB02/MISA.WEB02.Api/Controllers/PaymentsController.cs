@@ -122,6 +122,40 @@ namespace MISA.WEB02.Api.Controllers
             }
 
         }
+
+        [HttpGet]
+        [Route("export")]
+        public IActionResult Export()
+        {
+            try
+            {
+
+                var file = _paymentService.ExportService("Danh sách phiếu chi");
+
+
+                return File(file, "xlsx/xls", "Danh_sach_phieu_chi.xlsx");
+            }
+            catch (MISAExceptions ex)
+            {
+                var result = new MISAServiceResult()
+                {
+                    devMsg = ex.Message,
+                    userMsg = Resource.VN_MisaExceptionMsg,
+                    data = ex.Data,
+                };
+                return BadRequest(result);
+            }
+            catch (Exception ex)
+            {
+                var result = new
+                {
+                    devMsg = ex.Message,
+                    userMsg = Resource.VN_MisaExceptionMsg,
+                    data = ex.Data,
+                };
+                return StatusCode(500, result);
+            }
+        }
         #endregion
     }
 }

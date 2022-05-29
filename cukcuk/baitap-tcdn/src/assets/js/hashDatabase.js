@@ -60,7 +60,7 @@ const DB = {
    * Tài khoản nợ,có
    */
   accounts:[
-      {Id:0,Code: 1111111,Value:"Toán"},
+      {Id:6,Code: 1111111,Value:"Toán"},
       {Id:1,Code: 2222222,Value:"Khánh"},
       {Id:2,Code: 3333333,Value:"Lộc"},
       {Id:3,Code: 4444444,Value:"Hải"},
@@ -72,7 +72,7 @@ const DB = {
    * Type Money
    */
     typeMoney:[
-    {Id:0,Value:"VND"},
+    {Id:2,Value:"VND"},
     {Id:1,Value:"USD"}
   ],
   country:[

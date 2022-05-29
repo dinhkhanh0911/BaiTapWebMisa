@@ -45,5 +45,7 @@ namespace MISA.WEB02.Core.Interfaces
         /// <returns></returns>
         /// Author: Đinh Văn Khánh (22/04/2022)
         public int InsertPaymentDetailService(PaymentDetail paymentDetail);
+
+        
     }
 }

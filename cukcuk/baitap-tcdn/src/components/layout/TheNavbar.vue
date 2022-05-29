@@ -267,7 +267,7 @@ export default {
     padding-right: 14px;
     align-items: center;
     border-left: 6px solid #393a3d;
-    
+    text-decoration: none;
 }
 .navbar-link *{
     pointer-events: none;

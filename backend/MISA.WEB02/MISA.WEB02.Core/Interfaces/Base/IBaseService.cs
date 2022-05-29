@@ -53,7 +53,7 @@ namespace MISA.WEB02.Core.Interfaces.Base
         /// </summary>
         /// <param name="listId"></param>
         /// <returns></returns>
-        public int MultiDelete(List<Guid> listId);
+        public object MultiDelete(List<Guid> listId);
 
         /// <summary>
         /// Validate các trường dữ liệu
@@ -62,6 +62,6 @@ namespace MISA.WEB02.Core.Interfaces.Base
         /// <returns></returns>
         public Dictionary<string, string> ValidateEmpty(T entity);
 
-
+        public byte[] ExportService(string fileName);
     }
 }

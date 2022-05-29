@@ -6,19 +6,19 @@
                     <span>Nghiệp vụ tiền gửi</span>
                 </div>
                 <div class="content-left-body">
-                    <div class="div-button receive">
+                    <div class="div-button receive" @click="showNoticeMaintain">
                         <span>Thu tiền</span>
                     </div>
-                    <div class="div-button payment ">
+                    <div class="div-button payment " @click="showNoticeMaintain">
                         <span>Chi tiền</span>
                     </div>
-                    <div class="div-button audit ">
+                    <div class="div-button audit " @click="showNoticeMaintain">
                         <span>Đối chiếu ngân hàng</span>
                     </div>
                 </div>
             </div>
             <div class="content-left-bottom bg-while d-flex">
-                <div class="content-option d-flex bank-account">
+                <div class="content-option d-flex bank-account" @click="showNoticeMaintain">
                     <div class="content-icon">
                         <div class="mi mi-24"></div>
                     </div>
@@ -28,7 +28,7 @@
                         </span>
                     </div>
                 </div>
-                <div class="content-option d-flex customer">
+                <div class="content-option d-flex customer" @click="showNoticeMaintain">
                     <div class="content-icon">
                         <div class="mi mi-24"></div>
                     </div>
@@ -42,13 +42,13 @@
                     <div class="content-icon">
                         <div class="mi mi-24"></div>
                     </div>
-                    <router-link to="/suppliers"  class="content-des">
+                    <router-link to="/suppliers"  class="content-des router-link">
                         <span>
                             Nhà cung cấp
                         </span>
                     </router-link>
                 </div>
-                <div class="content-option d-flex employee" >
+                <div class="content-option d-flex employee" @click="showNoticeMaintain" >
                     <div class="content-icon">
                         <div class="mi mi-24"></div>
                     </div>
@@ -58,7 +58,7 @@
                         </span>
                     </div>
                 </div>
-                <div class="content-option d-flex caculator">
+                <div class="content-option d-flex caculator" @click="showNoticeMaintain">
                     <div class="content-icon">
                         <div class="mi mi-24"></div>
                     </div>
@@ -76,27 +76,27 @@
             </div>
             <div class="content-right-content">
                 <ul>
-                    <li>
+                    <li @click="showNoticeMaintain">
                         <a>
                             Bảng kê chứng từ theo khế ướng vay
                         </a>
                     </li>
-                    <li>
+                    <li @click="showNoticeMaintain">
                         <a>
                             Bảng kê chứng từ theo khế ướng vay
                         </a>
                     </li>
-                    <li>
+                    <li @click="showNoticeMaintain">
                         <a>
                             Bảng kê chứng từ theo khế ướng vay
                         </a>
                     </li>
-                    <li>
+                    <li @click="showNoticeMaintain">
                         <a>
                             Bảng kê chứng từ theo khế ướng vay
                         </a>
                     </li>
-                    <li>
+                    <li @click="showNoticeMaintain">
                         <a>
                             Bảng kê chứng từ theo khế ướng vay
                         </a>
@@ -108,13 +108,69 @@
             </div>
         </div>
     </div>
+    <BasePopup
+      v-if="isShowPopupInfo"
+      :contentPrev="contentPopupInfo"
+      @confirm="handleConfirmBtn"
+      :type="typePopupInfo"
+      :keyCombobox="keyCombobox"
+    />
 </template>
 <script>
+
+/**
+* Mô tả: Tab quy trình
+* Created by: Đinh Văn Khánh - MF1112
+* Created date: 25/05/2022
+*/
+import BasePopup from '@/components/base/BasePopup.vue'
 export default {
-    
+    components:{
+        BasePopup
+    },
+    data(){
+        return {
+            //popup
+            contentPopupInfo: "",
+            isShowPopupInfo: false,
+            typePopupInfo: "error",
+            keyCombobox: "",
+        }
+    },
+    methods: {
+        showNoticeMaintain(){
+            this.showPopupInfo(this.typePopupName.warningNotify,this.popupMsg.maintainMsg,"confirm")
+        },
+        /**
+        * Mô tả: Hiển thị popup thông báo
+        @param dạng popup, Nội dung , key
+        * Created by: Đinh Văn Khánh - MF1112
+        * Created date: 12/04/2022
+        */
+      showPopupInfo(type, errorMsg, key) {
+        
+        this.typePopupInfo = type;
+        this.contentPopupInfo = errorMsg;
+        this.keyCombobox = key;
+        
+        this.isShowPopupInfo = true;
+      },
+        /**
+       * Mô tả: Xử lý sự kiện confirm popup
+       * Created by: Đinh Văn Khánh - MF1112
+       * Created date: 18/04/2022
+       */
+      handleConfirmBtn(isConfirm, key) {
+            //Popup xác nhận
+            if (key === "confirm") {
+                this.isShowPopupInfo = false;
+            }
+        }
+    },
 }
 </script>
 <style scoped>
+
 .content-header{
     height: 40px;
     border-bottom: 1px solid #c7c7c7;
@@ -215,11 +271,20 @@ export default {
     padding: 16px 0;
     border-bottom: 1px solid #c7c7c7;
     line-height: 40px;
+    cursor: pointer;
 }
 .content-right-content ul li:last-child{
     border-bottom: none;
 }
 .content-right-content ul li a{
     font-size: 13px;
+}
+.router-link{
+    text-decoration: none;
+}
+</style>
+<style>
+.warning-notify .popup-footer{
+  justify-content: center!important;
 }
 </style>

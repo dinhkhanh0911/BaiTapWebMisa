@@ -197,7 +197,7 @@ namespace MISA.WEB02.Api.Controllers
                     userMsg = Resource.VN_MisaExceptionMsg,
                     data = ex1.Data,
                 };
-                return StatusCode(500, result);
+                return StatusCode(400, result);
             }
             catch (Exception ex)
             {

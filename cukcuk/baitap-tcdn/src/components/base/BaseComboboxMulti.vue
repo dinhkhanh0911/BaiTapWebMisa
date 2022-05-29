@@ -131,7 +131,7 @@ export default {
     
     //Lấy dữ liệu combobox
     //Nếu Api có, gọi Api lấy giữ liệu
-    console.log(this.modelValue)
+    
     if(!!this.modelValue){
       this.valueChecked = JSON.parse(this.modelValue)
     }
@@ -184,7 +184,11 @@ export default {
      */
     modelValue: function () {
       if (this.modelValue == "") {
-        this.valueCB = "";
+        this.valueCB = ""
+      }
+      if(this.modelValue == null){
+        this.valueCB = ""
+        this.valueChecked = []
       }
       
     },
@@ -240,7 +244,7 @@ export default {
       
       if (this.timer === 0) {
         this.reloadOption()
-        console.log("A")
+        
       } else {
         clearTimeout(this.timeOut);
         this.timeOut = setTimeout(() => {

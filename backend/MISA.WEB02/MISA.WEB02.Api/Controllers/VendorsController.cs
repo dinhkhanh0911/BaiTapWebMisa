@@ -56,6 +56,41 @@ namespace MISA.WEB02.Api.Controllers
                 return StatusCode(500, result);
             }
         }
+
+
+        [HttpGet]
+        [Route("export")]
+        public IActionResult Export()
+        {
+            try
+            {
+
+                var file = _vendorService.ExportService("Danh sách nhà cung cấp");
+
+
+                return File(file, "xlsx/xls", "Danh_sach_nha_cung_cap.xlsx");
+            }
+            catch (MISAExceptions ex)
+            {
+                var result = new MISAServiceResult()
+                {
+                    devMsg = ex.Message,
+                    userMsg = Resource.VN_MisaExceptionMsg,
+                    data = ex.Data,
+                };
+                return BadRequest(result);
+            }
+            catch (Exception ex)
+            {
+                var result = new
+                {
+                    devMsg = ex.Message,
+                    userMsg = Resource.VN_MisaExceptionMsg,
+                    data = ex.Data,
+                };
+                return StatusCode(500, result);
+            }
+        }
         #endregion
     }
 }

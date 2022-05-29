@@ -10,9 +10,11 @@
               </div>
               <div class="btn-container">
                 <BaseButton
+                  :addButton="'addButton'"
                   :classBtn="'btn-default btn-primary'"
                   :content="'Thêm mới nhà cung cấp'"
                   @click="handleAddClick()"
+                  :title="'Ctr+F1 '"
                 />
               </div>
             </div>
@@ -24,11 +26,15 @@
           <div class="layout-dictionary-body" @scroll="handleScroll($event)">
             <div class="table-option">
               <div class="table-option-left d-flex">
+                <div class="icon-table-option mi mi-24">
+
+                </div>
                 <div class="btn-delete-multi">
                   <BaseButton
                     :classBtn="'btn-default'"
                     :content="'Thực hiện hàng loạt'"
                     :disabled="isDisableMultipleDeleteBtn"
+                    ref="deleteMulti"
                     @click="handleMultipleDeleteClick()"
                   />
                 </div>
@@ -46,7 +52,7 @@
               <div class="table-option-right d-flex alignt-center">
                 <div class="input-search">
                   <BaseInput
-                    :placeholder="'Tìm kiếm theo mã,tên nhân viên'"
+                    :placeholder="'Nhập từ khóa tìm kiếm'"
                     v-model="searchValue"
                     :timer="1000"
                     :searchClass="'search-container'"
@@ -55,30 +61,28 @@
                 <div
                   class="reload btn-icon mi mi-24"
                   @click="reloadData()"
-                  @mouseover="hover($event, 'Lấy lại dữ liệu')"
-                  @mouseleave="isShowTooltip = false"
+                  :title="'Lấy lại giữ liệu'"
                 ></div>
                 <div
                   class="export btn-icon mi mi-24"
-                  @mouseover="hover($event, 'Xuất ra excel')"
-                  @mouseleave="isShowTooltip = false"
+                  :title="'Xuất dữ liệu'"
                   @click="handleExport()"
                 ></div>
                 <div class="setting btn-icon mi mi-24 "
-                    @mouseover="hover($event,'Tùy chỉnh giao diện')" 
-                    @mouseleave="isShowTooltip = false"
+                    :title="'Chỉnh sửa giao diện'"
                     @click="isShowSettingViewForm = true"
                 ></div>
               </div>
             </div>
             <BaseTable
               ref="tableVendor"
-              @employeeValue="handleEdit"
+              @ObjectValue="handleEdit"
               :searchValue="searchValue"
               :currentPage="currentPage"
               :pageSize="pageSize"
               :loadHandle="loadHandle"
               @showToast="showToast"
+              @showPopup="showPopupInfo"
               @loading="isNoData = false"
               @check="handleCheckDataTable"
               :api="apiColumn"
@@ -174,6 +178,15 @@
       tableName="Vendor"
       v-if="isShowSettingViewForm"
       @close="handleCloseSettingViewForm"
+    />
+    <BaseFormResultDeleteMulti 
+      v-if="isShowFormResultDeleteMulti" 
+      :listEntity="listEntity"
+      :result="resultDeleteMulti"
+      :apiColumn="apiColumn"
+      :tableName="'VendorResult'"
+      :description="'nhà cung cấp'"
+      @close="handleCloseFormResult"
     />
     <div class="filter-option-container" v-if="isShowFilter" v-bind:style="{ top: filterBtnTop + 'px', left: filterBtnLeft + 'px' }">
       <div class="filter-option grid">
@@ -288,6 +301,7 @@ import BaseSettingViewForm from '@/components/base/BaseSettingViewForm.vue'
 import Api from "@/assets/js/api";
 import DB from "@/assets/js/hashDatabase"
 import axios from "axios";
+import BaseFormResultDeleteMulti from "../base/BaseFormResultDeleteMulti.vue";
 export default {
   components: {
     BaseButton,
@@ -299,14 +313,16 @@ export default {
     BaseToast,
     BasePopup,
     BaseCombobox,
-    BaseSettingViewForm
-  },
+    BaseSettingViewForm,
+    BaseFormResultDeleteMulti
+},
   data() {
     return {
       filterVendorApi : Api.filterVendor,
       deleteVendorApi : Api.deleteVendor,
       isNoData: false,
       VendorIds: [],
+      vendors:[],
       isDisableMultipleDeleteBtn: true,
       isShowOptionItem: false,
       //tooltip
@@ -353,7 +369,11 @@ export default {
       },
       filterType:DB.filterType,
       filterDebt:DB.filterDebt,
-      filterStatus:DB.filterStatus
+      filterStatus:DB.filterStatus,
+
+      isShowFormResultDeleteMulti:false,
+      listEntity:[],
+      resultDeleteMulti:{}
     };
 
   },
@@ -377,6 +397,16 @@ export default {
     window.removeEventListener("keydown", this.handleKeyEventDown);
   },
   methods: {
+    /**
+    * Mô tả: Đóng form kết quả xóa nhiều
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 28/05/2022
+    */
+    handleCloseFormResult(){
+      this.isShowFormResultDeleteMulti = false,
+      this.listEntity = []
+      this.resultDeleteMulti = {}
+    },
     /**
     * Mô tả: Chỉnh mặc định các trường lọc
     @param
@@ -407,6 +437,7 @@ export default {
       this.contentPopupInfo = message;
       this.typePopupInfo = type;
       this.isShowPopupInfo = true;
+      console.log("a")
     },
     /*
             Hiểm thị popup thêm nhân viên
@@ -511,7 +542,7 @@ export default {
 
     //Xử lý khi bấm nút xuất dữ liệu
     handleExport() {
-      var apiConnectionString = `${Api.exportVendor}?currentPage=${this.currentPage}&pageSize=${this.pageSize}`;
+      var apiConnectionString = `${Api.vendors}/export`;
       axios({
         url: apiConnectionString,
         method: "GET",
@@ -527,7 +558,7 @@ export default {
             new Blob([res.data], { type: "application/xlsx" })
           );
 
-          a.download = `Danh_sach_nhan_vien.xlsx`;
+          a.download = `Danh_sach_nha_cung_cap.xlsx`;
 
           document.body.appendChild(a);
           a.click();
@@ -546,10 +577,10 @@ export default {
     },
 
     //Xử lý chọn nhân viên
-    handleCheckDataTable(checkboxs) {
-      
+    handleCheckDataTable(checkboxs,dataTable) {
+      this.vendors = dataTable
       this.VendorIds = checkboxs;
-      if (this.VendorIds.length > 0) {
+      if (this.VendorIds.length > 1) {
         this.isDisableMultipleDeleteBtn = false;
       } else this.isDisableMultipleDeleteBtn = true;
     },
@@ -566,10 +597,24 @@ export default {
           data: value,
         })
           .then((response) => {
+            console.log(response)
             if (response.status == 200) {
-              this.reloadData();
-              this.showToast(this.toastMsg.deleteVendorSuccessMsg, "success");
+              
+              this.resultDeleteMulti = response.data
+              var deleteMsg = this.resultDeleteMulti.DeleteMsg
+
+              console.log(typeof deleteMsg)
+              var errorIds = Object.keys(deleteMsg)
+              console.log(errorIds)
+              errorIds.forEach((x)=>{
+                var entity = this.vendors.find(v => v.VendorId == x)
+                entity.Reason = this.resultDeleteMulti.DeleteMsg[x]
+                this.listEntity.push(entity)
+              })
+              this.isShowFormResultDeleteMulti = true
+              // this.showToast(this.toastMsg.deleteVendorSuccessMsg, "success");
               this.VendorIds = [];
+              this.reloadData();
               
             }
           })
@@ -592,20 +637,20 @@ export default {
     //Xử lý xóa nhiều nhân viên
     handleMultipleDeleteClick() {
       this.isShowOptionItem = !this.isShowOptionItem;
-      if (this.VendorIds.length > 0) {
+      if (this.VendorIds.length > 1) {
         this.showPopupInfo(this.popupMsg.confirmMultipleDeleteMsg, this.typePopupName.warningConfirm);
       }
     },
 
     //Xử lý các key event
     handleKeyEvent(e) {
-      // console.log(e)
       if (e.shiftKey && e.keyCode === 46) {
         this.handleMultipleDeleteClick();
       }
       if (e.keyCode === 112 && e.ctrlKey) {
         this.handleAddClick();
       }
+      
     },
     //Xử lý sự kiện key down
     handleKeyEventDown(e) {
@@ -708,6 +753,11 @@ export default {
 }
 .table-option-left {
   position: relative;
+  align-items: center;
+}
+.icon-table-option{
+  background-position: -256px -143px;
+  margin: 0 12px;
 }
 .btn-filter{
   margin-left: 10px;
@@ -830,5 +880,6 @@ export default {
 .btn-filter{
   display: flex;
   justify-content: right;
+  
 }
 </style>

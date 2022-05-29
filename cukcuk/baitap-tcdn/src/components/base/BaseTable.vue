@@ -1,5 +1,5 @@
 <template>
-  <div class="table-container">
+  <div class="table-container" :class="className">
     <table id="table" class="tableEmployee">
       <thead >
         <tr class="sticky-top--87">
@@ -92,7 +92,7 @@
           v-for="(entity, index) in dataTable"
           :key="index"
           @click="handleClickColumn(index, entity)"
-          @dblclick="handleEdit(entity)"
+          
           :class="{ active: checkboxs.includes(entity[entityId]) }"
         >
           <td class="padding-td"></td>
@@ -126,14 +126,16 @@
             </div>
           </td>
           <td v-for="(column, index) in columnsDescription" :key="index" :class="column.columnClass"
-            v-bind:style="{'min-width': column.columnWidth + 'px'}" > 
+            > 
             {{convertData(entity[column.columnField],column.columnType)}}
           </td>
           <td
             class="option-column-td sticky-right-30 bg-while d-flex justify-space-center alignt-center"
           >
             <div class="option-column d-flex alignt-center">
-              <div class="edit-btn" @click="handleEdit(entity)">Sửa</div>
+              
+              <div class="edit-btn" @click="handleEdit(entity)" v-if="!showBtn">Sửa</div>
+              <div class="edit-btn" @click="handleSee(entity)" v-else>Xem</div>
               <div class="option-btn d-flex justify-space-center">
                 <div
                   class="option-column-icon mi mi-16 relative"
@@ -162,6 +164,7 @@
       :contentPrev="contentPopupInfo"
       @confirm="handleConfirmBtn"
       :type="typePopupInfo"
+      :keyCombobox="keyCombobox"
     />
   </div>
 </template>
@@ -202,6 +205,11 @@ export default {
       indexOption: -1,
 
       columnsDescription:[],
+      //Popup
+      contentPopupInfo: "",
+      isShowPopupInfo: false,
+      typePopupInfo: "error",
+      keyCombobox:""
     };
   },
   props: {
@@ -246,6 +254,14 @@ export default {
       default:""
     },
     apiDelelte:{
+      type:String,
+      default:""
+    },
+    showBtn:{
+      type:Boolean,
+      default:false
+    },
+    className:{
       type:String,
       default:""
     }
@@ -296,7 +312,7 @@ export default {
 
     // Lắng nghe sự kiện checkbox
     checkboxs: function () {
-      this.$emit("check", this.checkboxs);
+      this.$emit("check", this.checkboxs,this.dataTable);
     },
   },
   methods: {
@@ -376,18 +392,31 @@ export default {
      * Created by: Đinh Văn Khánh - MF1112
      * Created date: 18/04/2022
      */
-    showPopupInfo(message = "Thành công", type = "success") {
+    showPopupInfo(message , type,key) {
       this.contentPopupInfo = message;
       this.typePopupInfo = type;
+      this.keyCombobox = key
       this.isShowPopupInfo = true;
     },
+    /**
+     * Mô tả: Xử lý sự kiện confirm popup
+     * Created by: Đinh Văn Khánh - MF1112
+     * Created date: 18/04/2022
+     */
+    handleConfirmBtn(isConfirm, key) {
 
-    //Xử lý sự kiện click popup thông báo
-    handleConfirmBtn(isConfirm) {
-      if (isConfirm) {
-        this.delete();
+      //Popup thông báo validate
+      if (key === "delete") {
+        if (isConfirm) {
+          this.delete();
+        }
+        this.isShowPopupInfo = false;
       }
-      this.isShowPopupInfo = false;
+
+      //Popup xác nhận
+      if (key === "error") {
+        this.isShowPopupInfo = false;
+      }
     },
 
     /* Xử lý dữ liệu ngày tháng 
@@ -414,14 +443,23 @@ export default {
      * @param  nhân viên
      */
     handleEdit(entity) {
-      this.$emit("employeeValue", Object.assign({}, entity));
+      var obj = Object.assign({}, entity)
+      this.$emit("ObjectValue", Object.assign({}, entity));
+    },
+    /**
+     * Xử lý sự kiện click sửa
+     * @param  nhân viên
+     */
+    handleSee(entity) {
+      var obj = Object.assign({}, entity)
+      obj.IsShow = true
+      this.$emit("ObjectValue", obj );
     },
 
     /**
      * Lấy dữ liệu nhân viên
      */
     loadAllData(currentPage = this.currentPage,queryString = "") {
-      console.log(currentPage);
       //Bật hiệu ứng loading
       this.isLoading = true;
       this.$emit("loading", true);
@@ -432,13 +470,14 @@ export default {
         apiConnectionString = `${this.apiFilter}?currentPage=${currentPage}&pageSize=${this.pageSize}${queryString}`;
       } else
         apiConnectionString = `${this.apiFilter}?filterText=${this.searchValue}&currentPage=${currentPage}&pageSize=${this.pageSize}${queryString}`;
-      console.log(apiConnectionString)
+      
       axios
         .get(apiConnectionString)
         .then((response) => {
           if (response.status === 200) {
             this.isLoading = false;
             this.dataTable = response.data.List != null ? response.data.List:[];
+            console.log(this.dataTable)
             this.handleResizeTable()
             this.loadHandle(
               response.data.List,
@@ -450,6 +489,7 @@ export default {
         })
         .catch((e) => {
           console.log("e");
+
           this.isLoading = false;
           this.loadHandle([]);
         });
@@ -493,13 +533,14 @@ export default {
     handleDelelte() {
       this.showPopupInfo(
         `${this.popupMsg.confirmDeleteEmpMsg(this.entity[this.entityCode])}`,
-        this.typePopupName.warningConfirm
+        this.typePopupName.warningConfirm,'delete'
       );
     },
     /**
      * Xóa nhân viên
      */
     delete() {
+      var me = this
       axios
         .delete(`${this.apiDelelte}/${this.entity[this.entityId]}`)
         .then((response) => {
@@ -513,7 +554,18 @@ export default {
           }
         })
         .catch(function (e) {
-          this.$emit("showToast", this.errorMsg.exceptionMessage, "error");
+          
+          try{
+            if(e.response.status === 400){
+              var error = e.response.data.data
+              me.showPopupInfo(error[Object.keys(error)[0]], me.typePopupName.error,'error');
+            }
+            else me.showPopupInfo(error[Object.keys(error)[0]], me.typePopupName.error,'error');
+          }
+          catch(e){
+            me.showPopupInfo(me.errorMsg.exceptionMessage,me.typePopupName.error,'error');
+          }
+          
         });
       this.isShowOptionItem = false;
     },
@@ -522,8 +574,8 @@ export default {
       var entity = {};
       Object.assign(entity, this.entity);
       delete entity[this.entityId];
-      delete entity[this.entityCode];
-      this.$emit("employeeValue", entity);
+      entity.Duplicate = false
+      this.$emit("ObjectValue", entity);
       this.isShowOptionItem = false;
     },
 
@@ -533,7 +585,6 @@ export default {
      * Created date: 27/04/2022
      */
     onDbClick(e) {
-      console.log("ok");
       e.stopPropagation();
     },
 
@@ -548,7 +599,7 @@ export default {
         .then((response) => {
           if (response.status === 200) {
             this.columnsDescription = response.data.columns.filter(column => column.isShow === "True")
-            console.log(this.columnsDescription)
+            
             this.loadAllData(value);
           }
         })
@@ -783,4 +834,7 @@ table tr:hover > .hidden-td {
   margin-bottom: 2px;
 }
 
+.payment .sticky-top--87{
+  top:-224px!important;
+}
 </style>

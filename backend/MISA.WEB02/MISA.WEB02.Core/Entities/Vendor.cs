@@ -75,7 +75,7 @@ namespace MISA.WEB02.Core.Entities
         /// <summary>
         /// tên người liên hệ
         /// </summary>
-        [NotMap]
+        
         public string? ContactName { get; set; }
 
         /// <summary>
@@ -97,6 +97,8 @@ namespace MISA.WEB02.Core.Entities
 
         public Guid? EmployeeId { get; set; }
 
+        [NotMap]
+        public string? EmployeeName { get; set; }
         /// <summary>
         /// điều khoản được định nghĩa trong enum
         /// </summary>

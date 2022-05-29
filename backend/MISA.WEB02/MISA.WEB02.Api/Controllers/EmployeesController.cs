@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MISA.WEB02.Api.Helpers;
 using MISA.WEB02.Core.Entities;
 using MISA.WEB02.Core.Exceptions;
 using MISA.WEB02.Core.Interfaces;
 using MISA.WEB02.Core.Resources;
 using MISA.WEB02.Core.Services;
+using Newtonsoft.Json.Linq;
 
 namespace MISA.WEB02.Api.Controllers
 {
@@ -45,8 +47,10 @@ namespace MISA.WEB02.Api.Controllers
             try
             {
 
-                var result = _empoyeeService.FilterService(filterText, currentPage, pageSize);
-                return Ok(result);
+                var result = _empoyeeService.FilterService(filterText,currentPage, pageSize);
+                var jObj = JObject.Parse(result.ToString());
+                jObj.Capitalize();
+                return Ok(JObject.Parse(jObj.ToString()));
             }
             catch (MISAExceptions ex)
             {

@@ -15,6 +15,7 @@
               ref="TypePayment"
               :isOneColumn="'True'"
               v-model="payment.PaymentType"
+              :disabled="showMode"
             />
           </div>
         </div>
@@ -29,7 +30,7 @@
           <div class="help">
             <div class="mi mi-24 ic-help-dialog"></div>
           </div>
-          <div class="exit">
+          <div class="exit" :title="'Esc'" @click="closePopup()">
             <div class="mi mi-24 ic-exit-dialog"></div>
           </div>
         </div>
@@ -45,56 +46,66 @@
                     <div class="lable"><label for="">Đối tượng</label></div>
                     <BaseCombobox
                       :Api="'http://localhost:5158/api/v1/Vendors/filterAdvanced'"
+                      :apiColumn="apiColumn"
+                      :tableName="'VendorCombobox'"
                       :id="'VendorId'"
                       :name="'VendorName'"
                       :code="'VendorCode'"
-                      :componentDes="'Nhân viên mua hàng'"
+                      :componentDes="'Mã đối tượng'"
+                      :dataValue="payment.VendorName"
                       ref="VendorId"
                       v-model="payment.VendorId"
                       @change="handleChangeVendor"
                       :isLazyloading="'true'"
+                      :disabled="showMode"
+                      :propValue="'VendorCode'"
+                      
                     />
                   </div>
                   <div class="right col c-7">
                     <div class="lable"><label for="">Tên đối tượng</label></div>
-                    <BaseInput v-model="vendorName" ref="vendorName" />
+                    <BaseInput v-model="vendorName" ref="vendorName" :disabled="showMode" />
                   </div>
                 </div>
                 <div class="row">
                   <div class="left col c-5">
                     <div class="lable"><label for="">Người nhận</label></div>
-                    <BaseInput v-model="payment.ReceiverName" />
+                    <BaseInput v-model="payment.ReceiverName" :disabled="showMode"/>
                   </div>
                   <div class="right col c-7">
                     <div class="lable"><label for="">Địa chỉ</label></div>
-                    <BaseInput v-model="payment.Address"  />
+                    <BaseInput v-model="payment.Address"  :disabled="showMode"/>
                   </div>
                 </div>
                 <div class="row">
                   <div class="right col c-12">
                     <div class="lable"><label for="">Lý do chi</label></div>
-                    <BaseInput :placeholder="'Chi tiền cho'" v-model="payment.DescriptionPayment" />
+                    <BaseInput :placeholder="'Chi tiền cho'" v-model="handleChangeDescriptionPayment" :disabled="showMode"/>
                   </div>
                 </div>
                 <div class="row">
                   <div class="left col c-5">
                     <div class="lable"><label for="">Nhân viên</label></div>
                     <BaseCombobox
-                      :Api="employeesApi"
+                      :Api="'http://localhost:5158/api/v1/Employees/filter'"
+                      :apiColumn="apiColumn"
+                      :tableName="'EmployeeCombobox'"
                       :id="'EmployeeId'"
                       :name="'EmployeeName'"
                       :code="'EmployeeCode'"
                       :componentDes="'Nhân viên mua hàng'"
                       ref="EmployeeId"
                       v-model="payment.EmployeeId"
-                      :className="'type-money'"
+                      :dataValue="payment.EmployeeName"
+                      :disabled="showMode"
+                      :isLazyloading="true"
                     />
                   </div>
                   <div class="right col c-6">
                     <div class="lable"><label for="">Kèm theo</label></div>
                     <div style="display: flex; align-items: center">
                       <div class="m-col-7">
-                        <BaseInput :placeholder="'Số lượng'" :align="'right'" v-model="payment.AttachDocumentAmount" :searchClass="'text-right'"/>
+                        <BaseInput :disabled="showMode" :type="'number'" :placeholder="'Số lượng'" v-model="payment.AttachDocumentAmount" :searchClass="'text-right'"/>
                       </div>
                       <div class="description" style="margin-left: 6px; white-space:nowrap;">
                         chứng từ gốc
@@ -115,6 +126,7 @@
                       :lang="'vi'"
                       :clearable="false"
                       title-format="DD/MM/YYYY"
+                      :disabled="showMode"
                     />
                     <!-- eslint-enable -->
                   </div>
@@ -130,6 +142,7 @@
                       :lang="'vi'"
                       :clearable="false"
                       title-format="DD/MM/YYYY"
+                      :disabled="showMode"
                     />
                     <!-- eslint-enable -->
                   </div>
@@ -141,7 +154,12 @@
                         >Số phiếu chi</label
                       >
                     </div>
-                    <BaseInput v-model="payment.PaymentCode" />
+                    <BaseInput v-model="payment.PaymentCode" 
+                      ref="PaymentCode" 
+                      :componentDes="'Số phiếu chi'" 
+                      :disabled="showMode"
+                      :rules="['required']"
+                    />
                   </div>
                 </div>
               </div>
@@ -157,98 +175,154 @@
         <div class="table-area-1">
           <div class="title">
             <a class="link">Hạch toán</a>
-            <div class="type-currency">
-              <div style="padding: 0px 10px 0px 20px">Loại tiền</div>
-              <div class="m-col-6">
-                <BaseCombobox 
-                  :valueOption="typeMoney"
-                  :id="'Id'"
-                  :name="'Value'"
-                  :code="'Value'"
-                  v-model="payment.CurrencyId"
-                  :className="'type-money'"
-                />
-                
+            <div class="type-money-container d-flex">
+              <div class="type-currency">
+                <div style="padding: 0px 10px 0px 20px">Loại tiền</div>
+                <div class="m-col-6">
+                  <BaseCombobox 
+                    
+                    :valueOption="typeMoney"
+                    :id="'Id'"
+                    :name="'Value'"
+                    :code="'Value'"
+                    v-model="payment.CurrencyId"
+                    :className="'type-money'"
+                    :disabled="showMode"
+                    @change="handleChangeTypeMoney"
+                  />
+                  
+                </div>
+              </div>
+              <div class="type-currency" v-if="payment.CurrencyId == 1">
+                <div style="padding: 0px 10px 0px 20px">Tỷ giá</div>
+                <div class="m-col-6">
+                  <BaseInput :searchClass="'type-money text-right'" :type="'currency'" v-model="handleChangeExchangeRate" :disabled="showMode"/>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="table-area">
+        <div class="table-area" :class="{'table-disabled':showMode}">
           <div class="table">
             <!-- <MTableEditable :deleteFunc="true"/> -->
             <div class="table-container">
               <table>
                   <thead>
                       <tr>
-                        <th class="text-right">
-                            #
+                        <th class="text-center" >
+                            <div class="stt text-center">
+                              #
+                            </div>
                         </th>
                         <th>
-                          Diễn giải
+                          <div class="column" style="min-width:400px">Diễn giải</div>
                         </th>
                         <th>
-                          TK nợ
+                          <div class="column">TK nợ</div>
                         </th>
                         <th>
-                          Tk có
+                          <div class="column">Tk có</div>
                         </th>
                         <th>
-                          Số tiền
+                          <div class="column text-right">Số tiền</div>
                         </th>
                         <th>
-                          Đối tượng
+                          <div class="column">Đối tượng</div>
                         </th>
                         <th>
-                          Tên đối tượng
+                          <div class="column">Tên đối tượng</div>
                         </th>
                         <th class="option"></th>
                       </tr>
                   </thead>
                   <tbody>
                       <tr v-for="(value,index) in paymentDetails" :key="index">
-                        <td class="text-right">
+                        <td class="text-center stt">
                             {{index+1}}
                         </td>
                         <td>
-                            <BaseInput v-model="value.PaymentDescriptionPayment" @click="filterPaymentDetail()"/>
+                            <span v-if="showMode">{{value.DescriptionPayment}}</span>
+                            <BaseInput v-else v-model="value.DescriptionPayment" @click="filterPaymentDetail(index)" :disabled="showMode"/>
                         </td>
                         <td>
+                            <span v-if="showMode">{{accounts.find((x)=> x.Id == value.DebitAccountId)['Code']}}</span>
                             <BaseCombobox 
+                              v-else
                               :valueOption="accounts"
                               :id="'Id'"
                               :name="'Value'"
                               :code="'Code'"
+                              :propValue="'Code'"
                               v-model="value.DebitAccountId"
-                              @click="filterPaymentDetail()"
+                              @click="filterPaymentDetail(index)"
+                              :disabled="showMode"
                             />
                         </td>
                         <td>
+                            <span v-if="showMode">{{accounts.find((x)=> x.Id == value.CreditAccountId)['Code']}}</span>
                             <BaseCombobox 
+                              v-else
                               :valueOption="accounts"
                               :id="'Id'"
                               :name="'Value'"
                               :code="'Code'"
+                              :propValue="'Code'"
                               v-model="value.CreditAccountId"
-                              @click="filterPaymentDetail()"
+                              @click="filterPaymentDetail(index)"
+                              :disabled="showMode"
                             />
                         </td>
-                        <td >
-                            <BaseInput :isNumber="'true'" v-model="value.CashAmount" :searchClass="'text-right'"/>
+                        <td class="column-number">
+                            <span v-if="showMode" class="text-right">{{value.CashAmount}}</span>
+                            <BaseInput 
+                              v-else
+                              :isNumber="'true'" 
+                              :type="'currency'" 
+                              v-model="value.CashAmount" 
+                              :searchClass="'text-right'" 
+                              @blur="getTotalMoney"
+                              @click="filterPaymentDetail(index)"
+                              :disabled="showMode"
+                            />
                         </td>
                         <td>
+                            <span v-if="showMode">{{value.VendorCode}}</span>
                             <BaseCombobox
-                              :Api="vendorsApi"
+                              v-else
+                              :Api="'http://localhost:5158/api/v1/Vendors/filterAdvanced'"
+                              :apiColumn="apiColumn"
+                              :tableName="'VendorCombobox'"
                               :id="'VendorId'"
                               :name="'VendorName'"
                               :code="'VendorCode'"
-                              :componentDes="'Nhân viên mua hàng'"
+                              :componentDes="'Mã đối tượng'"
+                              :dataValue="value.VendorName"
                               ref="VendorId"
                               v-model="value.VendorId"
-                              @click="filterPaymentDetail()"
+                              @click="filterPaymentDetail(index)"
+                              @change="handleChangeVendorPaymentDetails($event,index)"
+                              :disabled="showMode"
+                              :isLazyloading="'true'"
+                              
                             />
+                            <!-- <BaseCombobox
+                              
+                              :Api="vendorsApi"
+                              
+                              :id="'VendorId'"
+                              :name="'VendorName'"
+                              :code="'VendorCode'"
+                              :componentDes="'Mã đối tượng'"
+                              ref="VendorId"
+                              v-model="value.VendorId"
+                              @click="filterPaymentDetail(index)"
+                              @change="handleChangeVendorPaymentDetails($event,index)"
+                              :disabled="showMode"
+                            /> -->
                         </td>
                         <td>
-                            <BaseInput @click="filterPaymentDetail()"/>
+                            <span v-if="showMode">{{value.VendorName}}</span>
+                            <BaseInput v-else :disabled="'true'" @click="filterPaymentDetail(index)" v-model="value.VendorName"/>
                         </td>
                         <td class="option d-flex justify-space-center alignt-center">
                             <div class="option-icon mi mi-16"></div>
@@ -288,10 +362,10 @@
               <div class="file-attach">
                 <div class="button-area">
                   <div class="add-row">
-                    <button @click="addRowTableAccount()">Thêm dòng</button>
+                    <button @click="addRowTableAccount()" :disabled="showMode">Thêm dòng</button>
                   </div>
                   <div class="delete-all">
-                    <button>Xóa hết dòng</button>
+                    <button :disabled="showMode">Xóa hết dòng</button>
                   </div>
                 </div>
                 <div class="attach">
@@ -329,6 +403,7 @@
               :classBtn="'btn-default btn-sq btn-no-op'"
               :content="'Cất'"
               @click="handleSave()"
+              :title="'Ctrl+S'"
             />
                 
           </div>
@@ -337,6 +412,7 @@
               :classBtn="'btn-default btn-sq btn-no-op btn-primary'"
               :content="'Cất và thêm'"
               @click="handleSaveAndContinue()"
+              :title="'Ctrl+Shift+S'"
             />
           </div>
         </div>
@@ -398,17 +474,22 @@ export default {
       typePopupInfo: "error",
 
       vendorName:"",
-      totalMoney:0,
+      totalMoney:'0,0',
       //Api
       paymentsApi : Api.payments,
       paymentDetailsApi:Api.paymentDetailsByPaymentId,
       vendorsApi:Api.vendors,
       employeesApi:Api.getEmployeeById,
-
+      apiColumn: Api.getColumnOption,
       //Hash Table
       filterTypePayments:DB.filterTypePayments,
       accounts:DB.accounts,
-      typeMoney:DB.typeMoney
+      typeMoney:DB.typeMoney,
+
+      showMode:false,
+      exchangeRate:1,
+
+      validateProp:['PaymentCode']
     };
   },
   props:{
@@ -450,23 +531,152 @@ export default {
         this.payment.PaymentDate = this.payment.PaymentDate.toDateString();
       },
     },
+    handleChangeExchangeRate:{
+      get(){
+        return this.payment.ExchangeRate
+      },
+      set(number){
+        this.payment.ExchangeRate = number
+        this.getTotalMoney()
+      }
+    },
+    handleChangeDescriptionPayment:{
+      get(){
+        return this.payment.DescriptionPayment
+      },
+      set(value){
+        this.payment.DescriptionPayment = value
+        this.paymentDetails.forEach((x)=>{
+          x.DescriptionPayment = value
+        })
+      }
+    }
   },
   created(){
-    
     this.payment = this.model
+    console.log(this.payment)
+    if(this.payment.IsShow != undefined){
+      this.showMode = true
+      this.totalMoney = this.formatNumber(this.payment.TotalMoney)
+    }
+    this.vendorName = this.payment.VendorName
     if(this.payment.PaymentCode == undefined){
       this.setDefault()
     }
     
     this.loadPaymentDetail()
   },
+  mounted() {
+    window.addEventListener("keyup", this.handleKeyEvent);
+    window.addEventListener("keydown", this.handleKeyEventDown);
+  },
+  //Bỏ lắng nghe xự kiện
+  beforeUnmount() {
+    window.removeEventListener("keyup", this.handleKeyEvent);
+    window.removeEventListener("keydown", this.handleKeyEventDown);
+  },
   watch:{
     vendorName:function(){
       this.payment.ReceiverName = this.vendorName
-      this.payment.DescriptionPayment = `${this.DescriptionPayment == undefined?"":this.DescriptionPayment} ${this.vendorName}`
+      var value = `Chi tiền cho ${this.vendorName}`
+      this.payment.DescriptionPayment = value
+      this.paymentDetails.forEach((x)=>{
+          x.DescriptionPayment = value
+        })
     }
   },
   methods: {
+    /**
+     * Mô tả: Xử lý sự kiện key up
+     * Created by: Đinh Văn Khánh - MF1112
+     * Created date: 18/04/2022
+     */
+    handleKeyEvent(e) {
+      console.log(e)
+      if (e.ctrlKey && e.keyCode == 83) {
+        this.handleSave();
+      }
+      if(e.shiftKey && e.ctrlKey && e.keyCode == 83){
+        e.preventDefault()
+        this.handleSaveAndContinue()
+      }
+      if(e.keyCode == 27){
+        this.closePopup()
+      }
+
+    },
+
+    /**
+     * Mô tả: Xử lý sự kiện key down
+     * Created by: Đinh Văn Khánh - MF1112
+     * Created date: 18/04/2022
+     */
+    handleKeyEventDown(e) {
+      if (e.ctrlKey && e.keyCode == 83) {
+        e.preventDefault()
+      }
+      if(e.shiftKey && e.ctrlKey && e.keyCode == 83){
+        e.preventDefault()
+        
+      }
+      if(e.keyCode == 27){
+        e.preventDefault()
+      }
+    },
+    /**
+    * Mô tả: Xử lý thay đổi loại tiền
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 27/05/2022
+    */
+    handleChangeTypeMoney(value){
+      if(value.Id === 2) {
+          this.payment.ExchangeRate = 1
+        
+      }
+      if(value.Id == 1 && (!this.payment.ExchangeRate || this.payment.ExchangeRate == 1)){
+        
+        this.payment.ExchangeRate = 23188
+      }
+      this.getTotalMoney()
+    },
+
+    /**
+    * Mô tả: Chuyển định dạng số
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 26/05/2022
+    */
+    formatNumber(value){
+        
+        try {
+          if (!value) return 0;
+          let result = Intl.NumberFormat("vi-VN").format(value);
+          return result;
+            
+        } catch (error) {
+            console.log(error);
+            return 0
+        }
+    },
+    /**
+    * Mô tả: Lấy tổng tiền payment detail
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 26/05/2022
+    */
+    getTotalMoney(){
+      this.totalMoney = this.paymentDetails.reduce((accumulator,value)=>{
+        return accumulator + value.CashAmount
+      },0)
+      
+      if(!!this.totalMoney) {
+        var exchangeRate = !!this.payment.ExchangeRate?this.payment.ExchangeRate:1
+        this.totalMoney = this.totalMoney*exchangeRate
+        this.payment.TotalMoney = this.totalMoney
+        
+        this.totalMoney = this.formatNumber(this.totalMoney)
+      }
+      
+      else this.totalMoney = '0,0'
+    },
     //Xóa nhiều bản ghi
     /**
      * Mô tả: Xử lý sự kiện confirm popup
@@ -475,9 +685,8 @@ export default {
      */
     handleConfirmBtn(isConfirm, key) {
       //Popup thông báo validate
-      if (key === "validate") {
+      if (key === "error" || key === "validate") {
         this.isShowPopupInfo = false;
-        console.log("ok")
         // this.$refs[`${this.errorRefsName}`].focus();
       }
 
@@ -500,22 +709,23 @@ export default {
     * Created by: Đinh Văn Khánh - MF1112
     * Created date: 23/05/2022
     */
-    filterPaymentDetail(){
-      var newPaymentDetails = []
-      this.paymentDetails = this.paymentDetails.filter((x)=>{
-        var ok = !this.validatePaymentDetail(x)
-        
-        if(ok) {
-          newPaymentDetails.push(x)
-          return true
-        }
-        else return false
-              
-      })
-      console.log(newPaymentDetails)
-      if(newPaymentDetails.length == 0) this.paymentDetails = [{}]
-      else this.paymentDetails = newPaymentDetails
-      return newPaymentDetails
+    filterPaymentDetail(index){
+      if(index == 0 ){
+        var newPaymentDetails = []
+        this.paymentDetails = this.paymentDetails.filter((x)=>{
+          var ok = !this.validatePaymentDetail(x)
+          
+          if(ok) {
+            newPaymentDetails.push(x)
+            return true
+          }
+          else return false
+                
+        })
+        if(newPaymentDetails.length == 0) this.paymentDetails = [{}]
+        else this.paymentDetails = newPaymentDetails
+        return newPaymentDetails
+      }
             
     },
     /**
@@ -525,17 +735,29 @@ export default {
     */
     validatePaymentDetail(paymentDetail){
       console.log(paymentDetail)
-      if(paymentDetail.DebitAccountId == undefined) return "Tài khoản nợ không được để trống."
-      if(!paymentDetail.CreditAccountId == undefined) return "Tài khoản có không được để trống."
+      var keys = Object.keys(paymentDetail)
+      console.log(keys)
+      if(keys.length == 0) {
+        return true
+      }
+      // if(paymentDetail.DebitAccountId == undefined) return "Tài khoản nợ không được để trống."
+      // if(!paymentDetail.CreditAccountId == undefined) return "Tài khoản có không được để trống."
       return undefined
     },
     /**
-    * Mô tả: Xử lý thay đổi đối tượng
+    * Mô tả: Xử lý thay đổi đối tượng payment master
     * Created by: Đinh Văn Khánh - MF1112
     * Created date: 23/05/2022
     */
-    handleChangeVendor(id,name){
-      this.vendorName = name
+    handleChangeVendor(value){
+      this.vendorName = value.VendorName
+      if(this.paymentDetails.length >0){
+        this.paymentDetails[0].VendorId = value.VendorId
+        this.paymentDetails[0].VendorName = value.VendorName
+      }
+    },
+    handleChangeVendorPaymentDetails(value,index){
+      this.paymentDetails[index].VendorName = value.VendorName
     },
 
     /**
@@ -545,9 +767,11 @@ export default {
     */
     setDefault(){
       this.payment.PaymentType = 7
-      this.payment.CurrencyId = 1
+      this.payment.CurrencyId = 2
+      this.payment.ExchangeRate = 1
       this.payment.AccountingDate = new Date()
       this.payment.PaymentDate = new Date()
+      this.payment.DescriptionPayment = 'Chi tiền cho '
       this.getNewCode()
     },
     /**
@@ -562,20 +786,10 @@ export default {
           if (response.status === 200) {
             console.log(response.data)
             this.payment.PaymentCode = response.data
-            // this.isLoading = false;
-            // this.dataTable = response.data.List;
-            // this.loadHandle(
-            //   response.data.List,
-            //   currentPage,
-            //   response.data.TotalPage,
-            //   response.data.Count
-            // );
           }
         })
         .catch((e) => {
           console.log("e");
-          // this.isLoading = false;
-          // this.loadHandle([]);
         });
     },
     /**
@@ -593,15 +807,9 @@ export default {
           if (response.status === 200) {
             console.log(response.data)
             this.paymentDetails = response.data
-            
-            // this.isLoading = false;
-            // this.dataTable = response.data.List;
-            // this.loadHandle(
-            //   response.data.List,
-            //   currentPage,
-            //   response.data.TotalPage,
-            //   response.data.Count
-            // );
+            this.paymentDetails.forEach((p) =>{
+              p.CashAmount = this.formatNumber(p.CashAmount)
+            })
           }
         })
         .catch((e) => {
@@ -628,16 +836,47 @@ export default {
     //Xử lý sự kiện luu thông tin nhân viên và tiếp tục thêm
     handleSaveAndContinue() {
       this.save(true);
-      // if (this.validate()) {
-      //   this.save(true);
-      // }
+      if (this.validate()) {
+        this.save(true);
+      }
     },
     //Xử lý sự kiện luu thông tin nhân viên
     handleSave() {
-      this.save(false);
-      // if (this.validate()) {
-      //   this.save(false);
-      // }
+      if (this.validate()) {
+        this.save(false);
+      }
+    },
+    /**
+     * Mô tả: Validate các trường dữ liệu
+     * Created by: Đinh Văn Khánh - MF1112
+     * Created date: 18/04/2022
+     */
+    validate() {
+      var length = this.validateProp.length
+      var errorMsg = '';
+
+      //Mã phiếu chi trống
+      for(var i = 0 ;i < length;++i){
+        var propName = this.validateProp[i]
+        if(this.$refs[propName] != undefined){
+          var msg = this.$refs[propName].validate()
+          if(errorMsg === '' && !!msg ) errorMsg = msg
+        }
+      }
+      //Chứng từ chi tiết rỗng
+      var paymentDetails = this.filterPaymentDetail(0)
+      if(paymentDetails != undefined && paymentDetails.length > 0) this.payment.paymentDetails = paymentDetails
+      else {
+        var msg = this.popupMsg.paymentDetailNotFound
+        if(errorMsg === '' && !!msg ) errorMsg = msg
+      }
+      if(errorMsg !== ''){
+        console.log(errorMsg)
+        this.showPopupInfo(this.typePopupName.error,errorMsg,'error');
+        return false
+      }
+      
+      else return true
     },
     /**
      * Mô tả: Lưu thông tin nhân viên
@@ -645,8 +884,7 @@ export default {
      * Created date: 12/04/2022
      */
     save(isContinue) {
-      var paymentDetails = this.filterPaymentDetail()
-      if(paymentDetails.length > 0) this.payment.paymentDetails = paymentDetails 
+       
       // Cập nhật thông tin
       if (this.payment.paymentId != undefined) {
         console.log(this.payment)
@@ -677,6 +915,7 @@ export default {
           })
           .catch((e) => {
             var keys = Object.keys(e.response.data.data);
+            
             if (keys.length > 0) {
               this.errorRefsName = keys[0];
               var errorMsg = e.response.data.data[keys[0]];
@@ -714,7 +953,7 @@ export default {
           .catch((e) => {
             try{
               var keys = Object.keys(e.response.data.data);
-              console.log("errorMsg")
+              console.log(e.response.data);
               if (keys.length > 0) {
                 var errorMsg = e.response.data.data[keys[0]];
                 this.errorRefsName = keys[0];
@@ -724,7 +963,7 @@ export default {
               else {
                 this.showPopupInfo(
                   this.typePopupName.warningNotify,
-                  this.toastMsg.exceptionMessage,
+                  this.errorMsg.exceptionMessage,
                   "validate"
                 );
               }
@@ -732,7 +971,7 @@ export default {
             catch(e){
               this.showPopupInfo(
                 this.typePopupName.warningNotify,
-                this.toastMsg.exceptionMessage,
+                this.errorMsg.exceptionMessage,
                 "validate"
               );
             }
@@ -905,6 +1144,7 @@ export default {
 .m-popup .popup-content .table-area {
   background-color: #fff;
   width: 100%;
+  
 }
 .m-popup .popup-content .table-area .hidden-right {
   background-color: #fff !important;
@@ -1042,6 +1282,7 @@ export default {
 .lable{
   font-weight: 700;
   color: #111;
+  margin-bottom: 5px;
 
 }
 /* Table */
@@ -1051,6 +1292,7 @@ export default {
 table {
   border-spacing: 0;
   width: 100%;
+  padding:8px 24px 0px 24px;
 }
 table thead{
   position: sticky;
@@ -1072,6 +1314,10 @@ table tr th {
   text-align: left;
   text-transform: uppercase;
   border-right: 1px solid #c7c7c7;
+  
+}
+table tr th .column{
+  min-width: 50px;
 }
 table tr td {
   border-right: 1px dotted #c7c7c7;
@@ -1084,10 +1330,17 @@ table tr th {
 
   margin: 0;
   white-space: nowrap;
-  min-width: 130px;
+  
+}
+table tr .stt{
+  min-width: 30px!important;
+  width: 30px!important;
 }
 table tfoot th{
   border:none;
+  text-align: right;
+}
+.column-number{
   text-align: right;
 }
 .option{
@@ -1100,6 +1353,15 @@ table tfoot th{
 <style>
 .type-money{
   z-index: 101;
+  background-color: #EDEEF0;
+  width: 100px;
+}
+.action{
+  background-color: #fafafa;
+}
+.disabled{
+  display: inline-block!important;
+  background-color: transparent;
 }
 </style>
 

@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using MISA.WEB02.Core.Entities;
 using MISA.WEB02.Core.Interfaces;
+using MISA.WEB02.Infrastructure.Helpers;
 using MySqlConnector;
 using Npgsql;
 using System;
@@ -42,28 +43,26 @@ namespace MISA.WEB02.Infrastructure.Repository
             int offset = (currentPage - 1) * pageSize;
             int limit = pageSize;
 
-            var sqlConnectionString = "Host=localhost;Port=3306;Database=MISA.WEB02.DVKHANH;User Id=root;Password=09112000";
+            //khởi tạo kết nối
+            using (var sqlConnection = new NpgsqlConnection(_sqlConnectionString))
+            {
+                sqlConnection.Open();
+                //lấy dữ liệu
 
-            //Khởi tạo kết nối
-            var sqlConnection = new MySqlConnection(sqlConnectionString);
+                string sqlCommand = $"select public.func_filter_employee('{filterText}','{offset}','{limit}')";
 
-            var sqlCommand = $"SELECT Employee.*,d.DepartmentCode,d.DepartmentName FROM Employee " +
-                "INNER JOIN Department d ON Employee.DepartmentId = d.DepartmentId " +
-                "WHERE EmployeeCode LIKE '%' @q '%' OR FullName LIKE '%' @q '%' " +
-                "ORDER BY Employee.EmployeeCode DESC LIMIT @offset,@limit;" +
-                "SELECT COUNT(*) FROM Employee WHERE EmployeeCode LIKE '%' @q '%' OR FullName LIKE '%' @q '%' ";
-            var dynamicParameters = new DynamicParameters();
-            dynamicParameters.Add("@q", filterText);
-            dynamicParameters.Add("@offset", offset);
-            dynamicParameters.Add("@limit", limit);
+                //var data = new List<T>();
 
+                using (NpgsqlCommand cmd = new NpgsqlCommand(sqlCommand, sqlConnection))
+                {
+                    NpgsqlDataReader reader = cmd.ExecuteReader();
 
-            var data = sqlConnection.QueryMultiple(sqlCommand,param:dynamicParameters);
-            var employees = data.Read<Employee>();
-            var count = data.Read<int>().Single();
-            var totalPage = count / limit;
-            totalPage =  (count % limit == 0) ? totalPage : totalPage+1;
-            return new { employees, count,totalPage };
+                    ////trả về kết quả
+                    var data = BindingEntity.BindingData<string>(reader);
+                    return data.FirstOrDefault();
+                }
+
+            }
         }
         public Object test()
         {

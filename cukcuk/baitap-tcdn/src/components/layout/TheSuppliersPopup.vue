@@ -51,7 +51,7 @@
             </div>
             <div class="close-popup">
               <div class="help mi mi-24"></div>
-              <div class="close mi mi-24" @click="handleClosePopup()"></div>
+              <div class="close mi mi-24" @click="handleClosePopup()" :title="Esc"></div>
             </div>
           </div>
           <div class="popup-body">
@@ -62,7 +62,7 @@
                   <div class="col c-2-5">
                     <div class="form-group">
                       <label for=""
-                        >Mã số thuế<span class="required-text">*</span></label
+                        >Mã số thuế</label
                       >
                       <BaseInput
                         v-model="vendor.TaxCode"
@@ -78,8 +78,9 @@
                       >
                       <BaseInput
                         v-model="vendor.VendorCode"
-                        ref="VendorCode"
+                        ref="VendorCode-1"
                         :componentDes="'Mã nhà cung cấp'"
+                        :rules="['required']"
                       />
                     </div>
                   </div>
@@ -116,8 +117,9 @@
                       >
                       <BaseInput
                         v-model="vendor.VendorName"
-                        ref="VendorName"
-                        :componentDes="'Tên'"
+                        ref="VendorName-1"
+                        :componentDes="'Tên nhà cung cấp'"
+                        :rules="['required']"
                       />
                     </div>
                   </div>
@@ -151,7 +153,7 @@
                   <div class="col c-6 padding-left-8">
                     <div class="form-group">
                       <label for=""
-                        >Nhóm nhà cung cấp</label
+                        >Nhân viên mua hàng</label
                       >
                       <BaseCombobox
                         :Api="employeeApi"
@@ -177,7 +179,7 @@
                       >
                       <BaseInput
                         v-model="vendor.VendorCode"
-                        ref="VendorCode"
+                        ref="VendorCode-2"
                         :componentDes="'Mã'"
                       />
                     </div>
@@ -185,7 +187,7 @@
                   <div class="col c-3-5 padding-right-8">
                     <div class="form-group">
                       <label for=""
-                        >Mã số thuế<span class="required-text">*</span></label
+                        >Mã số thuế</label
                       >
                       <BaseInput
                         v-model="vendor.TaxCode"
@@ -224,7 +226,7 @@
                         :name="'ContactName'"
                         :code="'ContactId'"
                         :componentDes="'Xưng hô'"
-                        ref="PrefixNameId"
+                        ref="PrefixNameId-1"
                         v-model="vendor.PrefixNameId"
                       />
                     </div>
@@ -232,7 +234,7 @@
                   <div class="col c-3-5 padding-left-8">
                     <div class="form-group">
                       <label for="" style="opacity:0">a </label>
-                      <BaseInput v-model="vendor.VendorName" />
+                      <BaseInput v-model="vendor.VendorName" :componentDes="'Tên nhà cung cấp'" ref="VendorName-2" :rules="['required']"/>
                     </div>
                   </div>
                   <div class="col c-6 padding-left-8">
@@ -310,14 +312,14 @@
                     </div>
                     <div class="col c-3-5 padding-right-8">
                       <div class="form-group">
-                        <label for="">Thông tin CMND/Thẻ căn cước</label>
-                        <BaseInput v-model="vendor.VendorName" :placeholder="'Họ và tên'"/>
+                        <label for="" style="opacity:0">Thông tin CMND/Thẻ căn cước</label>
+                        <BaseInput v-model="vendor.ContactName" :placeholder="'Họ và tên'"/>
                       </div>
                     </div>
                     <div class="col c-6 padding-left-8">
                       <div class="form-group">
                         <label for="">Đại diện theo PL</label>
-                        <BaseInput v-model="employee.ContactAddress" />
+                        <BaseInput v-model="vendor.ContactLegalRep" />
                       </div>
                     </div>
                   </div>
@@ -325,8 +327,8 @@
                     <div class="col c-6">
                       <div class="form-group">
                         
-                        <BaseInput v-model="vendor.ContactName"
-                        :placeholder="'Email'"/>
+                        <BaseInput v-model="vendor.ContactEmail"
+                        :placeholder="'Email'" ref="ContactEmail-4" :componentDes="'Email'" :rules="['email']"/>
                       </div>
                     </div>
                   </div>
@@ -334,7 +336,7 @@
                     <div class="col c-3">
                       <div class="form-group">
                         
-                        <BaseInput v-model="vendor.PhoneNumber" 
+                        <BaseInput v-model="vendor.ContactPhoneNumber" 
                         :placeholder="'Điện thoại di động'"/>
                       </div>
                     </div>
@@ -363,8 +365,8 @@
                     </div>
                     <div class="col c-3-5 padding-right-8">
                       <div class="form-group">
-                        <label for="">Thông tin CMND/Thẻ căn cước</label>
-                        <BaseInput v-model="vendor.VendorName" :placeholder="'Họ và tên'"/>
+                        <label for="" style="opacity:0">Thông tin CMND/Thẻ căn cước</label>
+                        <BaseInput v-model="vendor.ContactName" :placeholder="'Họ và tên'"/>
                       </div>
                     </div>
                     <div class="col c-6 padding-left-8">
@@ -379,14 +381,14 @@
                       <div class="form-group">
                         
                         <BaseInput v-model="vendor.ContactEmail"
-                        :placeholder="'Email'"/>
+                        :placeholder="'Email'" ref="ContactEmail-1" :componentDes="'Email'" :rules="['email']"/>
                       </div>
                     </div>
                     <div class="col c-6 padding-left-8">
                       <div class="form-group">
                         
                         <BaseInput v-model="vendor.ContactEmail"
-                        :placeholder="'Email'"/>
+                        :placeholder="'Email'" ref="ContactEmail-2" :componentDes="'Email'" :rules="['email']"/>
                       </div>
                     </div>
                   </div>
@@ -394,7 +396,7 @@
                     <div class="col c-3">
                       <div class="form-group">
                         
-                        <BaseInput v-model="vendor.PhoneNumber" 
+                        <BaseInput v-model="vendor.ContactPhoneNumber" 
                         :placeholder="'Điện thoại di động'"/>
                       </div>
                     </div>
@@ -404,7 +406,7 @@
                     <div class="col c-3 padding-left-8">
                       <div class="form-group">
                         
-                        <BaseInput v-model="vendor.PhoneNumber" 
+                        <BaseInput v-model="vendor.ContactPhoneNumber" 
                         :placeholder="'Điện thoại di động'"/>
                       </div>
                     </div>
@@ -419,7 +421,7 @@
                     <div class="col c-6">
                       <div class="form-group">
                         <label for="">Thông tin liên hệ</label>
-                        <BaseInput v-model="vendor.ContactEmail" :placeholder="'Email'"/>
+                        <BaseInput v-model="vendor.ContactEmail" :placeholder="'Email'" ref="ContactEmail-3" :componentDes="'Email'" :rules="['email']"/>
                       </div>
                     </div>
                     <div class="col c-3">
@@ -449,6 +451,7 @@
                         :clearable="false"
                         title-format="DD/MM/YYYY"
                         :disabled-date="afterToday"
+                        
                       />
                     </div>
                   </div>
@@ -472,7 +475,7 @@
                     <div class="col c-6">
                       <div class="form-group">
                         <label for="">Đại diện theo PL</label>
-                        <BaseInput v-model="employee.ContactAddress" />
+                        <BaseInput v-model="vendor.ContactLegalRep" />
                       </div>
                     </div>
                   
@@ -581,6 +584,8 @@
                           :name="'Value'"
                           :code="'Id'"
                           :componentDes="'Đất nước'"
+                          :placeholder="'Đất nước'"
+                          :dataValue="dataValueCountry"
                           ref="Country"
                           v-model="vendor.CountryId"
                           @change="onChangeAddress($event,'Country')"
@@ -597,6 +602,7 @@
                           :name="'ProvinceName'"
                           :code="'ProvinceCode'"
                           :componentDes="'Tỉnh'"
+                          :dataValue="dataValueProvince"
                           ref="Province"
                           v-model="vendor.ProvinceId"
                           @change="onChangeAddress($event,'Province')"
@@ -616,6 +622,7 @@
                           :name="'DistrictName'"
                           :code="'DistrictCode'"
                           :componentDes="'Tỉnh'"
+                          :dataValue="dataValueDistrict"
                           ref="District"
                           v-model="vendor.DistrictId"
                           @change="onChangeAddress($event,'District')"
@@ -632,6 +639,7 @@
                           :name="'WardName'"
                           :code="'WardCode'"
                           :componentDes="'Tỉnh'"
+                          :dataValue="dataValueWard"
                           ref="Ward"
                           v-model="vendor.WardId"
                           :placeholder="'Xã,phường'"
@@ -647,7 +655,7 @@
                   <div class="row">
                     <div class="col c-12">
                       <div class="form-group note">
-                        <textarea class="note" v-model="employee.ContactAddress" />
+                        <textarea class="note" v-model="vendor.ContactAddress" />
                       </div>
                     </div>
                   
@@ -672,11 +680,13 @@
                   :classBtn="'btn-default btn-sq btn-no-op'"
                   :content="'Cất'"
                   @click="handleSave()"
+                  :title="'Ctrl+S'"
                 />
                 <BaseButton
                   :classBtn="'btn-default btn-sq btn-no-op btn-primary'"
                   :content="'Cất và thêm'"
                   @click="handleSaveAndContinue()"
+                  :title="'Ctrl+Shift+S'"
                 />
               </div>
             </div>
@@ -738,8 +748,7 @@ export default {
       vendorValiate: {},
       employeeApi: Api.getEmployeeById,
       vendorGroupApi:Api.getVendorGroup,
-      required: ["EmployeeCode", "FullName", "DepartmentId"],
-      email: ["Email"],
+      validateProp: ["VendorCode-1", "VendorCode-2", "VendorName-1","VendorName-2","ContactEmail-1","ContactEmail-2","ContactEmail-3","ContactEmail-4"],
       contentPopupInfo: "",
       isShowPopupInfo: false,
       typePopupInfo: "error",
@@ -760,7 +769,11 @@ export default {
       country:DB.country,
       provincies:'',
       districts:'',
-      wards:''
+      wards:'',
+      dataValueCountry:'Việt Nam',
+      dataValueProvince:'',
+      dataValueDistrict:'',
+      dataValueWard:'',
 
     };
   },
@@ -800,8 +813,8 @@ export default {
   },
 
   mounted() {
-    console.log(this.vendor.VendorType)
-    this.$refs["VendorCode"].focus();
+    if(this.$refs["VendorCode-1"] != undefined) this.$refs["VendorCode-1"].focus();
+    if(this.$refs["VendorCode-2"] != undefined) this.$refs["VendorCode-2"].focus();
     //lắng nghe sự kiện bàn phím
     window.addEventListener("keyup", this.handleKeyEvent);
     window.addEventListener("keydown", this.handleKeyEventDown);
@@ -809,7 +822,6 @@ export default {
     //set draggable popup
     Helpers.draggable("#popup");
     Object.assign(this.vendorValiate, this.vendor);
-    console.log(this.modelPopup)
   },
   //Bỏ lắng nghe xự kiện
   beforeUnmount() {
@@ -817,29 +829,86 @@ export default {
     window.removeEventListener("keydown", this.handleKeyEventDown);
   },
   created() {
-    this.employee = this.modelPopup;
     this.vendor = this.modelPopup
-    
-    if(this.vendor.VendorId == undefined){
+    console.log(this.vendor)
+    if(this.vendor.VendorId == undefined && this.vendor.VendorCode == undefined){
       this.setDefaultObject()
     }
-    console.log(this.country)
+    else if(this.vendor.Duplicate != undefined){
+      this.getNewCode()
+      this.getValueAddress()
+    }
+    else{
+      this.getValueAddress()
+    }
   },
   methods: {
-    onChangeAddress(id,refName){
-      console.log(id,refName)
+    /**
+    * Mô tả: Lấy địa chỉ nhà cung cấp
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 26/05/2022
+    */
+    getValueAddress(){
+      try{
+
+        //Lấy tỉnh
+        axios.get(`${Api.provincies}/${this.vendor.ProvinceId}`)
+          .then((response) =>{
+            if(response.status === 200){
+              
+              this.dataValueProvince = response.data.ProvinceName
+            }
+          })
+          .catch((e)=>{
+            console.log(e);
+          })
+
+          //Lấy huyện
+        axios.get(`${Api.districts}/${this.vendor.DistrictId}`)
+          .then((response) =>{
+            if(response.status === 200){
+              
+              this.dataValueDistrict = response.data.DistrictName
+            }
+          })
+          .catch((e)=>{
+            console.log(e);
+          })
+
+          //Lấy xã
+        axios.get(`${Api.wards}/${this.vendor.WardId}`)
+          .then((response) =>{
+            if(response.status === 200){
+              
+              this.dataValueWard = response.data.WardName
+            }
+          })
+          .catch((e)=>{
+            console.log(e);
+          })
+      }
+      catch(e){
+        console.log(e);
+      }
+    },
+    /**
+    * Mô tả: Xử lý sự kiện thay đổi địa chỉ
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 26/05/2022
+    */
+    onChangeAddress(value,refName){
+      console.log(value)
       switch(refName){
         case 'Country':
-          this.provincies = `${Api.provincies}/ByCountry/${id}`
+          this.provincies = `${Api.provincies}/ByCountry/${value.Id}`
           break
         case 'Province':
-          this.districts = `${Api.districts}/ByProvince/${id}`
+          this.districts = `${Api.districts}/ByProvince/${value.ProvinceId}`
           break
         case 'District':
-          this.wards = `${Api.ward}/ByDistrict/${id}`
+          this.wards = `${Api.wards}/ByDistrict/${value.DistrictId}`
           break
       }
-      console.log(this.districts)
     },
     /**
     * Mô tả: Thêm dòng vào bảng tài khoản ngân hàng
@@ -855,17 +924,23 @@ export default {
     * Created date: 20/05/2022
     */
     setDefaultObject(){
-      console.log(this.vendor)
-      
+      this.vendor = {}
       this.getNewCode();
       if(this.vendor.VendorType == undefined){
-        this.VendorType = 0
+        this.vendor.VendorType = 0
       }
       if(this.vendor.IsCustomer == undefined){
         this.vendor.IsCustomer = false
       }
       this.vendor.IsUsed = true
       this.vendor.IsOwed = true
+      this.vendor.VendorGroup = null
+      if(this.vendor.VendorId == undefined){
+        this.dataValueDistrict = ''
+        this.dataValueCountry = ''
+        this.dataValueProvince = ''
+        this.dataValueWard = ''
+      }
     },
 
     /**
@@ -889,7 +964,7 @@ export default {
      * Created date: 27/04/2022
      */
     handleTabEvent(e) {
-      this.$refs["EmployeeCode"].focus();
+      
     },
     /**
      * Mô tả: Xử lý sự kiện tab down
@@ -939,16 +1014,16 @@ export default {
     //Xử lý sự kiện luu thông tin nhân viên và tiếp tục thêm
     handleSaveAndContinue() {
       console.log(this.vendor)
-      // if (this.validate()) {
+      this.save(true);
+      if (this.validate()) {
           this.save(true);
-      // }
+      }
     },
     //Xử lý sự kiện luu thông tin nhân viên
     handleSave() {
-      this.save(false);
-      // if (this.validate()) {
-      //   this.save(false);
-      // }
+      if (this.validate()) {
+        this.save(false);
+      }
     },
     /**
         * Mô tả: Hiển thị popup thông báo
@@ -973,57 +1048,56 @@ export default {
     save(isContinue) {
       // Cập nhật thông tin
       if (this.vendor.VendorId != undefined) {
-        console.log(this.vendor)
-        axios.put(
-            `${Api.vendors}/${this.vendor.VendorId}`,
-            this.vendor
-          )
+        axios
+          .put(`${Api.vendors}/${this.vendor.VendorId}`, this.vendor)
           .then((response) => {
-            console.log(response)
             if (response.status === 200) {
-              this.$refs["VendorCode"].focus();
-              this.$emit(
-                "showToast",
-                this.toastMsg.updateSuccessMsg,
-                "success"
-              );
+              if(this.$refs["VendorCode-1"] != undefined) this.$refs["VendorCode-1"].focus();
+              if(this.$refs["VendorCode-2"] != undefined) this.$refs["VendorCode-2"].focus();
+              this.$emit("showToast", this.toastMsg.updateSuccessMsg, "success");
               this.$emit("addSuccess", true);
               if (!isContinue) {
                 this.closePopup();
               } else {
-                this.vendor = {};
-                this.employee.Gender = 1;
-                this.getNewCode();
+                this.setDefaultObject()
               }
-              // this.employee = response.data
-              // console.log(this.employee)
+            
             }
           })
           .catch((e) => {
-            var keys = Object.keys(e.response.data.data);
-            if (keys.length > 0) {
-              this.errorRefsName = keys[0];
-              var errorMsg = e.response.data.data[keys[0]];
-              
-              this.showPopupInfo(this.typePopupName.warningNotify, errorMsg, "validate");
-              
-            } else {
+            try{
+              var keys = Object.keys(e.response.data.data);
+              if (keys.length > 0 && e.response.status == 400 ) {
+                var errorMsg = e.response.data.data[keys[0]];
+                this.errorRefsName = keys[0];
+                this.showPopupInfo(this.typePopupName.warningNotify, errorMsg, "error");
+              } else {
+                console.log(this.errorMsg)
+                this.showPopupInfo(
+                  this.typePopupName.warningNotify,
+                  this.errorMsg.exceptionMessage,
+                  "error"
+                );
+              }
+            }
+            catch(ex){
               this.showPopupInfo(
                 this.typePopupName.warningNotify,
                 this.errorMsg.exceptionMessage,
-                "validate"
+                "error"
               );
             }
           });
+        
       }
       // Thêm nhân viên
       else {
-        
         axios
           .post(Api.vendors, this.vendor)
           .then((response) => {
             if (response.status === 201) {
-              this.$refs["VendorCode"].focus();
+              if(this.$refs["VendorCode-1"] != undefined) this.$refs["VendorCode-1"].focus();
+              if(this.$refs["VendorCode-2"] != undefined) this.$refs["VendorCode-2"].focus();
               this.$emit("showToast", this.toastMsg.addSuccessMsg, "success");
               this.$emit("addSuccess", true);
               if (!isContinue) {
@@ -1036,18 +1110,27 @@ export default {
             }
           })
           .catch((e) => {
-            var keys = Object.keys(e.response.data.data);
-            console.log(e.response.data)
-            if (keys.length > 0) {
-              var errorMsg = e.response.data.data[keys[0]];
-              this.errorRefsName = keys[0];
-              console.log(this.typePopupName.warningNotify)
-              this.showPopupInfo(this.typePopupName.warningNotify, errorMsg, "validate");
-            } else {
+            
+            try{
+              var keys = Object.keys(e.response.data.data);
+              if (keys.length > 0 && e.response.status == 400 ) {
+                var errorMsg = e.response.data.data[keys[0]];
+                this.errorRefsName = keys[0];
+                this.showPopupInfo(this.typePopupName.warningNotify, errorMsg, "error");
+              } else {
+                console.log(this.errorMsg)
+                this.showPopupInfo(
+                  this.typePopupName.warningNotify,
+                  this.errorMsg.exceptionMessage,
+                  "error"
+                );
+              }
+            }
+            catch(ex){
               this.showPopupInfo(
                 this.typePopupName.warningNotify,
-                this.toastMsg.exceptionMessage,
-                "validate"
+                this.errorMsg.exceptionMessage,
+                "error"
               );
             }
           });
@@ -1060,52 +1143,21 @@ export default {
      * Created date: 18/04/2022
      */
     validate() {
-      var submittable = true;
-      var isFirstErrorMsg = true;
-
-      //Required
-      for (var item of this.required) {
-        var errorMsg = Validator.required(this.employee[item]);
-        if (errorMsg != undefined) {
-          if (!this.$refs[item].error) {
-            this.$refs[item].addError("error", errorMsg);
-          }
-          submittable = false;
-          //Hiển thị popup thông báo lỗi đầu tiên
-          if (isFirstErrorMsg) {
-            isFirstErrorMsg = false;
-            this.errorRefsName = item;
-            this.showPopupInfo(
-              this.typePopupName.error,
-              this.$refs[item].title,
-              "validate"
-            );
-          }
+      var length = this.validateProp.length
+      var errorMsg = '';
+      for(var i = 0 ;i < length;++i){
+        var propName = this.validateProp[i]
+        if(this.$refs[propName] != undefined){
+          var msg = this.$refs[propName].validate()
+          if(errorMsg === '' && !!msg ) errorMsg = msg
         }
       }
-
-      //Định dạng email
-      for (var item of this.email) {
-        var errorMsg = Validator.email(this.employee[item]);
-        if (errorMsg != undefined) {
-          if (!this.$refs[item].error) {
-            this.$refs[item].addError("error", errorMsg);
-          }
-
-          submittable = false;
-          //Hiển thị popup thông báo lỗi đầu tiên
-          if (isFirstErrorMsg) {
-            isFirstErrorMsg = false;
-            this.errorRefsName = item;
-            this.showPopupInfo(
-              this.typePopupName.error,
-              this.$refs[item].title,
-              "validate"
-            );
-          }
-        }
+      if(errorMsg !== ''){
+        console.log(errorMsg)
+        this.showPopupInfo(this.typePopupName.error,errorMsg,'error');
+        return false
       }
-      return submittable;
+      else return true
     },
 
     /**
@@ -1115,7 +1167,7 @@ export default {
      */
     handleConfirmBtn(isConfirm, key) {
       //Popup thông báo validate
-      if (key === "validate") {
+      if (key === "error") {
         this.isShowPopupInfo = false;
         
         // this.$refs[`${this.errorRefsName}`].focus();
@@ -1148,7 +1200,6 @@ export default {
         if (response.status === 200) {
           this.vendor.VendorCode = response.data;
           this.vendorValiate.VendorCode = response.data;
-          console.log(this.vendor.VendorCode)
         }
       });
     },
@@ -1159,9 +1210,18 @@ export default {
      * Created date: 18/04/2022
      */
     handleKeyEvent(e) {
+      console.log(e)
       if (e.ctrlKey && e.keyCode == 83) {
-        this.handleSaveAndContinue();
+        this.handleSave();
       }
+      if(e.shiftKey && e.ctrlKey && e.keyCode == 83){
+        e.preventDefault()
+        this.handleSaveAndContinue()
+      }
+      if(e.keyCode == 27){
+        this.handleClosePopup()
+      }
+
     },
 
     /**
@@ -1171,7 +1231,14 @@ export default {
      */
     handleKeyEventDown(e) {
       if (e.ctrlKey && e.keyCode == 83) {
-        e.preventDefault();
+        e.preventDefault()
+      }
+      if(e.shiftKey && e.ctrlKey && e.keyCode == 83){
+        e.preventDefault()
+        
+      }
+      if(e.keyCode == 27){
+        e.preventDefault()
       }
     },
 
@@ -1192,11 +1259,11 @@ export default {
 
 @keyframes moveUpToDown {
   from {
-    transform: translateY(-100%) translateX(-50%);
+    transform: translateY(-50%);
     opacity: 0;
   }
   to {
-    transform: translateY(-50%) translateX(-50%);
+    transform: translateY(0%);
     opacity: 1;
   }
 }
@@ -1222,14 +1289,9 @@ export default {
   justify-content: center;
 }
 .popup {
-  width: 900px;
+  animation: moveUpToDown linear 0.3s;
+  
   background-color: #fff;
-  /* position: absolute;
-  top: 50%;
-
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%); */
-  /* animation: moveUpToDown linear 0.3s; */
 }
 
 /* Popup header */
@@ -1257,6 +1319,10 @@ export default {
 /* popup body */
 .popup-body {
   padding: 0px 32px 0px 32px;
+  width: 913px;
+  
+  height: 525px;
+  overflow-y: auto;
 }
 .popup-body .row{
   margin: 0px;
@@ -1345,7 +1411,7 @@ export default {
   border: 1px solid #c7c7c7;
   padding: 5px 10px;
   min-height: 186px;
-  max-height: 216px;
+  max-height: 186px;
   overflow-y: auto;
   position: relative;
   padding-bottom: 0;
@@ -1394,6 +1460,11 @@ export default {
 .checkbox-active {
   background-position: -1224px -360px;
   margin-bottom: 2px;
+}
+</style>
+<style>
+.mx-date-row .disabled{
+  display: none!important;;
 }
 </style>
       

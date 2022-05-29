@@ -1,13 +1,14 @@
 <template>
-  <div class="input-container" :class="searchClass" ref="input">
+  <div class="input-container" :class="[searchClass,{ error: errorInput }]" ref="input" :title="titleError">
     <input
-      :type="type"
       :placeholder="placeholder"
-      :title="title"
-      :value="modelValue"
+      
+      v-model="value"
+      :disabled="disabled"
       @input="onInputHandle($event.target.value)"
       @mousemove="onMouseMoveEvent($event)"
-      @mouseleave="onMouseLeave($event)"
+      
+      @blur="onBlur($event.target.value)"
     />
     <div class="search-btn mi mi-16"></div>
     <!-- <BaseTooltip :top="topTooltip" :left="leftTooltip" v-if="isShowTooltip" :valueTooltip="valueTooltip"/> -->
@@ -15,6 +16,7 @@
 </template>
 
 <script>
+import Validator from '@/assets/js/validator';
 /**
  * Mô tả: Components Input
  * Created by: Đinh Văn Khánh - MF1112
@@ -35,7 +37,7 @@ export default {
       default: "",
     },
     modelValue: {
-      type: String,
+      type: [String,Number],
       default: "",
     },
     timer: {
@@ -50,35 +52,57 @@ export default {
       type: String,
       default: "",
     },
-    // isNumber:{
-    //   type:boolean,
-    //   default:false
-    // }
+    disabled:{
+      type:[Boolean,String],
+      default:false
+    },
+    rules:{
+      type:Array,
+      default:[]
+    }
   },
   data() {
     return {
       value: "",
-      error: false,
+      errorInput: false,
       timeOut: null,
-      title: "",
+      titleError: "",
+      valueNumber:""
     };
   },
-  computed:{
-    formatNumber: {
-      get() {
-        if(this.employee.IdentityDate != null){
-          var date = new Date(this.employee.IdentityDate);
-        
-          return date;
-        }
-      },
-      set(date) {
-        this.employee.IdentityDate = new Date(date);
-        this.employee.IdentityDate = this.employee.IdentityDate.toDateString();
-      },
+  created(){
+    this.value = this.modelValue
+  },
+  watch:{
+    modelValue:function(){
+      if(this.type != 'currency' && this.type != 'number') this.value = this.modelValue
     },
   },
   methods: {
+    validate(){
+      for(var i=0;i<this.rules.length;++i){
+        var rule = this.rules[i]
+        var ok = Validator[rule](this.value)
+        if(!ok){
+          this.titleError = `${this.componentDes} ${this.validateMsg[rule]}`
+          this.errorInput = true
+          return this.titleError
+        }
+      }
+      return false
+    },
+    formatNumber(value){
+        
+        try {
+          if (!value) return 0;
+          let result = Intl.NumberFormat("vi-VN").format(value);
+          return result;
+            
+        } catch (error) {
+            console.log(error);
+            return 0
+        }
+      },
     /**
      * Mô tả:  Xử lý dữ liệu khi nhập input
      * @param: dữ liệu input
@@ -87,7 +111,91 @@ export default {
      * Created date: 15/04/2022
      */
     onInputHandle(value) {
-      this.removeClass("error");
+      this.title = ""
+      this.errorInput = false
+      switch(this.type){
+        case 'currency':
+          this.handleCurrency(value)
+          break
+        case 'number':
+          this.handleNumber(value)
+          break
+        default:
+          this.handleText(value)
+          break
+      }
+    },
+    //Xử lý dạng tiền tệ
+    handleCurrency(value){
+       
+      //Xóa bỏ định dạng số
+      value = value.toString().replaceAll('.','')
+      //Kiểm tra ký tự nhập vào đúng định dạng chưa
+      var ok = Validator.numeric(value)
+      if(ok){
+        // value = parseFloat(value)
+        //Tách chuỗi chưa dấu ,
+        var number = value.split(',')
+        console.log('number',number)
+        //Chuyển sang dạng số phần nguyên
+        var numberInteger = number[0] !== '' ? this.formatNumber(parseInt(number[0])) : 0
+        //Không có phần dư
+        if(number.length == 1) {
+          this.value = `${numberInteger}`
+          
+        }
+        //Chỉ nhập dấu ,
+        if(number.length>1 && number[0] ==='') {
+          this.value = `${numberInteger},`
+        
+        }
+        //Nhập dấu , không nhập phần dư
+        if(number.length>1 && number[1] !=='') {
+          this.value = `${numberInteger},${number[1]}`
+        
+        }
+        console.log(this.value)
+        this.valueNumber = this.value
+
+        //Chuyển sang biến kiểu float
+        var numberFormat = this.value.toString().replaceAll('.','')
+        numberFormat = numberFormat.toString().replaceAll(',','.')
+        numberFormat = parseFloat(numberFormat)
+        this.$emit("update:modelValue", numberFormat)
+      }
+      else{
+        this.value = this.valueNumber
+      }
+    },
+    //Xử lý khi type input là số
+    handleNumber(value){
+      //Xóa bỏ định dạng số
+      value = value.toString().replaceAll('.','')
+      //Kiểm tra ký tự nhập vào đúng định dạng chưa
+      var ok = Validator.interger(value)
+      if(ok){
+        try{
+          //Chuyển từ string sang dạng số nguyên
+          var numberFormat = parseInt(value)
+          //Nếu số bằng null thì hiển thị chuỗi rỗng không thi hiển thị số
+          this.value = !!numberFormat ? this.formatNumber(numberFormat) :''
+
+          //Gán biến giá trị hiện tại
+          this.valueNumber = this.value
+
+          
+          this.$emit("update:modelValue", !numberFormat ? null : numberFormat)
+        }
+        catch(e){
+          this.$emit("update:modelValue", null)
+        }
+      }
+      else{
+        //Nếu validate lỗi lấy giá trị cũ
+        this.value = this.valueNumber
+      }
+    },
+    handleText(value){
       if (this.timer === 0) {
         (this.error = false), this.$emit("update:modelValue", value);
       } else {
@@ -96,32 +204,6 @@ export default {
           (this.error = false), this.$emit("update:modelValue", value);
         }, this.timer);
       }
-    },
-
-    /**
-     * Mô tả: Thêm class error vào component
-     * Thêm title lỗi
-     * Created by: Đinh Văn Khánh - MF1112
-     * Created date: 07/04/2022
-     */
-    addError(className, errorMsg) {
-      this.error = true;
-      this.$refs["input"].classList.add(className);
-      if (errorMsg != undefined) {
-        this.title = `${this.componentDes} ${errorMsg}`;
-      }
-    },
-
-    /**
-     * Mô tả: Xóa class error khỏi component
-     * Xóa title lỗi
-     * Created by: Đinh Văn Khánh - MF1112
-     * Created date: 07/04/2022
-     */
-    removeClass(className) {
-      this.$refs["input"].classList.remove(className);
-      this.title = "";
-      this.error = false;
     },
 
     /**
@@ -148,7 +230,8 @@ export default {
       e.stopPropagation();
     },
 
-    onMouseLeave(e){
+    onBlur(value){
+      this.validate()
       this.$emit('blur',true)
     }
   },
@@ -165,6 +248,48 @@ export default {
     text-align: right!important;
 }
 </style>
-<style>
-@import url("@/assets/css/input/input.css");
+<style scoped>
+.input-container{
+    width: 100%;
+}
+.input-container input{
+    width: 100%;
+    height: 32px;
+    outline: none;
+    border-radius: 2px;
+    border: 1px solid #babec5;
+    padding: 0 12px;
+}
+.input-container input:focus{
+    border:1px solid #2ca01c;
+}
+.error input{
+    border: 1px solid red;
+}
+.search-container{
+    display: flex;
+    align-items: center;
+    border-radius: 2px;
+    position: relative;
+    width: 100%;
+    width: unset;
+}
+.search-container input{
+    padding-right: 40px;
+}
+.search-btn{
+    display: none;
+}
+.search-container .search-btn{
+    display: block;
+    background-position: -992px -360px;
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    cursor: pointer;
+}
+.no-border input{
+    border: none!important;
+}
+
 </style>
