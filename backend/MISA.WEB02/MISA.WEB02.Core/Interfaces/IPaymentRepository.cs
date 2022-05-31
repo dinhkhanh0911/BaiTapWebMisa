@@ -44,5 +44,19 @@ namespace MISA.WEB02.Core.Interfaces
         /// <returns></returns>
         /// Author: Đinh Văn Khánh (22/04/2022)
         public int InsertPaymentDetail(PaymentDetail paymentDetail);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name = "filterText" > Điều kiện tìm kiếm</param>
+        /// <param name="paymentType">Loại phiếu</param>
+        /// <param name="isRecord">Trạng thái ghi sổ</param>
+        /// <param name="startDate,">Ngày bắt đầu</param>
+        /// <param name="filterText">Ngày kết thúc</param>
+        /// <param name="currentPage">Trang hiện tại</param>
+        /// <param name="pageSize">Số lượng bản ghi</param>
+        /// <returns></returns>
+        public Object Search(string filterText, int? paymentType, bool? isRecord,
+            DateTime? startDate, DateTime? endDate, int currentPage, int pageSize);
     }
 }

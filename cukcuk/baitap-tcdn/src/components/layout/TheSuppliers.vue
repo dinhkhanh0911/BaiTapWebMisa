@@ -1,5 +1,5 @@
 <template>
-  <div class="router-view">
+  <div class="router-view vendor">
     <div class="router-content">
       <div class="content-area-content">
         <div class="layout-dictionary">
@@ -22,6 +22,31 @@
                             <div class="breadcrumb-icon mi mi-16"></div>
                             <span> Tất cả danh mục</span>
                         </div> -->
+          </div>
+          <div class="counter grid" :style="{ top: topTitle + 'px' }">
+            <div class="row" style="width:100%">
+              <div class="view-total  col c-4">
+                <div class="total-receipt">
+                  <div class="total">100,0</div>
+                  <div class="text">Tổng thu đầu năm đến hiện tại</div>
+
+                </div>
+              </div>
+              <div class="view-total col c-4">
+                <div class="total-payment">
+                  <div class="total">100,0</div>
+                  <div class="text">Tổng chi đầu năm đến hiện tại</div>
+
+                </div>
+              </div>
+              <div class="view-total  col c-4">
+                <div class="total-count">
+
+                  <div class="total">100,0</div>
+                  <div class="text">Tổng quỹ đầu năm đến hiện tại</div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="layout-dictionary-body" @scroll="handleScroll($event)">
             <div class="table-option">
@@ -211,23 +236,6 @@
             <div class="col c-6">
               <div class="form-group">
                 <label for=""
-                  >Loại</label
-                >
-                <BaseCombobox
-                  :valueOption="filterType"
-                  :id="'Id'"
-                  :name="'Value'"
-                  :code="'Id'"
-                  :isOneColumn="'true'"
-                  v-model="filterObject.FilterTypeId"
-                />
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col c-6">
-              <div class="form-group">
-                <label for=""
                   >Trình trạng công nợ</label
                 >
                 <BaseCombobox
@@ -240,6 +248,24 @@
                 />
               </div>
             </div>
+            <!-- <div class="col c-6">
+              <div class="form-group">
+                <label for=""
+                  >Nhóm nhà cung cấp</label
+                >
+                <BaseCombobox
+                  :Api="apiVendorGroup"
+                  :id="'VendorGroupId'"
+                  :name="'VendorGroupName'"
+                  :code="'VendorGroupCode'"
+                  :isOneColumn="'true'"
+                  v-model="filterObject.VendorGroupId"
+                />
+              </div>
+            </div> -->
+          </div>
+          <div class="row">
+            
             <div class="col c-6">
               <div class="form-group">
                 <label for=""
@@ -356,6 +382,7 @@ export default {
       valueOption: DB.valueOption,
 
       apiColumn:`${Api.getColumnOption}`,
+      apiVendorGroup:Api.getVendorGroup,
       isShowSettingViewForm:false,
 
       //Filter
@@ -363,7 +390,7 @@ export default {
       filterBtnTop:0,
       isShowFilter:false,
       filterObject:{
-        FilterTypeId:2,
+        FilterTypeId:3,
         FilterDebtId:2,
         FilterStatusId:2,
       },
@@ -415,7 +442,7 @@ export default {
     * Created date: 20/05/2022
     */
     setDefaultFilter(){
-      this.filterObject.FilterTypeId = 2
+      this.filterObject.FilterTypeId = 3
       this.filterObject.FilterDebtId = 2
       this.filterObject.FilterStatusId = 2
     },
@@ -469,50 +496,57 @@ export default {
       this.togglePopupSuppliers(true);
     },
 
-    /*
-            Lấy dữ liệu 
-        */
+    /**
+    * Mô tả: Lấy lại dữ liệu
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 31/05/2022
+    */
     reloadData(currentPage = 1) {
       this.isShowFilter = false;
-      var queryString =""
+      var queryString = this.getQueryString()
+
+      
+      // if(!!this.filterObject.VendorGroupId){
+      //   queryString += `&vendorGroupId=${this.filterObject.VendorGroupId}`
+      // }
+      console.log(queryString)
+      this.currentPage = 1
+      console.log(queryString)
+      this.$refs.tableVendor.loadAllData(currentPage,queryString);
+      
+    },
+    /**
+    * Mô tả: Lấy query string filter
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 31/05/2022
+    */
+    getQueryString(){
+      var queryString = ""
+      //Lọc nâng cao
+      //Loại nhà cung cấp
       if(this.filterObject.FilterTypeId == 1){
         queryString += `&vendorType=${this.filterObject.FilterTypeId}`
       }
-      if(this.filterObject.FilterTypeId == 3){
-        queryString += `&vendorType=0`
-        console.log("0")
+      if(this.filterObject.FilterTypeId == 2){
+        queryString += `&vendorType=${this.filterObject.FilterTypeId}`
       }
+      //Tình trạng công nợ
       if(this.filterObject.FilterDebtId ==3 ){
         queryString += `&isOwed=${true}`
       }
       if(this.filterObject.FilterDebtId ==1 ){
         queryString += `&isOwed=${false}`
       }
+      //Trạng thái
       if(this.filterObject.FilterStatusId == 3){
         queryString += `&isUsed=${true}`
       }
       if(this.filterObject.FilterStatusId == 1){
         queryString += `&isUsed=${false}`
       }
-      console.log(queryString)
-      // this.currentPage = 1
-      this.$refs.tableVendor.loadAllData(currentPage,queryString);
-      
-    },
 
-    /**
-        * Mô tả:  Xử lý khi hover vào element
-        @param(event,Nội dung tooltip)
-        * Created by: Đinh Văn Khánh - MF1112
-        * Created date: 18/04/2022
-        */
-    hover(e, value) {
-      this.topTooltip = e.clientY + 10;
-      this.leftTooltip = e.clientX + 10;
-      this.isShowTooltip = true;
-      this.valueTooltip = value;
+      return queryString
     },
-
     /**
         * Mô tả: set trang hiện tại
         @param (trang dữ liệu)
@@ -542,7 +576,9 @@ export default {
 
     //Xử lý khi bấm nút xuất dữ liệu
     handleExport() {
-      var apiConnectionString = `${Api.vendors}/export`;
+      var queryString = this.getQueryString()
+      var apiConnectionString = queryString !=="" ?`${Api.vendors}/export?currentPage=${this.currentPage}&pageSize=${this.pageSize}&${queryString}`:
+      `${Api.vendors}/export?currentPage=${this.currentPage}&pageSize=${this.pageSize}`
       axios({
         url: apiConnectionString,
         method: "GET",
@@ -602,10 +638,7 @@ export default {
               
               this.resultDeleteMulti = response.data
               var deleteMsg = this.resultDeleteMulti.DeleteMsg
-
-              console.log(typeof deleteMsg)
               var errorIds = Object.keys(deleteMsg)
-              console.log(errorIds)
               errorIds.forEach((x)=>{
                 var entity = this.vendors.find(v => v.VendorId == x)
                 entity.Reason = this.resultDeleteMulti.DeleteMsg[x]
@@ -634,7 +667,7 @@ export default {
           });
       }
     },
-    //Xử lý xóa nhiều nhân viên
+    //Xử lý xóa nhiều bản ghi
     handleMultipleDeleteClick() {
       this.isShowOptionItem = !this.isShowOptionItem;
       if (this.VendorIds.length > 1) {
@@ -699,7 +732,7 @@ export default {
   transition: top 0.25s;
   position: absolute;
   top: 0px;
-  z-index: 5;
+  z-index: 6;
   width: 100%;
   align-items: center;
 }
@@ -731,7 +764,7 @@ export default {
 .layout-dictionary-body {
   flex: 1;
   padding: calc(
-      var(--title-list-padding-bottom) + var(--title-list-padding-bottom) +
+      calc(var(--title-list-padding-bottom) + 85px) + var(--title-list-padding-bottom) +
         var(--rounded-button-height) + 3px
     )
     30px 0 0;
@@ -769,6 +802,12 @@ export default {
   position:fixed;
   
   z-index: 30;
+}
+.filter-option-container label{
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 5px;
+  display: block;
 }
 .filter-option{
   border: 1px solid #c7c7c7;
@@ -881,5 +920,61 @@ export default {
   display: flex;
   justify-content: right;
   
+}
+
+/**
+counter
+*/
+.counter {
+  padding: calc(var(--title-list-padding-top) + 65px) 30px var(--title-list-padding-top) 0;
+  transition: top 0.25s;
+  position: absolute;
+  top: 0px;
+  z-index: 5;
+  width: 100%;
+  align-items: center;
+}
+.counter .row{
+  margin-right: 0!important;
+}
+.view-total{
+  min-height: 64px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 0 0 12px;
+}
+.total-receipt{
+  background: #ff7f2c;
+  color: #fff;
+  padding-left: 20px;
+  padding: 12px 30px 6px 12px;
+}
+.total-payment{
+  background: #00a9f2;
+  color: #fff;
+  padding: 12px 30px 6px 12px;
+}
+.total-count{
+  background: #74cb2f;
+  padding: 12px 30px 6px 12px;
+}
+.total-count .total{
+  color: #ff7f2c;
+}
+.total-count .text{
+  color: #fff;
+}
+.total{
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+.text{
+  font-size:14px;
+}
+</style>
+<style>
+.vendor .sticky-top--87{
+  top:-175px
 }
 </style>

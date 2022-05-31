@@ -25,7 +25,7 @@
               <div class="close mi mi-24" @click="handleClosePopup()" :title="Esc"></div>
             </div>
           </div>
-          <div class="popup-body">
+          <div class="popup-body" v-if="listEntity.length >0">
             <div class="grid">
                 <div class="table-container">
                     <table id="table" class="tableEmployee">
@@ -49,7 +49,7 @@
                         </table>
                     </div>
             </div>
-            <div class="border-bottom"></div>
+            
           </div>
           <div class="popup-footer">
             <div class="btn-container">
@@ -69,13 +69,6 @@
         </div>
       </div>
     </div>
-    <BasePopup
-      v-if="isShowPopupInfo"
-      :contentPrev="contentPopupInfo"
-      @confirm="handleConfirmBtn"
-      :type="typePopupInfo"
-      :keyCombobox="keyCombobox"
-    />
   </div>
 </template>
 <script>
@@ -85,33 +78,12 @@
  * Created date: 12/04/2022
  */
 
-import BaseInput from "@/components/base/BaseInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
-import BaseRadioButton from "@/components/base/BaseRadioButton.vue";
-import BaseCombobox from "@/components/base/BaseCombobox.vue";
-import BaseComboboxMulti from "@/components/base/BaseComboboxMulti.vue";
-import BaseEditableTable from "@/components/base/BaseEditableTable.vue";
 import axios from "axios";
-import Validator from "@/assets/js/validator.js";
-import BasePopup from "@/components/base/BasePopup.vue";
-import DatePicker from "vue-datepicker-next";
-import "vue-datepicker-next/index.css";
-import Helpers from "@/assets/js/helpers.js";
-import Api from "@/assets/js/api.js";
-import DB from "@/assets/js/hashDatabase";
-import BaseTable from "@/components/base/BaseTable.vue"
 export default {
   components: {
-    BaseInput,
-    BaseButton,
-    BaseRadioButton,
-    BaseCombobox,
-    BasePopup,
-    DatePicker,
-    BaseComboboxMulti,
-    BaseEditableTable,
-    BaseTable
-},
+    BaseButton
+  },
   props: {
     modelPopup: {
       type: Object,
@@ -144,20 +116,6 @@ export default {
           columnsDescription:[],
       }
   },
-
-  mounted() {
-    //lắng nghe sự kiện bàn phím
-    window.addEventListener("keyup", this.handleKeyEvent);
-    window.addEventListener("keydown", this.handleKeyEventDown);
-
-    //set draggable popup
-    Helpers.draggable("#popup");
-  },
-  //Bỏ lắng nghe xự kiện
-  beforeUnmount() {
-    window.removeEventListener("keyup", this.handleKeyEvent);
-    window.removeEventListener("keydown", this.handleKeyEventDown);
-  },
   created() {
       this.loadColumnTable()
   },
@@ -187,7 +145,6 @@ export default {
 };
 </script>
 <style scoped>
-@import url("@/assets/css/commom/datepicker.css");
 
 @keyframes moveUpToDown {
   from {

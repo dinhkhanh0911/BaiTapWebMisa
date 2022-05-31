@@ -23,7 +23,7 @@
             <!-- <Checkbox v-model="selectAll"/> -->
           </th>
           <th v-for="(column, index) in columnsDescription" :key="index" :class="column.columnClass" class="resizeable" 
-          v-bind:style="{'min-width': column.columnWidth + 'px'}" > {{column.viewColumnName}}</th>
+          v-bind:style="{'min-width':column.ColumnWidth + 'px'}" > {{column.viewColumnName}}</th>
           
           <th
             class="option-column-td sticky-right-30 justify-space-center alignt-center text-center border-right-solid"
@@ -149,6 +149,7 @@
           <td class="hidden-td"></td>
         </tr>
       </tbody>
+      <slot name="footer"></slot>
     </table>
     <ul
       class="option-item-container"
@@ -217,7 +218,13 @@ export default {
       type: String,
       default: "",
     },
+    //Xử lý lấy dữ liệu
     loadHandle: {
+      type: Function,
+      default: () => {},
+    },
+    //Xử lý lấy dữ liệu cột
+    loadColumnHandle: {
       type: Function,
       default: () => {},
     },
@@ -371,9 +378,29 @@ export default {
         })
       })
     },
+    /**
+    * Mô tả:  Chuyển dữ liệu sang dạng number
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 26/05/2022
+    */
+    formatNumber(value){
+        
+        try {
+          if (!value) return 0;
+          let result = Intl.NumberFormat("vi-VN").format(value);
+          return result;
+            
+        } catch (error) {
+            console.log(error);
+            return 0
+        }
+      },
     convertData(value,type){
       if(type === 'date'){
         if(!!value) return this.formatDate(value)
+      }
+      if(type === 'number'){
+        if(!!value) return this.formatNumber(parseFloat(value).toFixed(1))
       }
       else return value
     },
@@ -477,18 +504,22 @@ export default {
           if (response.status === 200) {
             this.isLoading = false;
             this.dataTable = response.data.List != null ? response.data.List:[];
-            console.log(this.dataTable)
+            
             this.handleResizeTable()
+            //Call back hàm xử lý tải dữ liệu
             this.loadHandle(
-              response.data.List,
+              this.dataTable,
               currentPage,
               response.data.TotalPage,
               response.data.Count
             );
+            if(!!this.columnsDescription.length){
+              this.loadColumnHandle(this.dataTable,this.columnsDescription)
+            }
           }
         })
         .catch((e) => {
-          console.log("e");
+          console.log(e);
 
           this.isLoading = false;
           this.loadHandle([]);
@@ -529,10 +560,10 @@ export default {
       }
     },
 
-    //Xử lý xóa nhân viên
+    //Xử lý xóa bản ghi
     handleDelelte() {
       this.showPopupInfo(
-        `${this.popupMsg.confirmDeleteEmpMsg(this.entity[this.entityCode])}`,
+        `${this.popupMsg.confirmDeleteMsg(this.entity[this.entityCode],this.tableName)}`,
         this.typePopupName.warningConfirm,'delete'
       );
     },

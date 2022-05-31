@@ -62,6 +62,11 @@ namespace MISA.WEB02.Core.Interfaces.Base
         /// <returns></returns>
         public Dictionary<string, string> ValidateEmpty(T entity);
 
+        /// <summary>
+        /// Xuất dữ liệu
+        /// </summary>
+        /// <param name="fileName">tên file</param>
+        /// <returns>Dữ liệu dạng byte</returns>
         public byte[] ExportService(string fileName);
     }
 }

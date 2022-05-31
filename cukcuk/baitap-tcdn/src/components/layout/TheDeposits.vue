@@ -11,7 +11,7 @@
                           <router-link to="/CA/CAProcess" active-class="header-tab-active">Quy trình</router-link>
                       </div>
                       <div class="header-tab-item" ref="ReceiptPaymentList">
-                          <router-link to="/CA/ReceiptPaymentList" active-class="header-tab-active">Thu,Chi tiền</router-link>
+                          <router-link to="/CA/ReceiptPaymentList" active-class="header-tab-active">Thu, chi tiền</router-link>
                       </div>
                   </div>
                   <div class="header-tab-right"></div>
@@ -86,6 +86,10 @@ export default {
 </script>
 
 <style scoped>
+.title-distance{
+  background-color: #ECEEF1;
+  z-index: 10;
+}
 .router-content {
   padding-top: 48px;
   padding-left: 20px;

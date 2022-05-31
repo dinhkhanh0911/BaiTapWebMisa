@@ -30,10 +30,10 @@ namespace MISA.WEB02.Api.Controllers
             try
             {
 
-                var result = _vendorService.FilterService(filterText, vendorType,isOwed,isUsed,currentPage,pageSize);
-                var jObj = JObject.Parse(result.ToString());
-                jObj.Capitalize();
-                return Ok(JObject.Parse(jObj.ToString()));
+                var result = _vendorService.FilterService(filterText, vendorType,isOwed, isUsed,currentPage,pageSize);
+                //var jObj = JObject.Parse(result.ToString());
+                //jObj.Capitalize();
+                return Ok(result);
             }
             catch (MISAExceptions ex)
             {
@@ -60,12 +60,13 @@ namespace MISA.WEB02.Api.Controllers
 
         [HttpGet]
         [Route("export")]
-        public IActionResult Export()
+        public IActionResult Export([FromQuery] string? filterText = "", [FromQuery] int? vendorType = null, [FromQuery] Guid? vendorGroupId = null, [FromQuery] bool? isOwed = null,
+            [FromQuery] bool? isUsed = null, [FromQuery] int currentPage = 1, [FromQuery] int pageSize = 20)
         {
             try
             {
 
-                var file = _vendorService.ExportService("Danh sách nhà cung cấp");
+                var file = _vendorService.ExportService(filterText, vendorType, vendorGroupId, isOwed, isUsed, currentPage, pageSize);
 
 
                 return File(file, "xlsx/xls", "Danh_sach_nha_cung_cap.xlsx");

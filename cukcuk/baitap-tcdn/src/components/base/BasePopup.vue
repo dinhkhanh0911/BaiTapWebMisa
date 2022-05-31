@@ -151,7 +151,6 @@ export default {
      * Created date: 18/04/2022
      */
     handleClickAgreeBtn() {
-      console.log("a")
       this.$emit("confirm", true, this.keyCombobox);
     },
 
@@ -299,6 +298,16 @@ export default {
 }
 .btn-popup {
   margin-left: 10px;
+}
+.infor-notify .popup-footer-left{
+    display: none;
+    
+}
+.infor-notify .popup-footer{
+    justify-content: right;
+}
+.infor-notify .popup-footer .btn-popup:first-child{
+  display: none;
 }
 </style>
 

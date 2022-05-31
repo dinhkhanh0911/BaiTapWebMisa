@@ -16,7 +16,7 @@
                     :nameRadio="'popupBody'"
                     :labelRadio="'Tổ chức'"
                     v-model="vendor.VendorType"
-                    :valueRadio="0"
+                    :valueRadio="2"
                   />
                   <BaseRadioButton
                     :nameRadio="'popupBody'"
@@ -57,7 +57,7 @@
           <div class="popup-body">
             <div class="grid">
               <!-- Tổ chức -->
-              <div class="primary-input" v-if="vendor.VendorType == 0">
+              <div class="primary-input" v-if="vendor.VendorType == 2">
                 <div class="row">
                   <div class="col c-2-5">
                     <div class="form-group">
@@ -231,7 +231,7 @@
                       />
                     </div>
                   </div>
-                  <div class="col c-3-5 padding-left-8">
+                  <div class="col c-3-5 padding-right-8">
                     <div class="form-group">
                       <label for="" style="opacity:0">a </label>
                       <BaseInput v-model="vendor.VendorName" :componentDes="'Tên nhà cung cấp'" ref="VendorName-2" :rules="['required']"/>
@@ -293,7 +293,7 @@
 
                 <!-- Tab-1 Tổ chức -->
                 <div class="sub-input-container" 
-                  v-if="tabActive == 'tab-1' && vendor.VendorType == 0 && vendor.IsCustomer == false">
+                  v-if="tabActive == 'tab-1' && vendor.VendorType == 2 && vendor.IsCustomer == false">
                   <div class="row">
                     <div class="col c-2-5">
                       <div class="form-group">
@@ -324,7 +324,7 @@
                     </div>
                   </div>
                   <div class="row">
-                    <div class="col c-6">
+                    <div class="col c-6 padding-right-8">
                       <div class="form-group">
                         
                         <BaseInput v-model="vendor.ContactEmail"
@@ -346,7 +346,7 @@
 
                 <!-- Tab-1 Tổ chức khách hàng -->
                 <div class="sub-input-container" 
-                  v-if="tabActive == 'tab-1' && vendor.VendorType == 0 && vendor.IsCustomer == true">
+                  v-if="tabActive == 'tab-1' && vendor.VendorType == 2 && vendor.IsCustomer == true">
                   <div class="row">
                     <div class="col c-2-5">
                       <div class="form-group">
@@ -418,13 +418,13 @@
                 <div class="sub-input-container" 
                   v-else-if="tabActive == 'tab-1' && vendor.VendorType == 1">
                   <div class="row">
-                    <div class="col c-6">
+                    <div class="col c-6 padding-right-8">
                       <div class="form-group">
                         <label for="">Thông tin liên hệ</label>
                         <BaseInput v-model="vendor.ContactEmail" :placeholder="'Email'" ref="ContactEmail-3" :componentDes="'Email'" :rules="['email']"/>
                       </div>
                     </div>
-                    <div class="col c-3">
+                    <div class="col c-3 padding-left-8">
                       <div class="form-group">
                         <label for="">Thông tin CMND/Thẻ căn cước</label>
                         <BaseInput v-model="vendor.IdentityNumber" :placeholder="'Số CMND/Thẻ căn cước'"/>
@@ -432,7 +432,7 @@
                     </div>
                   </div>
                   <div class="row">
-                    <div class="col c-3">
+                    <div class="col c-3 ">
                       <div class="form-group">
                         
                         <BaseInput v-model="vendor.PhoneNumber" 
@@ -442,7 +442,7 @@
                     <div class="col c-3">
                       
                     </div>
-                    <div class="col c-3">
+                    <div class="col c-3 padding-left-8">
                       <DatePicker
                         v-model:value="formatIdentityDate"
                         :format="'DD/MM/YYYY'"
@@ -466,13 +466,13 @@
                     <div class="col c-3">
                       
                     </div>
-                    <div class="col c-6">
+                    <div class="col c-6 padding-left-8">
                       <BaseInput v-model="vendor.IdentityPlace" 
                         :placeholder="'Nơi cấp'"/>
                     </div>
                   </div>
                   <div class="row">
-                    <div class="col c-6">
+                    <div class="col c-6 padding-right-8">
                       <div class="form-group">
                         <label for="">Đại diện theo PL</label>
                         <BaseInput v-model="vendor.ContactLegalRep" />
@@ -501,13 +501,13 @@
                     <div class="col c-3">
                       <div class="form-group">
                         <label for="">Số ngày được nợ</label>
-                        <BaseInput v-model="vendor.MaxDebitDate" />
+                        <BaseInput v-model="vendor.MaxDebitDate" :searchClass="'text-right'" :type="'number'"/>
                       </div>
                     </div>
                     <div class="col c-3">
                       <div class="form-group">
                         <label for="">Số nợ phải trả</label>
-                        <BaseInput v-model="vendor.MaxDebitAmount" />
+                        <BaseInput v-model="vendor.MaxDebitAmount" :searchClass="'text-right'" :type="'currency'"/>
                       </div>
                     </div>
                   </div>
@@ -831,15 +831,19 @@ export default {
   created() {
     this.vendor = this.modelPopup
     console.log(this.vendor)
+
+    this.provincies = !this.vendor.CountryId ? '' : `${Api.provincies}/ByCountry/${this.vendor.CountryId}`
+    this.districts = !this.vendor.ProvinceId ? '' : `${Api.districts}/ByProvince/${this.vendor.ProvinceId}`
+    this.wards = !this.vendor.DistrictId ? '' : `${Api.wards}/ByDistrict/${this.vendor.DistrictId}`
     if(this.vendor.VendorId == undefined && this.vendor.VendorCode == undefined){
       this.setDefaultObject()
     }
     else if(this.vendor.Duplicate != undefined){
       this.getNewCode()
-      this.getValueAddress()
+      // this.getValueAddress()
     }
     else{
-      this.getValueAddress()
+      // this.getValueAddress()
     }
   },
   methods: {
@@ -927,7 +931,7 @@ export default {
       this.vendor = {}
       this.getNewCode();
       if(this.vendor.VendorType == undefined){
-        this.vendor.VendorType = 0
+        this.vendor.VendorType = 2
       }
       if(this.vendor.IsCustomer == undefined){
         this.vendor.IsCustomer = false

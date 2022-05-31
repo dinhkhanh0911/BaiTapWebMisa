@@ -112,6 +112,7 @@
               :currentPage="currentPage"
               :pageSize="pageSize"
               :loadHandle="loadHandle"
+              :loadColumnHandle="loadColumnHandle"
               @showToast="showToast"
               @loading="isNoData = false"
               @check="handleCheckDataTable"
@@ -124,7 +125,34 @@
               :apiDelelte="paymentsApi"
               :showBtn="'true'"
               :className="'payment'"
-            />
+            >
+              <template #footer>
+                <tfoot v-if="isShowFooter" class="m-tfoot">
+                  <tr class="">
+                      <td class="padding-td"></td>
+                      <td
+                        class="checkbox-column"
+                      >
+                      </td>
+                      <td v-for="(column, index) in columns" :key="index" :class="column.columnClass" class="resizeable tr-bind"
+                      v-bind:style="{'min-width':column.ColumnWidth + 'px'}" >
+                        <span v-if="column.columnField == 'TotalMoney' && column.isShow == 'True'">{{formatNumber(totalMoneyTable)}}</span>
+                        <span v-else-if="index == 0 && column.isShow == 'True'">{{ "Tổng tiền" }}</span>
+                        <span v-else></span>
+                      
+                      </td>
+                      
+                      <td
+                        class="option-column-td sticky-right-30 justify-space-center alignt-center text-center border-right-solid"
+                      >
+                        
+                      </td>
+                      <td class="padding-td padding-right-td"></td>
+                      <td class="hidden-td"></td>
+                  </tr>
+                </tfoot>
+              </template>
+              </BaseTable>
             <div class="router-pagination">
               <div
                 class="pagination-no-data d-flex justify-space-center alignt-center"
@@ -184,13 +212,6 @@
       v-if="isShowTooltip"
       :valueTooltip="valueTooltip"
     />
-    <!-- <ThePaymentPopup
-      v-if="isShowPopupPayment"
-      @showPopup="togglePopupPayment"
-      :modelPopup="Payment"
-      @showToast="showToast"
-      @addSuccess="reloadData"
-    /> -->
     <div id="toast">
       <BaseToast
         v-for="(toast, index) in toasts"
@@ -217,6 +238,15 @@
       @showPopup="togglePopupPayment"
       @showToast="showToast"
       @addSuccess="reloadData()"
+    />
+    <BaseFormResultDeleteMulti 
+      v-if="isShowFormResultDeleteMulti" 
+      :listEntity="listEntity"
+      :result="resultDeleteMulti"
+      :apiColumn="apiColumn"
+      :tableName="'PaymentResult'"
+      :description="'phiếu chi'"
+      @close="handleCloseFormResult"
     />
     <div class="filter-option-container" v-if="isShowFilter" v-bind:style="{ top: filterBtnTop + 'px', left: filterBtnLeft + 'px' }">
       <div class="filter-option grid">
@@ -343,6 +373,7 @@ import BasePopup from "@/components/base/BasePopup.vue";
 import BaseCombobox from "@/components/base/BaseCombobox.vue";
 import BaseSettingViewForm from '@/components/base/BaseSettingViewForm.vue'
 import ThePaymentDetail from "@/components/layout/ThePaymentDetail.vue";
+import BaseFormResultDeleteMulti from '@/components/base/BaseFormResultDeleteMulti.vue'
 import Api from "@/assets/js/api";
 import axios from "axios";
 import DB from '@/assets/js/hashDatabase'
@@ -361,7 +392,8 @@ export default {
     BaseCombobox,
     BaseSettingViewForm,
     ThePaymentDetail,
-    DatePicker
+    DatePicker,
+    BaseFormResultDeleteMulti
 },
   data() {
     return {
@@ -369,11 +401,7 @@ export default {
       PaymentIds: [],
       isDisableMultipleDeleteBtn: true,
       isShowOptionItem: false,
-      //tooltip
-      topTooltip: 0,
-      leftTooltip: 0,
-      isShowTooltip: false,
-      valueTooltip: "",
+
       isShowPopupPayment: false,
       payment: {},
 
@@ -409,13 +437,26 @@ export default {
       filterBtnTop:0,
       isShowFilter:false,
       filterObject:{},
+      //Dữ liệu hash data filter
       filterTypePayments:DB.filterTypePayments,
       filterRecordPayments:DB.filterRecordPayments,
       filterOptionPayments:DB.filterOptionPayments,
+
+      //table
+      //danh sách cột
+      columns:[],
+      totalMoneyTable:0,
+      isShowFooter:false,
+
+      //Xóa nhiều
+      isShowFormResultDeleteMulti:false,
+      listEntity:[],
+      resultDeleteMulti:{}
     };
 
   },
   computed:{
+
     /**
      * Mô tả:  Chuyển định dạng bắt đầu filter
      * Created by: Đinh Văn Khánh - MF1112
@@ -478,14 +519,54 @@ export default {
     window.removeEventListener("keydown", this.handleKeyEventDown);
   },
   methods: {
-    handleChangeOptionFilter(id,name){
+
+    /**
+      * Mô tả:  Chuyển dữ liệu sang dạng number
+      * Created by: Đinh Văn Khánh - MF1112
+      * Created date: 26/05/2022
+      */
+      formatNumber(value){
+          
+          try {
+          if (!value) return 0;
+          let result = Intl.NumberFormat("vi-VN").format(value);
+          return result;
+              
+          } catch (error) {
+              console.log(error);
+              return 0
+          }
+      },
+    /**
+    * Mô tả: Đóng form kết quả xóa nhiều
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 28/05/2022
+    */
+    handleCloseFormResult(){
+      this.isShowFormResultDeleteMulti = false,
+      this.listEntity = []
+      this.resultDeleteMulti = {}
+    },
+    loadColumnHandle(dataTable,columns){
+      var totalMoney = dataTable.reduce((prev,current)=>{
+        if(!!current) return prev + current.TotalMoney
+        else return prev
+      },0)
+
+      this.totalMoneyTable = parseFloat(totalMoney).toFixed(1)
+      this.columns = columns
+      if(!!dataTable.length && !!columns.length) this.isShowFooter = true
+      else this.isShowFooter = false
+    },
+    handleChangeOptionFilter(value){
+      console.log(value)
       var startDate = new Date()
       var endDate = new Date()
-      switch(id){
+      switch(value.Id){
         //Năm nay
         case 5:
           startDate.setDate(1)
-          startDate.setMonth(1)
+          startDate.setMonth(0)
           endDate.setDate(1)
           endDate.setMonth(12)
           break
@@ -502,8 +583,9 @@ export default {
           endDate.setMonth(endDate.getMonth()+1)
           break
       }
-      this.filterObject.StartDate = startDate
-      this.filterObject.EndDate = endDate
+      console.log(startDate)
+      this.filterObject.StartDate = startDate.toDateString()
+      this.filterObject.EndDate = endDate.toDateString()
     },
     /**
     * Mô tả: Chỉnh mặc định các trường lọc
@@ -511,16 +593,18 @@ export default {
     * Created date: 20/05/2022
     */
     setDefaultFilter(){
+      //Set ngày bắt đầu 01/01/1970
       var startDate = new Date()
       startDate.setDate(1)
-      startDate.setMonth(1)
+      startDate.setMonth(0)
+      startDate.setFullYear(1970)
       var endDate = new Date()
-      endDate.setDate(1)
-      endDate.setMonth(12)
+      
+      //Set object filter
       this.filterObject = {
         FilterTypePaymentId:7,
         FilterRecordPaymentId:2,
-        FilterOptionPaymentId:5,
+        FilterOptionPaymentId:4,
         StartDate:startDate,
         EndDate:endDate
       }
@@ -581,6 +665,17 @@ export default {
       //Đóng form lọc
       this.isShowFilter = false
 
+      var queryString = this.getQueryString()
+      // this.currentPage = 1
+      this.$refs.tableVendor.loadAllData(currentPage,queryString);
+      
+    },
+    /**
+    * Mô tả: Lấy query string filter
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 31/05/2022
+    */
+    getQueryString(){
       var queryString =""
       if(this.filterObject.FilterTypePaymentId != 8){
         queryString += `&paymentType=${this.filterObject.FilterTypePaymentId}`
@@ -596,25 +691,9 @@ export default {
       var endDate = new Date(this.filterObject.EndDate)
       queryString += `&startDate=${startDate.toDateString()}`
       queryString += `&endDate=${endDate.toDateString()}`
-      console.log(queryString)
-      // this.currentPage = 1
-      this.$refs.tableVendor.loadAllData(currentPage,queryString);
-      
-    },
 
-    /**
-        * Mô tả:  Xử lý khi hover vào element
-        @param(event,Nội dung tooltip)
-        * Created by: Đinh Văn Khánh - MF1112
-        * Created date: 18/04/2022
-        */
-    hover(e, value) {
-      this.topTooltip = e.clientY + 10;
-      this.leftTooltip = e.clientX + 10;
-      this.isShowTooltip = true;
-      this.valueTooltip = value;
+      return queryString
     },
-
     /**
         * Mô tả: set trang hiện tại
         @param (trang dữ liệu)
@@ -644,7 +723,11 @@ export default {
 
     //Xử lý khi bấm nút xuất dữ liệu
     handleExport() {
-      var apiConnectionString = `${Api.payments}/export`;
+      //Lấy điều kiện lọc dữ liệu
+      var queryString = this.getQueryString()
+      var apiConnectionString = queryString !=="" ?`${Api.payments}/export?currentPage=${this.currentPage}&pageSize=${this.pageSize}&${queryString}`:
+      `${Api.payments}/export?currentPage=${this.currentPage}&pageSize=${this.pageSize}`
+      console.log(queryString)
       axios({
         url: apiConnectionString,
         method: "GET",
@@ -672,17 +755,25 @@ export default {
     },
 
     /**
-     * Xử lý sự kiện cuộn chuột
-     */
+    * Mô tả:  Mô tả Xử lý scroll document
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 31/04/2022
+    */
     handleScroll(e) {
-      this.topTitle = e.path[0].scrollTop * -1;
+      
+      this.topTitle = (e.path[0].scrollTop) * -1;
     },
 
-    //Xử lý chọn nhân viên
+    /**
+    * Mô tả: Xử lý check column table
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 31/04/2022
+    */
     handleCheckDataTable(checkboxs) {
       
       this.PaymentIds = checkboxs;
-      if (this.PaymentIds.length > 0) {
+      //Nếu danh sách check > 1 => mở button thực hiện hàng loạt
+      if (this.PaymentIds.length > 1) {
         this.isDisableMultipleDeleteBtn = false;
       } else this.isDisableMultipleDeleteBtn = true;
     },
@@ -699,25 +790,49 @@ export default {
         })
           .then((response) => {
             if (response.status == 200) {
-              this.reloadData();
-              this.showToast(this.toastMsg.deletePaymentSuccessMsg, "success");
+              //Lấy kêt quả quá
+              this.resultDeleteMulti = response.data
+              var deleteMsg = this.resultDeleteMulti.DeleteMsg
+              var errorIds = Object.keys(deleteMsg)
+
+              //Thêm nguyên nhân lỗi cho các entity lỗi
+              errorIds.forEach((x)=>{
+                var entity = this.vendors.find(v => v.VendorId == x)
+                entity.Reason = this.resultDeleteMulti.DeleteMsg[x]
+                this.listEntity.push(entity)
+              })
+              this.isShowFormResultDeleteMulti = true
+              // this.showToast(this.toastMsg.deleteVendorSuccessMsg, "success");
               this.PaymentIds = [];
+              this.reloadData();
               
             }
           })
           .catch((e) => {
-            
-            this.showToast(
-              e.response.data.data[Object.keys(e.response.data.data)[0]],
-              "error"
-            );
+            try{
+              this.showToast(
+                e.response.data.data[Object.keys(e.response.data.data)[0]],
+                "error"
+              );
+            }
+            catch(e){
+              this.showToast(
+                "Có lỗi xảy ra.Liên hệ Misa để được hỗ trợ",
+                "error"
+              );
+            }
           });
       }
     },
-    //Xử lý xóa nhiều nhân viên
+    
+    /**
+    * Mô tả: Xử lý sự kiện bâ,s thực hiện hàng loạt
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 25/04/2022
+    */
     handleMultipleDeleteClick() {
       this.isShowOptionItem = !this.isShowOptionItem;
-      if (this.PaymentIds.length > 0) {
+      if (this.PaymentIds.length > 1) {
         this.showPopupInfo(this.popupMsg.confirmMultipleDeleteMsg, this.typePopupName.warningConfirm);
       }
     },
@@ -775,13 +890,14 @@ export default {
   height: calc(100vh - 48px - 88px);
 }
 .title-distance {
-  padding: var(--title-list-padding-top) 39px var(--title-list-padding-top) 0;
+  padding: calc(var(--title-list-padding-top) + 10px) 39px var(--title-list-padding-top) 0;
   transition: top 0.25s;
   position: absolute;
   top: 0px;
   z-index: 7;
   width: 100%;
   align-items: center;
+ 
 }
 .header-di {
   display: flex;
@@ -1403,6 +1519,12 @@ table {
   
   z-index: 30;
 }
+.filter-option-container label{
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 5px;
+  display: block;
+}
 .filter-option{
   border: 1px solid #c7c7c7;
   background-color: #fff;
@@ -1416,5 +1538,63 @@ table {
 .btn-filter-form{
   display: flex;
   justify-content: right;
+}
+
+.m-tfoot tr{
+  height: 44px;
+  position: sticky;
+  bottom: 58px;
+  left: 0;
+  z-index: 5;
+}
+.m-tfoot .padding-td{
+  background-color: #fff !important;
+  position: sticky;
+  z-index: 4;
+  border: none;
+  left: 0;
+  bottom:58px;
+  min-width: unset;
+  
+}
+.m-tfoot .checkbox-column{
+  position: sticky;
+  bottom:58px;
+  left: 16px;
+  width: 41px;
+}
+
+.m-tfoot td{
+  background-color: #e5e8ec;
+}
+.m-tfoot .option-column-td{
+  border-right: none;
+  min-width: 120px;
+  
+}
+.m-tfoot .padding-right-td{
+  background-color: #fff !important;
+  position: sticky;
+  z-index: 10;
+  border: none;
+  right: 0;
+  min-width: unset;
+}
+.m-tfoot .hidden-td{
+  min-width: unset;
+    position: sticky;
+    position: -webkit-sticky;
+    right: -30px;
+    background-color: #eceef1 !important;
+    border: none;
+    padding: 0 15px;
+}
+.m-tfoot span{
+  font-weight: 700;
+  color: #111;
+}
+.m-tfoot tr td:nth-child(3){
+  position: sticky;
+  left: 57px;
 }
 </style>

@@ -139,7 +139,8 @@ export default {
     },
     methods: {
         showNoticeMaintain(){
-            this.showPopupInfo(this.typePopupName.warningNotify,this.popupMsg.maintainMsg,"confirm")
+            console.log(this.typePopupName.infoNotify)
+            this.showPopupInfo(this.typePopupName.inforNotify,this.popupMsg.maintainMsg,"confirm")
         },
         /**
         * Mô tả: Hiển thị popup thông báo
@@ -284,7 +285,7 @@ export default {
 }
 </style>
 <style>
-.warning-notify .popup-footer{
+.infor-notify .popup-footer{
   justify-content: center!important;
 }
 </style>

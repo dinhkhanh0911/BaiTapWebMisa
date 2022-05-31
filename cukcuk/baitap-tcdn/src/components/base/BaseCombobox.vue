@@ -166,7 +166,7 @@ export default {
   created() {
     if(!!this.propValue) this.propShow = this.propValue
     else this.propShow = this.name 
-    console.log(this.propShow)
+    
     if(!this.apiColumn) this.loadData()
     else this.loadColumnTable()
 
@@ -234,12 +234,9 @@ export default {
         var total = dropdownHeight + Math.floor(scrollTop);
         //nếu bằng scrollHeight thì là đang ở bottom
         if (total >= (scrollHeight-10)) {
-          console.log("đang ở bottom");
           this.currentPage++
           this.loadMoreData()
           total = 0;
-          //emit tới cha load tiếp thông tin, truyền vào dữ liệu filter nếu có để lazy load tiếp thông tin đó.
-          // this.$emit("eLoadNext", this.selectedText);
         }
       }
     },
@@ -273,11 +270,10 @@ export default {
           .get(`${this.Api}?currentPage=${this.currentPage}&pageSize=20`)
           .then((response) => {
             if (response.status === 200) {
-              console.log(response)
+              
               
               this.values = [...this.values,...response.data.List]
-              console.log(response.data.List)
-              console.log(this.values);
+              
               //Nếu modelValue khác rỗng và số giá trị mảng option combobox lớn hơn không thì gán
               // giá trị input bằng giá trị value tương ứng
               if (this.modelValue !== "" && this.values.length > 0) {
@@ -319,7 +315,7 @@ export default {
                   }
                   //Nếu dữ liệu mặc định tồn tại
                   else if(!!this.dataValue.trim()){
-                    console.log(this.dataValue)
+                    
                     this.valueCB = this.dataValue
                   }
                 }
@@ -346,7 +342,7 @@ export default {
             }
           }
           //Nếu dữ liệu mặc định tồn tại
-          // if(!this.valueCB.trim() && !!this.dataValue.trim()) this.valueCB = this.dataValue
+          if(!this.valueCB && !!this.dataValue) this.valueCB = this.dataValue
           
         }
       }
@@ -357,7 +353,7 @@ export default {
           .get(`${this.Api}?currentPage=1&pageSize=20`)
           .then((response) => {
             if (response.status === 200) {
-              console.log(response)
+              
               this.values = response.data.List;
               //Nếu modelValue khác rỗng và số giá trị mảng option combobox lớn hơn không thì gán
               // giá trị input bằng giá trị value tương ứng
@@ -371,7 +367,7 @@ export default {
                 }
                 //Nếu dữ liệu mặc định tồn tại
                 else if(!!this.dataValue.trim()){
-                  console.log(this.dataValue)
+                  
                   this.valueCB = this.dataValue
                 }
               }
@@ -392,7 +388,6 @@ export default {
       this.$emit("update:modelValue", value[this.id]);
       this.$emit("change",value)
       this.valueCB = value[this.propShow];
-      this.removeClass("error");
 
       //Thêm class vào hàng được chọn
       var trElement = this.$refs['tbody'].querySelectorAll(
@@ -404,31 +399,7 @@ export default {
       if (!trElement[index].classList.contains("active")) {
         trElement[index].classList.add("active");
       }
-    },
-
-    /**
-     * Mô tả: Thêm class lỗi vào combobox
-     * Created by: Đinh Văn Khánh - MF1112
-     * Created date: 14/04/2022
-     */
-    addError(className, errorMsg) {
-      this.error = true;
-      this.$refs["combobox"].classList.add(className);
-      if (errorMsg != undefined) {
-        this.titleError = `${this.componentDes} ${errorMsg}`;
-      }
-    },
-
-    /**
-     * Mô tả: Xáo class lỗi khỏi combobox
-     * Created by: Đinh Văn Khánh - MF1112
-     * Created date: 14/04/2022
-     */
-    removeClass(className) {
-      this.$refs["combobox"].classList.remove(className);
-      this.error = false;
-      this.titleError = "";
-    },
+    }
   },
 };
 </script>

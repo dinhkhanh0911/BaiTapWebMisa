@@ -142,6 +142,15 @@ namespace MISA.WEB02.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Phiếu chi không tồn tại trong hệ thống.
+        /// </summary>
+        public static string VN_PaymentNotFound {
+            get {
+                return ResourceManager.GetString("VN_PaymentNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Danh mục đã có phát sinh.
         /// </summary>
         public static string VN_VendorHasPayment {

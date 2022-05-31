@@ -87,7 +87,7 @@ namespace MISA.WEB02.Infrastructure.Repository
                     var data = BindingEntity.BindingData<string>(reader).FirstOrDefault();
                     var str = data.Split('-');
                     var newCode = Int32.Parse(str[1]) + 1;
-                    return $"{str[0]}-{newCode.ToString()}";
+                    return $"{str[0]}-{newCode.ToString().PadLeft(6,'0')}";
                 }
             } 
         }

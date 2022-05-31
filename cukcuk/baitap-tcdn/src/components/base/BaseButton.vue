@@ -122,6 +122,8 @@ button {
 }
 .btn-sq {
   border-radius: 4px;
+}
+.btn-default.btn-sq {
   border: 1px solid #bbb;
 }
 .btn-no-op .btn-option {

@@ -27,6 +27,11 @@ namespace MISA.WEB02.Core.Interfaces
         public Object Filter(string filterText, int? vendorType, bool? isOwed,
             bool? isUsed, int currentPage, int pageSize);
 
+        /// <summary>
+        /// Kiểm tra bản ghi đã phát sinh chứng từ
+        /// </summary>
+        /// <param name="vendorId">Mã nhà cung cấp</param>
+        /// <returns></returns>
         public bool checkExitsPayment(Guid vendorId);
     }
 }

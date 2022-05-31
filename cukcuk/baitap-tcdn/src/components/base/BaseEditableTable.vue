@@ -87,7 +87,8 @@ export default {
                 this.columnsDescription.forEach(x => {
                     obj[x.columnField]=''
                 })
-            this.model.push(obj)
+            if(this.model != null) this.model.push(obj)
+            else this.model = [obj]
         },
         loadColumnData(){
             if(this.api != ""){

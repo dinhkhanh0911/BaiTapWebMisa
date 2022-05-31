@@ -26,5 +26,18 @@ namespace MISA.WEB02.Core.Interfaces
         /// </returns>
         public Object FilterService(string filterText, int? vendorType, bool? isOwed,
             bool? isUsed, int currentPage, int pageSize);
+
+        /// <summary>
+        /// Xuất dữ liệu
+        /// </summary>
+        ///<param name="filterText">Điều kiện tìm kiếm</param>
+        /// <param name="vendorType">Loại nhà cung cấp</param>
+        /// <param name="isOwed">Tình trạng ghi nợ</param>
+        /// <param name="isUsed">Trạng thái sử dụng</param>
+        /// <param name="currentPage">Trang hiện tại</param>
+        /// <param name="pageSize">Số lượng bản ghi</param>
+        /// <returns>Dữ liệu dạng byte</returns>
+        public byte[] ExportService(string filterText, int? vendorType, Guid? vendorGroupId, bool? isOwed,
+            bool? isUsed, int currentPage, int pageSize);
     }
 }

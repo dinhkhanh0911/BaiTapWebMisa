@@ -33,11 +33,13 @@ namespace MISA.WEB02.Infrastructure.Repository
                 var isUsedValue = isUsed != null ? $"'{isUsed}'" : "null";
 
                 string sqlCommand = $"select public.func_filter_vendor('{filterText}',{vendorTypeValue},{isOwedValue},{isUsedValue},'{offset}','{limit}')";
+                
 
                 //var data = new List<T>();
 
                 using (NpgsqlCommand cmd = new NpgsqlCommand(sqlCommand, sqlConnection))
                 {
+                    
                     NpgsqlDataReader reader = cmd.ExecuteReader();
 
                     ////trả về kết quả

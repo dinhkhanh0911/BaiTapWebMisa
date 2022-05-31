@@ -10,6 +10,11 @@ namespace MISA.WEB02.Core.Interfaces
 {
     public interface IVendorGroupRepository : IBaseRepository<VendorGroup>
     {
+        /// <summary>
+        /// Tìm kiếm Vendor Group
+        /// </summary>
+        /// <param name="searchValue">Dữ liệu đầu vào dạng string</param>
+        /// <returns>Danh sách Vendor Group</returns>
         public IEnumerable<VendorGroup> search(string searchValue);
     }
 }

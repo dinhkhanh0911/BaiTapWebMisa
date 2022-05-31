@@ -2,12 +2,19 @@ const popupMsg = {
     empNotSelectedMsg: "Bạn chưa chọn nhân viên để xóa",
     empManyNotSelectedMsg: "Chưa chọn hàng loạt nhân viên để xóa",
     confirmChangeDataMsg: "Dữ liệu đã bị thay đổi. Bạn có muốn cất không?",
-    confirmMultipleDeleteMsg:"Bạn có muốn xóa những nhân viên đã chọn?",
+    confirmMultipleDeleteMsg:"Bạn có muốn xóa những bản ghi đã chọn?",
+
+
     maintainMsg:"Tính năng đang phát triển",
 
     //func
-    confirmDeleteEmpMsg(empCode){
-        return `Bạn có thực sự muốn xóa nhân viên <${empCode}> không?`
+    confirmDeleteMsg(Code,tableName){
+        switch(tableName){
+            case 'Vendor':
+                return `Bạn có thực sự muốn xóa nhà cung cấp <${Code}> không?`
+            case 'Payment':
+                return `Bạn có thực sự muốn xóa phiếu chi <${Code}> không?`
+        }
     },
     deleteSuccessEmpMany(empCount){
         return `Đã xóa thành công ${empCount} nhân viên`
@@ -21,7 +28,7 @@ const popupMsg = {
 const toastMsg = {
     updateSuccessMsg: "Sửa dữ liệu thành công",
     addSuccessMsg: "Thêm mới dữ liệu thành công",
-    deleteEmpSuccessMsg: "Đã xóa nhân viên thành công",
+    deleteEmpSuccessMsg: "Đã xóa dữ liệu thành công",
     deleteVendorSuccessMsg: "Đã xóa nhà cung cấp thành công",
     deletePaymentSuccessMsg: "Đã xóa phiếu thu,chi thành công",
     
@@ -49,7 +56,8 @@ const typePopupName = {
     warningConfirm:'warningConfirm',
     warningNotify:'warningNotify',
     success:'success',
-    infor:'infor'
+    infor:'infor',
+    inforNotify:'inforNotify'
 }
 const typePopup = {
     error:{
@@ -68,7 +76,7 @@ const typePopup = {
         className:'warning warning-notify',
         closeBtn:'',
         noBtn:'',
-        confirmBtn:'Đồng ý'
+        confirmBtn:'Đóng'
     },
     success:{
         className:'success',
@@ -81,6 +89,12 @@ const typePopup = {
         closeBtn:'Hủy',
         noBtn:'Không',
         confirmBtn:'Có'
+    },
+    inforNotify:{
+        className:'infor infor-notify',
+        closeBtn:'',
+        noBtn:'',
+        confirmBtn:'Đóng'
     },
 }
 export default {

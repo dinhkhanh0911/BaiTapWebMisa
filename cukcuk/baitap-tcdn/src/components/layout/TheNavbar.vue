@@ -1,6 +1,6 @@
 <template>
     <div class="navbar " :class="{'zoom-out': !toggle}">
-        <div class="navbar-item navbar-active">
+        <!-- <div class="navbar-item navbar-active">
             <a class="navbar-link " @mouseover="hover($event,'Tổng quan')" @mouseleave="isShowTooltip = false">
                 <div class="navbar-icon menuOverview">
                     <div class="item-icon mi-24">
@@ -12,8 +12,8 @@
                     </span>
                 </div>
             </a>
-        </div>
-        <div class="navbar-item">
+        </div> -->
+        <div class="navbar-item navbar-active">
             <router-link to="/CA" class="navbar-link" @mouseover="hover($event,'Tiền mặt')" @mouseleave="isShowTooltip = false">
                 <div class="navbar-icon menuCash">
                     <div class="item-icon mi-24">
@@ -27,7 +27,7 @@
                 </div>
             </router-link>
         </div>
-        <div class="navbar-item">
+        <!-- <div class="navbar-item">
             <a class="navbar-link" @mouseover="hover($event,'Tiền gửi')" @mouseleave="isShowTooltip = false">
                 <div class="navbar-icon menuBank">
                     <div class="item-icon mi-24">
@@ -208,7 +208,7 @@
                     </span>
                 </div>
             </a>
-        </div>
+        </div> -->
         <BaseTooltip :top="topTooltip" :left="leftTooltip" v-if="isShowTooltip" :valueTooltip="valueTooltip"/>
     </div>
 </template>

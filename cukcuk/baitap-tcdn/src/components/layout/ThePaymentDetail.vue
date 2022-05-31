@@ -114,7 +114,7 @@
                   </div>
                 </div>
               </div>
-              <div class="input-right col c-4">
+              <div class="input-right">
                 <div class="row">
                   <div class="right col c-12">
                     <div class="lable"><label for="">Ngày hạch toán</label></div>
@@ -206,158 +206,161 @@
           <div class="table">
             <!-- <MTableEditable :deleteFunc="true"/> -->
             <div class="table-container">
-              <table>
-                  <thead>
-                      <tr>
-                        <th class="text-center" >
-                            <div class="stt text-center">
-                              #
-                            </div>
-                        </th>
-                        <th>
-                          <div class="column" style="min-width:400px">Diễn giải</div>
-                        </th>
-                        <th>
-                          <div class="column">TK nợ</div>
-                        </th>
-                        <th>
-                          <div class="column">Tk có</div>
-                        </th>
-                        <th>
-                          <div class="column text-right">Số tiền</div>
-                        </th>
-                        <th>
-                          <div class="column">Đối tượng</div>
-                        </th>
-                        <th>
-                          <div class="column">Tên đối tượng</div>
-                        </th>
-                        <th class="option"></th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <tr v-for="(value,index) in paymentDetails" :key="index">
-                        <td class="text-center stt">
-                            {{index+1}}
-                        </td>
-                        <td>
-                            <span v-if="showMode">{{value.DescriptionPayment}}</span>
-                            <BaseInput v-else v-model="value.DescriptionPayment" @click="filterPaymentDetail(index)" :disabled="showMode"/>
-                        </td>
-                        <td>
-                            <span v-if="showMode">{{accounts.find((x)=> x.Id == value.DebitAccountId)['Code']}}</span>
-                            <BaseCombobox 
-                              v-else
-                              :valueOption="accounts"
-                              :id="'Id'"
-                              :name="'Value'"
-                              :code="'Code'"
-                              :propValue="'Code'"
-                              v-model="value.DebitAccountId"
-                              @click="filterPaymentDetail(index)"
-                              :disabled="showMode"
-                            />
-                        </td>
-                        <td>
-                            <span v-if="showMode">{{accounts.find((x)=> x.Id == value.CreditAccountId)['Code']}}</span>
-                            <BaseCombobox 
-                              v-else
-                              :valueOption="accounts"
-                              :id="'Id'"
-                              :name="'Value'"
-                              :code="'Code'"
-                              :propValue="'Code'"
-                              v-model="value.CreditAccountId"
-                              @click="filterPaymentDetail(index)"
-                              :disabled="showMode"
-                            />
-                        </td>
-                        <td class="column-number">
-                            <span v-if="showMode" class="text-right">{{value.CashAmount}}</span>
-                            <BaseInput 
-                              v-else
-                              :isNumber="'true'" 
-                              :type="'currency'" 
-                              v-model="value.CashAmount" 
-                              :searchClass="'text-right'" 
-                              @blur="getTotalMoney"
-                              @click="filterPaymentDetail(index)"
-                              :disabled="showMode"
-                            />
-                        </td>
-                        <td>
-                            <span v-if="showMode">{{value.VendorCode}}</span>
-                            <BaseCombobox
-                              v-else
-                              :Api="'http://localhost:5158/api/v1/Vendors/filterAdvanced'"
-                              :apiColumn="apiColumn"
-                              :tableName="'VendorCombobox'"
-                              :id="'VendorId'"
-                              :name="'VendorName'"
-                              :code="'VendorCode'"
-                              :componentDes="'Mã đối tượng'"
-                              :dataValue="value.VendorName"
-                              ref="VendorId"
-                              v-model="value.VendorId"
-                              @click="filterPaymentDetail(index)"
-                              @change="handleChangeVendorPaymentDetails($event,index)"
-                              :disabled="showMode"
-                              :isLazyloading="'true'"
+              <div id="table">
+                <table>
+                    <thead>
+                        <tr>
+                          <th class="text-center" >
+                              <div class="stt text-center">
+                                #
+                              </div>
+                          </th>
+                          <th>
+                            <div class="column" style="min-width:400px">Diễn giải</div>
+                          </th>
+                          <th>
+                            <div class="column">TK nợ</div>
+                          </th>
+                          <th>
+                            <div class="column">Tk có</div>
+                          </th>
+                          <th>
+                            <div class="column text-right">Số tiền</div>
+                          </th>
+                          <th>
+                            <div class="column">Đối tượng</div>
+                          </th>
+                          <th>
+                            <div class="column">Tên đối tượng</div>
+                          </th>
+                          <th class="option"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(value,index) in paymentDetails" :key="index">
+                          <td class="text-center stt">
+                              {{index+1}}
+                          </td>
+                          <td>
+                              <span v-if="showMode">{{value.DescriptionPayment}}</span>
+                              <BaseInput v-else v-model="value.DescriptionPayment" @click="filterPaymentDetail(index)" :disabled="showMode"/>
+                          </td>
+                          <td>
+                              <span v-if="showMode">{{accounts.find((x)=> x.Id == value.DebitAccountId)['Code']}}</span>
+                              <BaseCombobox 
+                                v-else
+                                :valueOption="accounts"
+                                :id="'Id'"
+                                :name="'Value'"
+                                :code="'Code'"
+                                :propValue="'Code'"
+                                v-model="value.DebitAccountId"
+                                @click="filterPaymentDetail(index)"
+                                :disabled="showMode"
+                              />
+                          </td>
+                          <td>
+                              <span v-if="showMode">{{accounts.find((x)=> x.Id == value.CreditAccountId)['Code']}}</span>
+                              <BaseCombobox 
+                                v-else
+                                :valueOption="accounts"
+                                :id="'Id'"
+                                :name="'Value'"
+                                :code="'Code'"
+                                :propValue="'Code'"
+                                v-model="value.CreditAccountId"
+                                @click="filterPaymentDetail(index)"
+                                :disabled="showMode"
+                              />
+                          </td>
+                          <td class="column-number">
+                              <span v-if="showMode" class="text-right">{{value.CashAmount}}</span>
+                              <BaseInput 
+                                v-else
+                                :isNumber="'true'" 
+                                :type="'currency'" 
+                                v-model="value.CashAmount" 
+                                :searchClass="'text-right'" 
+                                @blur="getTotalMoney"
+                                @click="filterPaymentDetail(index)"
+                                :disabled="showMode"
+                              />
+                          </td>
+                          <td>
+                              <span v-if="showMode">{{value.VendorCode}}</span>
+                              <BaseCombobox
+                                v-else
+                                :Api="'http://localhost:5158/api/v1/Vendors/filterAdvanced'"
+                                :apiColumn="apiColumn"
+                                :tableName="'VendorCombobox'"
+                                :id="'VendorId'"
+                                :name="'VendorName'"
+                                :code="'VendorCode'"
+                                :componentDes="'Mã đối tượng'"
+                                :dataValue="value.VendorName"
+                                :propValue="'VendorCode'"
+                                ref="VendorId"
+                                v-model="value.VendorId"
+                                @click="filterPaymentDetail(index)"
+                                @change="handleChangeVendorPaymentDetails($event,index)"
+                                :disabled="showMode"
+                                :isLazyloading="'true'"
+                                
+                              />
+                              <!-- <BaseCombobox
+                                
+                                :Api="vendorsApi"
+                                
+                                :id="'VendorId'"
+                                :name="'VendorName'"
+                                :code="'VendorCode'"
+                                :componentDes="'Mã đối tượng'"
+                                ref="VendorId"
+                                v-model="value.VendorId"
+                                @click="filterPaymentDetail(index)"
+                                @change="handleChangeVendorPaymentDetails($event,index)"
+                                :disabled="showMode"
+                              /> -->
+                          </td>
+                          <td>
+                              <span v-if="showMode">{{value.VendorName}}</span>
+                              <BaseInput v-else :disabled="'true'" @click="filterPaymentDetail(index)" v-model="value.VendorName"/>
+                          </td>
+                          <td class="option d-flex justify-space-center alignt-center">
+                              <div class="option-icon mi mi-16"></div>
+                          </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                      <tr >
+                          <th>
                               
-                            />
-                            <!-- <BaseCombobox
+                          </th>
+                          <th>
                               
-                              :Api="vendorsApi"
+                          </th>
+                          <th>
                               
-                              :id="'VendorId'"
-                              :name="'VendorName'"
-                              :code="'VendorCode'"
-                              :componentDes="'Mã đối tượng'"
-                              ref="VendorId"
-                              v-model="value.VendorId"
-                              @click="filterPaymentDetail(index)"
-                              @change="handleChangeVendorPaymentDetails($event,index)"
-                              :disabled="showMode"
-                            /> -->
-                        </td>
-                        <td>
-                            <span v-if="showMode">{{value.VendorName}}</span>
-                            <BaseInput v-else :disabled="'true'" @click="filterPaymentDetail(index)" v-model="value.VendorName"/>
-                        </td>
-                        <td class="option d-flex justify-space-center alignt-center">
-                            <div class="option-icon mi mi-16"></div>
-                        </td>
-                      </tr>
-                  </tbody>
-                  <tfoot>
-                    <tr >
-                        <th>
+                          </th>
+                          <th>
+                              
+                          </th>
+                          <th>
+                              {{totalMoney}}
+                          </th>
+                          <th>
+                              
+                          </th>
+                          <th>
+                              
+                          </th>
+                          <th class="option d-flex justify-space-center alignt-center">
                             
-                        </th>
-                        <th>
-                            
-                        </th>
-                        <th>
-                            
-                        </th>
-                        <th>
-                            
-                        </th>
-                        <th>
-                            {{totalMoney}}
-                        </th>
-                        <th>
-                            
-                        </th>
-                        <th>
-                            
-                        </th>
-                        <th class="option d-flex justify-space-center alignt-center">
-                          
-                        </th>
-                      </tr>
-                  </tfoot>
-              </table>
+                          </th>
+                        </tr>
+                    </tfoot>
+                </table>
+              </div>
               
               <div class="file-attach">
                 <div class="button-area">
@@ -365,7 +368,7 @@
                     <button @click="addRowTableAccount()" :disabled="showMode">Thêm dòng</button>
                   </div>
                   <div class="delete-all">
-                    <button :disabled="showMode">Xóa hết dòng</button>
+                    <button :disabled="showMode" @click="deleteRowTableAccount()">Xóa hết dòng</button>
                   </div>
                 </div>
                 <div class="attach">
@@ -387,8 +390,8 @@
       </div>
       <!-- footer -->
       <div class="popup-footer">
-        <div class="m-left">
-          <div class="cancel-btn">
+        <div class="m-left" >
+          <div class="cancel-btn" v-if="!showMode">
             <BaseButton
               :classBtn="'btn-default btn-sq btn-no-op'"
               :content="'Hủy'"
@@ -397,8 +400,8 @@
             />
           </div>
         </div>
-        <div class="m-right">
-          <div class="save-btn">
+        <div class="m-right" >
+          <div class="save-btn" v-if="!showMode">
             <BaseButton
               :classBtn="'btn-default btn-sq btn-no-op'"
               :content="'Cất'"
@@ -407,12 +410,20 @@
             />
                 
           </div>
-          <div class="save-and-print-btn">
+          <div class="save-and-print-btn" v-if="!showMode">
             <BaseButton
               :classBtn="'btn-default btn-sq btn-no-op btn-primary'"
-              :content="'Cất và thêm'"
+              :content="'Cất và in'"
               @click="handleSaveAndContinue()"
               :title="'Ctrl+Shift+S'"
+            />
+          </div>
+          <div class="save-and-print-btn" v-if="showMode">
+            <BaseButton
+              :classBtn="'btn-default btn-sq btn-no-op btn-primary'"
+              :content="'Đóng'"
+              @click="closePopup()"
+              :title="'Esc'"
             />
           </div>
         </div>
@@ -513,9 +524,26 @@ export default {
         }
       },
       set(date) {
-        this.payment.AccountingDate = new Date(date);
-        this.payment.AccountingDate = this.payment.AccountingDate.toDateString();
-        
+        // this.payment.AccountingDate = new Date(date);
+        // this.payment.AccountingDate = this.payment.AccountingDate.toDateString();
+       
+        try {
+          
+          if (
+            this.payment.AccountingDate === this.payment.PaymentDate
+          ) 
+          {
+            this.payment.PaymentDate = new Date(date).toDateString();
+          }
+          console.log(this.payment)
+          this.payment.AccountingDate = new Date(date);
+          this.payment.AccountingDate = this.payment.AccountingDate.toDateString();
+          
+        } catch (error) {
+          console.log(error)
+          return new Date().toDateString();
+        }
+      
       },
     },
     formatPaymentDate: {
@@ -554,7 +582,7 @@ export default {
   },
   created(){
     this.payment = this.model
-    console.log(this.payment)
+    
     if(this.payment.IsShow != undefined){
       this.showMode = true
       this.totalMoney = this.formatNumber(this.payment.TotalMoney)
@@ -564,9 +592,11 @@ export default {
       this.setDefault()
     }
     
+    
     this.loadPaymentDetail()
   },
   mounted() {
+    if(this.$refs.PaymentCode != undefined) this.$refs.PaymentCode.focus()
     window.addEventListener("keyup", this.handleKeyEvent);
     window.addEventListener("keydown", this.handleKeyEventDown);
   },
@@ -586,6 +616,14 @@ export default {
     }
   },
   methods: {
+    /**
+    * Mô tả: Xóa dòng
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 30/05/2022
+    */
+    deleteRowTableAccount(){
+      this.showPopupInfo(this.typePopupName.warningConfirm,'Bạn có thực sự muốn xóa tất cả các dòng đã nhập không?','confirmDeletePaymentDetail');
+    },
     /**
      * Mô tả: Xử lý sự kiện key up
      * Created by: Đinh Văn Khánh - MF1112
@@ -677,7 +715,7 @@ export default {
       
       else this.totalMoney = '0,0'
     },
-    //Xóa nhiều bản ghi
+    
     /**
      * Mô tả: Xử lý sự kiện confirm popup
      * Created by: Đinh Văn Khánh - MF1112
@@ -702,6 +740,14 @@ export default {
         } else {
           console.log(isConfirm);
         }
+      }
+      
+      
+      if(key === 'confirmDeletePaymentDetail' ){
+        this.isShowPopupInfo = false;
+        if(isConfirm) this.paymentDetails = [{
+          CreditAccountId: 1
+        }]
       }
     },
     /**
@@ -766,12 +812,24 @@ export default {
     * Created date: 23/05/2022
     */
     setDefault(){
+      //Loại phiếu = chi khác
       this.payment.PaymentType = 7
+
+      //Loại tiền vnd
       this.payment.CurrencyId = 2
+      //Tỷ lệ chuyển đổi = 1
       this.payment.ExchangeRate = 1
-      this.payment.AccountingDate = new Date()
-      this.payment.PaymentDate = new Date()
+      //Ngày hạch toán
+      this.payment.AccountingDate = new Date().toDateString()
+      //Ngày chứng từ
+      this.payment.PaymentDate = new Date().toDateString()
+      //Diễn giải
       this.payment.DescriptionPayment = 'Chi tiền cho '
+
+      this.paymentDetails = [{
+        CreditAccountId: 1
+      }]
+      //Lấy mã mới
       this.getNewCode()
     },
     /**
@@ -818,10 +876,6 @@ export default {
           // this.loadHandle([]);
         });
       }
-      else{
-        this.paymentDetails.push({
-        })
-      }
     },
     /**
     * Mô tả: Thêm dòng vào bảng tài khoản ngân hàng
@@ -829,13 +883,21 @@ export default {
     * Created date: 20/05/2022
     */
     addRowTableAccount(){
-      var obj = {}
-      this.paymentDetails.push(obj)
+      try{
+        var length = this.paymentDetails.length
+        var obj = !!length ? Object.assign({},this.paymentDetails[length-1]) : {}
+        this.paymentDetails.push(obj)
+        this.getTotalMoney()
+
       // console.log(obj)
+      }
+      catch(e){
+        this.paymentDetails = [{}]
+      }
     },
     //Xử lý sự kiện luu thông tin nhân viên và tiếp tục thêm
     handleSaveAndContinue() {
-      this.save(true);
+      
       if (this.validate()) {
         this.save(true);
       }
@@ -863,6 +925,12 @@ export default {
           if(errorMsg === '' && !!msg ) errorMsg = msg
         }
       }
+      // console.log(this.payment.AccountingDate < this.payment.PaymentDate)
+      if(this.payment.AccountingDate < this.payment.PaymentDate){
+        var msg = 'Ngày chứng từ không được lớn hơn ngày hạch toán.'
+        if(errorMsg === '' && !!msg ) errorMsg = msg
+      }
+
       //Chứng từ chi tiết rỗng
       var paymentDetails = this.filterPaymentDetail(0)
       if(paymentDetails != undefined && paymentDetails.length > 0) this.payment.paymentDetails = paymentDetails
@@ -870,6 +938,7 @@ export default {
         var msg = this.popupMsg.paymentDetailNotFound
         if(errorMsg === '' && !!msg ) errorMsg = msg
       }
+
       if(errorMsg !== ''){
         console.log(errorMsg)
         this.showPopupInfo(this.typePopupName.error,errorMsg,'error');
@@ -902,15 +971,6 @@ export default {
                 "success"
               );
               this.$emit("addSuccess", true);
-              // if (!isContinue) {
-              //   this.closePopup();
-              // } else {
-              //   this.payment = {};
-              //   this.employee.Gender = 1;
-              //   this.getNewCode();
-              // }
-              // this.employee = response.data
-              // console.log(this.employee)
             }
           })
           .catch((e) => {
@@ -1127,6 +1187,9 @@ export default {
 .input-left .row{
   margin-bottom: 12px;
 }
+.input-right{
+  max-width: 250px;
+}
 .m-popup .popup-content .form .form-input {
   display: flex;
 }
@@ -1183,7 +1246,7 @@ export default {
   position: sticky;
   left: 0px;
   background-color: #fff;
-  padding: 12px 24px 10px 24px;
+  padding: 12px 24px 10px 0px;
   bottom: 0px;
 }
 .m-popup .popup-content .file-attach .button-area {
@@ -1287,12 +1350,22 @@ export default {
 }
 /* Table */
 .table-container{
+  width: 100%;
   position: sticky;
+  padding:8px 24px 0px 24px;
+}
+.table{
+  width: 100%;
+}
+#table{
+  width: 100%;
+  
+  overflow-x: auto;
 }
 table {
   border-spacing: 0;
   width: 100%;
-  padding:8px 24px 0px 24px;
+  
 }
 table thead{
   position: sticky;

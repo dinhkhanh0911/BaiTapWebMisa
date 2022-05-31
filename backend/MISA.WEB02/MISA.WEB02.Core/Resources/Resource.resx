@@ -144,6 +144,9 @@
   <data name="VN_MisaExceptionMsg" xml:space="preserve">
     <value>Có lỗi xảy ra. Vui lòng liên hệ MISA để được hỗ trợ kịp thời</value>
   </data>
+  <data name="VN_PaymentNotFound" xml:space="preserve">
+    <value>Phiếu chi không tồn tại trong hệ thống</value>
+  </data>
   <data name="VN_VendorHasPayment" xml:space="preserve">
     <value>Danh mục đã có phát sinh</value>
   </data>

@@ -531,7 +531,7 @@ export default {
 
     //Xử lý khi bấm nút xuất dữ liệu
     handleExport() {
-      var apiConnectionString = `${Api.exportVendor}?currentPage=${this.currentPage}&pageSize=${this.pageSize}`;
+      var apiConnectionString = `${Api.pa}`;
       axios({
         url: apiConnectionString,
         method: "GET",

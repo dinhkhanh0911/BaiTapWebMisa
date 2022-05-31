@@ -34,7 +34,9 @@ namespace MISA.WEB02.Api.Controllers
                 var result = _paymentService.FilterService(filterText, paymentType, isRecord, startDate, endDate, currentPage, pageSize);
                 var jObj = JObject.Parse(result.ToString());
                 jObj.Capitalize();
-                return Ok(JObject.Parse(jObj.ToString()));
+                dynamic resultObject = JObject.Parse(jObj.ToString());
+                var Count = resultObject.Count.Value;
+                return Ok(resultObject);
             }
             catch (MISAExceptions ex)
             {
@@ -125,12 +127,14 @@ namespace MISA.WEB02.Api.Controllers
 
         [HttpGet]
         [Route("export")]
-        public IActionResult Export()
+        public IActionResult Export([FromQuery] string? filterText = "", [FromQuery] int? paymentType = null,
+            [FromQuery] bool? isRecord = null, [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null, [FromQuery] int currentPage = 1, [FromQuery] int pageSize = 20)
         {
             try
             {
 
-                var file = _paymentService.ExportService("Danh sách phiếu chi");
+                var file = _paymentService.ExportService(filterText, paymentType, isRecord, startDate, endDate, currentPage, pageSize);
 
 
                 return File(file, "xlsx/xls", "Danh_sach_phieu_chi.xlsx");

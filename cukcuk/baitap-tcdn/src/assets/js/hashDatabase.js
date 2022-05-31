@@ -41,8 +41,8 @@ const DB = {
     //Nhà cung cấp
     
   filterType:[
-    {Id:2,Value:"Tất cả"},
-    {Id:3,Value:"Tổ chức"},
+    {Id:3,Value:"Tất cả"},
+    {Id:2,Value:"Tổ chức"},
     {Id:1,Value:"Cá nhân"},
   ],
   filterDebt:[
@@ -60,12 +60,12 @@ const DB = {
    * Tài khoản nợ,có
    */
   accounts:[
-      {Id:6,Code: 1111111,Value:"Toán"},
-      {Id:1,Code: 2222222,Value:"Khánh"},
-      {Id:2,Code: 3333333,Value:"Lộc"},
-      {Id:3,Code: 4444444,Value:"Hải"},
-      {Id:4,Code: 5555555,Value:"Thái"},
-      {Id:5,Code: 6666666,Value:"Mạnh"},
+      {Id:1,Code: 11112,Value:"Khánh"},
+      {Id:2,Code: 111112,Value:"Lộc"},
+      {Id:3,Code: 111123,Value:"Hải"},
+      {Id:4,Code: 111122,Value:"Thái"},
+      {Id:5,Code: 111135,Value:"Mạnh"},
+      {Id:6,Code: 111132,Value:"Toán"},
   ],
 
   /**

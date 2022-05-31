@@ -124,9 +124,177 @@ namespace MISA.WEB02.Core.Services
             return _paymentRepository.InsertPaymentDetail(paymentDetail);
         }
 
-        
-        
-        
+
+        public override object MultiDelete(List<Guid> listId)
+        {
+            //validate dữ liệu
+            Dictionary<string, string> deleteMsg = new Dictionary<string, string>();
+            int success = 0;
+            int failed = 0;
+            int totalRecord = listId.Count();
+            //kiểm tra bản ghi đã tồn tại
+            foreach (var entityId in listId)
+            {
+                var vendorData = _paymentRepository.GetById(entityId);
+
+                if (vendorData == null)
+                {
+                    deleteMsg.Add($"{entityId}", $"{Resource.VN_PaymentNotFound}");
+                    failed++;
+                }
+                else
+                {
+                    success++;
+                    _paymentRepository.Delete(entityId);
+
+                }
+            }
+            return new { TotalRecord = totalRecord, Success = success, Failed = failed, DeleteMsg = deleteMsg };
+        }
+        private async Task<Object> GetColumnTable()
+        {
+            string reservationList;
+            using (var httpClient = new HttpClient())
+            {
+                var api = $"http://localhost:3003/table/Payment";
+                using (var response = await httpClient.GetAsync(api))
+                {
+                    string apiResponse = await response.Content.ReadAsStringAsync();
+                    reservationList = apiResponse;
+                }
+            }
+
+            var jObj = JObject.Parse(reservationList.ToString());
+            jObj.Capitalize();
+            return JObject.Parse(jObj.ToString());
+        }
+
+        public byte[] ExportService(string filterText, int? paymentType, bool? isRecord,
+           DateTime? startDate, DateTime? endDate, int currentPage, int pageSize)
+        {
+            dynamic table = GetColumnTable().Result;
+            dynamic columns = table.Columns;
+
+            MemoryStream stream = new MemoryStream();
+            using (ExcelPackage excelPackage = new ExcelPackage(stream))
+            {
+                // Tạo title cho file Excel
+                excelPackage.Workbook.Properties.Title = $"Danh sách nhà cung cấp";
+                //thêm 1 sheet để làm việc với tệp excel
+                excelPackage.Workbook.Worksheets.Add($"Danh sách nhà cung cấp");
+                ExcelWorksheet workSheet = excelPackage.Workbook.Worksheets[0];
+                //TIÊU đề của sheet
+                workSheet.Cells["A1:K1"].Merge = true;//nối cottj
+                workSheet.Cells["A1:K1"].Value = $"Danh sách nhà cung cấp)".ToUpper();//title của sheet
+                workSheet.Cells["A1:K1"].Style.Font.Size = 18;//font size
+                workSheet.Cells["A2:K2"].Merge = true;//nối cột
+
+
+                int columnsCount = columns.Count;
+                var result = _paymentRepository.Search(filterText, paymentType, isRecord, startDate, endDate, currentPage, pageSize);
+
+                //Chuyển dạng json về du liêu thường camelCase
+                var jObj = JObject.Parse(result.ToString());
+                jObj.Capitalize();
+                dynamic resultObject = JObject.Parse(jObj.ToString());
+
+                var payments = (List<Payment>)_paymentRepository.Get();
+                int paymentsCount = payments.Count;
+                if (columnsCount > 0 && paymentsCount > 0)
+                {
+                    int index = 3;
+                    int count = 1;
+                    for (int i = 0; i < columnsCount; i++)
+                    {
+                        var IsShow = columns[i].IsShow.Value;
+                        if (IsShow == "True")
+                        {
+                            var columnType = columns[i].ColumnType.Value;
+                            if (columnType == "date")
+                            {
+                                workSheet.Column(count).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            }
+                            else if (columnType == "number")
+                            {
+                                workSheet.Column(count).Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                            }
+                            else
+                            {
+                                workSheet.Column(count).Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                            }
+                            workSheet.Cells[index, count++].Value = columns[i].ColumnName.Value;
+                        }
+                    }
+                    index++;
+
+                    for (int i = 0; i < paymentsCount; i++)
+                    {
+                        count = 1;
+                        for (int j = 0; j < columnsCount; j++)
+                        {
+                            var IsShow = columns[j].IsShow.Value;
+                            if (IsShow == "True")
+                            {
+                                var columnField = columns[j].ColumnField.Value;
+                                var payment = payments[i].GetType().GetProperty(columnField);
+                                var columnType = columns[j].ColumnType.Value;
+                                if (payment != null)
+                                {
+                                    //var prop = payments[i].GetType().GetProperty("PaymentDate");
+                                    if (columnType == "date")
+                                    {
+                                        var columnValue = payment.GetValue(payments[i]);
+                                        workSheet.Cells[index, count++].Value = columnValue == null ? "" : ((DateTime)columnValue).ToString("dd/MM/yyyy");
+
+                                    }
+                                    else if (columnType == "number")
+                                    {
+                                        
+                                        var columnValue = payment.GetValue(payments[i]);
+                                        workSheet.Cells[index, count].Value = columnValue;
+                                        workSheet.Cells[index, count++].Style.Numberformat.Format = "#,##0.0";
+
+                                    }
+                                    else
+                                    {
+                                        var columnValue = payment.GetValue(payments[i]);
+                                        workSheet.Cells[index, count++].Value = columnValue;
+                                    }
+
+                                }
+                                else count++;
+                            }
+
+
+                        }
+                        index++;
+                    }
+                    //format file
+                    workSheet.Cells[1, 1, paymentsCount + 3, count].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    workSheet.Cells[1, 1, paymentsCount + 3, count].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    workSheet.Cells[1, 1, paymentsCount + 3, count].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    workSheet.Cells[1, 1, paymentsCount + 3, count].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    //fomat dữ liệu
+
+                    workSheet.Cells[3, 1, 3, count].Style.Font.Bold = true;//In đậm
+                    workSheet.Cells[3, 1, 3, count].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    workSheet.Cells[3, 1, 3, count].Style.Fill.BackgroundColor.SetColor(System.Drawing.ColorTranslator.FromHtml("#BBB"));//background-color
+                    workSheet.Row(3).Height = 20;//độ rộng của cột header
+                    workSheet.Cells[1, 1, paymentsCount + 3, count].Style.VerticalAlignment = ExcelVerticalAlignment.Center;//căn giữa chiều dọc tiêu dề
+                    workSheet.Row(1).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    workSheet.Cells.AutoFitColumns();
+                }
+
+
+
+
+                excelPackage.Save();
+                var file = excelPackage.GetAsByteArray();
+                excelPackage.Dispose();
+                return file;
+            }
+        }
+
         #endregion
     }
 }

@@ -71,7 +71,11 @@ export default {
     };
   },
   created(){
-    this.value = this.modelValue
+    if(!!this.modelValue){
+      if(this.type != 'currency' && this.type != 'number') this.value = this.modelValue
+      else if(this.type === 'currency') this.handleCurrency(this.modelValue.toString())
+      else this.handleNumber(this.modelValue.toString())
+    }
   },
   watch:{
     modelValue:function(){
@@ -79,6 +83,12 @@ export default {
     },
   },
   methods: {
+
+    /**
+    * Mô tả: Validate dữ liệu
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 31/04/2022
+    */
     validate(){
       for(var i=0;i<this.rules.length;++i){
         var rule = this.rules[i]
@@ -91,6 +101,11 @@ export default {
       }
       return false
     },
+    /**
+    * Mô tả:  Chuyển dữ liệu sang dạng number
+    * Created by: Đinh Văn Khánh - MF1112
+    * Created date: 26/05/2022
+    */
     formatNumber(value){
         
         try {
@@ -105,8 +120,6 @@ export default {
       },
     /**
      * Mô tả:  Xử lý dữ liệu khi nhập input
-     * @param: dữ liệu input
-     * @return: Gửi dữ liệu lên component cha
      * Created by: Đinh Văn Khánh - MF1112
      * Created date: 15/04/2022
      */

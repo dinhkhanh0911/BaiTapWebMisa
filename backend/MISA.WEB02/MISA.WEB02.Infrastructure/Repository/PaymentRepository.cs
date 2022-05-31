@@ -23,30 +23,68 @@ namespace MISA.WEB02.Infrastructure.Repository
             int limit = pageSize;
 
             //khởi tạo kết nối
-            var sqlConnection = new NpgsqlConnection(_sqlConnectionString);
-
-            sqlConnection.Open();
-            //lấy dữ liệu
-
-            var paymentTypeValue = paymentType != null ? $"'{ paymentType}'" : "null";
-            var isRecordValue = isRecord != null ? $"'{isRecord}'" : "null";
-            var startDateValue = startDate != null ? $"'{startDate}'" : "null";
-            var endDateValue = endDate != null ? $"'{endDate}'" : "null";
-
-            string sqlCommand = $"select public.func_filter_payment('{filterText}',{paymentTypeValue},{isRecordValue},{startDateValue},{endDateValue},'{offset}','{limit}')";
-
-            //var data = new List<T>();
-
-            using (NpgsqlCommand cmd = new NpgsqlCommand(sqlCommand, sqlConnection))
+            using (var sqlConnection = new NpgsqlConnection(_sqlConnectionString))
             {
-                NpgsqlDataReader reader = cmd.ExecuteReader();
+                sqlConnection.Open();
+                //lấy dữ liệu
 
-                ////trả về kết quả
-                var data = BindingEntity.BindingData<string>(reader);
+                var paymentTypeValue = paymentType != null ? $"'{ paymentType}'" : "null";
+                var isRecordValue = isRecord != null ? $"'{isRecord}'" : "null";
+                var startDateValue = startDate != null ? $"'{startDate}'" : "null";
+                var endDateValue = endDate != null ? $"'{endDate}'" : "null";
 
-                return data.FirstOrDefault();
+                string sqlCommand = $"select public.func_filter_payment('{filterText}',{paymentTypeValue},{isRecordValue},{startDateValue},{endDateValue},'{offset}','{limit}')";
+
+                //var data = new List<T>();
+
+                using (NpgsqlCommand cmd = new NpgsqlCommand(sqlCommand, sqlConnection))
+                {
+                    NpgsqlDataReader reader = cmd.ExecuteReader();
+
+                    ////trả về kết quả
+                    var data = BindingEntity.BindingData<string>(reader);
+
+                    return data.FirstOrDefault();
+                }
             }
+
                 
+                
+        }
+        public Object Search(string filterText, int? paymentType, bool? isRecord,
+            DateTime? startDate, DateTime? endDate, int currentPage, int pageSize)
+        {
+            int offset = (currentPage - 1) * pageSize;
+            int limit = pageSize;
+
+            //khởi tạo kết nối
+            using (var sqlConnection = new NpgsqlConnection(_sqlConnectionString))
+            {
+                sqlConnection.Open();
+                //lấy dữ liệu
+
+                var paymentTypeValue = paymentType != null ? $"'{ paymentType}'" : "null";
+                var isRecordValue = isRecord != null ? $"'{isRecord}'" : "null";
+                var startDateValue = startDate != null ? $"'{startDate}'" : "null";
+                var endDateValue = endDate != null ? $"'{endDate}'" : "null";
+
+                string sqlCommand = $"select public.func_search_limit_payment('{filterText}',{paymentTypeValue},{isRecordValue},{startDateValue},{endDateValue},'{offset}','{limit}')";
+
+                //var data = new List<T>();
+
+                using (NpgsqlCommand cmd = new NpgsqlCommand(sqlCommand, sqlConnection))
+                {
+                    NpgsqlDataReader reader = cmd.ExecuteReader();
+
+                    ////trả về kết quả
+                    var data = BindingEntity.BindingData<string>(reader);
+
+                    return data.FirstOrDefault();
+                }
+            }
+
+                
+
         }
 
         public IEnumerable<PaymentDetail> GetPaymentDetailByPaymentId(Guid paymentId)
@@ -93,6 +131,7 @@ namespace MISA.WEB02.Infrastructure.Repository
                         cmd.CommandType = CommandType.StoredProcedure;
                         for (var i = 0; i < 2; ++i)
                         {
+                            //Thêm payment
                             if (i == 0)
                             {
                                 //lấy danh sách property của entity
@@ -124,6 +163,7 @@ namespace MISA.WEB02.Infrastructure.Repository
 
                                 var retuntcnt = cmd.ExecuteScalar();
                             }
+                            //Thêm payment detail
                             if (i == 1)
                             {
                                 cmd.CommandText = $"Func_Create_payment_detail";
